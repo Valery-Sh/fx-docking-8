@@ -39,6 +39,7 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
@@ -49,6 +50,7 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Constraint.GridPaneConstraint;
 import static org.vns.javafx.dock.api.LayoutContext.getValue;
 import org.vns.javafx.dock.api.indicator.IndicatorPopup;
 import org.vns.javafx.dock.api.indicator.PositionIndicator;
@@ -93,6 +95,10 @@ public class LayoutContextFactory {
             retval = new ListBasedTargetContext(targetNode);
         } else if (targetNode instanceof AnchorPane) {
             retval = new ListBasedTargetContext(targetNode);
+        } else if (targetNode instanceof GridPane) {
+            //retval = null;
+            retval = getPaneContext((Pane) targetNode);
+            retval.getLookup().putUnique(ConstraintFactory.class, new GridPaneConstraintFactory());
         } else if (targetNode instanceof Pane) {
             retval = getPaneContext((Pane) targetNode);
         } else if (targetNode instanceof Accordion) {
@@ -824,4 +830,12 @@ public class LayoutContextFactory {
             }//while
         }
     }
-}
+    public static class GridPaneConstraintFactory extends ConstraintFactory {
+
+        @Override
+        public Constraint getConstraint(Node node) {
+            return new GridPaneConstraint(node);
+        }
+        
+    }
+}//LayoutContextFactory

@@ -251,9 +251,9 @@ public class DockRegistry {
             //Node topNode = TopNodeHelperOLD.getTopNode(w, x, y, n -> {
                 return (n instanceof Node);
             });
-            System.err.println("----------------------------");
-            System.err.println("DockRegistry topNodeHelper topNode = " + topNode);
-            System.err.println("----------------------------");
+//            System.err.println("----------------------------");
+//            System.err.println("DockRegistry topNodeHelper topNode = " + topNode);
+//            System.err.println("----------------------------");
             if (topNode != null) {
                 targetStages.add(w);
             }
@@ -284,15 +284,15 @@ public class DockRegistry {
         }
         List<Window> targetStages = new ArrayList<>();
         allWindows.forEach(w -> {
-             System.err.println("1) DockRegistry topNodeHelper");
+//             System.err.println("1) DockRegistry topNodeHelper");
             
             Node topNode = TopNodeHelper.getTop(w, x, y, n -> {
             //Node topNode = TopNodeHelperOLD.getTopNode(w, x, y, n -> {
                 return isDockLayout(n);
             });
-            System.err.println("----------------------------");
-            System.err.println("2) DockRegistry topNodeHelper topNode = " + topNode);
-            System.err.println("----------------------------");            
+//            System.err.println("----------------------------");
+//            System.err.println("2) DockRegistry topNodeHelper topNode = " + topNode);
+//            System.err.println("----------------------------");            
             if (topNode != null) {
                 targetStages.add(w);
             }
@@ -324,7 +324,7 @@ public class DockRegistry {
         }
         List<Window> targetStages = new ArrayList<>();
         allStages.forEach(s -> {
-             System.err.println("DockRegistry topNodeHelper 2");
+//             System.err.println("DockRegistry topNodeHelper 2");
             Node topNode = TopNodeHelper.getTop(s, x, y, n -> {
             //Node topNode = TopNodeHelperOLD.getTopNode(s, x, y, n -> {
                 return predicate.test(n);

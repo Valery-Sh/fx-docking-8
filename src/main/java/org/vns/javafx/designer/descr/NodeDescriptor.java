@@ -45,13 +45,17 @@ public class NodeDescriptor {
     private String styleClass;
     private String defaultProperty;
     private String annotationDefaultProperty;
-
+    private Object placeValue;
     /**
      * Contains a name of the property which value can be used as a title in a
      * TreeItem
      */
     private String titleProperty;
-
+    /**
+     * Contains a  value which can be used as a title in a
+     * TreeItem
+     */
+    private String title;
     private final ObservableList<NodeProperty> properties = FXCollections.observableArrayList();
     
     /**
@@ -73,6 +77,14 @@ public class NodeDescriptor {
      */
     public static NodeDescriptor get(Class<?> clazz) {
         return NodeDescriptorRegistry.getInstance().getDescriptor(clazz);
+    }
+
+    public Object getPlaceValue() {
+        return placeValue;
+    }
+
+    public void setPlaceValue(Object placeValue) {
+        this.placeValue = placeValue;
     }
 
     protected void propertiesChanged(ListChangeListener.Change<? extends NodeProperty> change) {
@@ -159,6 +171,15 @@ public class NodeDescriptor {
     public void setTitleProperty(String titleProperty) {
         this.titleProperty = titleProperty;
     }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+    
     /**
      * Returns the name of the property belonging to the class that this 
      * descriptor defines and which is considered to be default.

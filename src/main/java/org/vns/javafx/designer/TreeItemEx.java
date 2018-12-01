@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -36,7 +38,9 @@ public class TreeItemEx extends TreeItem<Object> {
     private final Map<String, Object> changeListeners2 = FXCollections.observableHashMap();
     private final Map<ObservableList, ListChangeListener> listChangeListeners = FXCollections.observableHashMap();
     private final Map<ObservableValue, ChangeListener> propChangeListeners = FXCollections.observableHashMap();
-
+    
+    private final ObjectProperty placeValue = new SimpleObjectProperty(); 
+    
     private ItemType itemType = ItemType.CONTENT;
 
     public static enum ItemType {
@@ -48,6 +52,17 @@ public class TreeItemEx extends TreeItem<Object> {
     }
 
     private void init() {
+    }
+
+    public ObjectProperty placeValue() {
+        return placeValue;
+    }
+    public Object getPlaceValue() {
+        return placeValue.get();
+    }
+
+    public void setPlaceValue(Object placeValue) {
+        this.placeValue.set(placeValue);
     }
 
     public Node getCellGraphic() {

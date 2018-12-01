@@ -7,6 +7,7 @@
 <?import javafx.scene.layout.*?>
 -->
 <?import org.vns.javafx.designer.descr.*?>
+<?import javafx.scene.layout.*?>
 
 <GraphDescriptor fx:id="gd"  maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="236.0" prefWidth="260.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
 
@@ -17,6 +18,15 @@
     <NodeDescriptor type="javafx.scene.layout.Pane">
         <NodeList name="children"/>
     </NodeDescriptor>
+    
+    <NodeDescriptor type="javafx.scene.layout.GridPane" defaultProperty="children">
+        <NodeList name="rowConstraints" title="rowConstraints" alwaysVisible="true"/>
+        <NodeList name="columnConstraints" title="columnConstraints" alwaysVisible="true"/>
+        <NodeList name="children" title="children" alwaysVisible="true" />
+    </NodeDescriptor>    
+    <NodeDescriptor type="javafx.scene.layout.ConstraintsBase" title="constraint" />
+    <!--NodeDescriptor type="javafx.scene.layout.ColumnConstraints" /-->
+    
     <NodeDescriptor type="javafx.scene.layout.VBox">
         <NodeList name="children" title="List of Child"/>
     </NodeDescriptor>

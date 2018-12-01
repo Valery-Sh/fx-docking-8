@@ -5,8 +5,6 @@ import java.util.function.BiPredicate;
 import org.vns.javafx.ContextLookup;
 import org.vns.javafx.dock.api.indicator.PositionIndicator;
 import org.vns.javafx.dock.api.indicator.IndicatorPopup;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import javafx.geometry.Point2D;
@@ -82,6 +80,12 @@ public abstract class LayoutContext {
             DockableContext dockableContext = Dockable.of(obj).getContext();
             if (dockableContext.getLayoutContext() != this) {
                 dockableContext.setLayoutContext(this);
+                //System.err.println("---------------- commitDock");
+                ConstraintFactory f = getLookup().lookup(ConstraintFactory.class);
+                if ( f != null ) {
+                    Constraint c = f.getConstraint(Dockable.of(obj).node());
+                    Dockable.of(obj).node().getProperties().put(Constraint.PROPERTY_NAME, c);
+                }
             }
         }
     }
@@ -127,21 +131,23 @@ public abstract class LayoutContext {
 
     public boolean isAcceptable(Dockable dockable) {
         Object v = getValue(dockable);
+        
         if (Dockable.of(v) == null) {
-            return false;
+            return isAcceptable(v);
         }
         if (acceptFilter != null && !acceptFilter.test(this, dockable)) {
             return false;
         }
         return (DockRegistry.lookup(ScopeEvaluator.class).evaluate(this, dockable.getContext()));
     }
-
+    
+    protected boolean isAcceptable(Object obj) {
+        return false;
+    }
     public final void executeDock(Point2D mousePos, Dockable dockable) {
         dock(mousePos, dockable);
         commitDock(dockable.getContext().getDragValue());
     }
-
-    public abstract void dock(Point2D mousePos, Dockable dockable);
 
     public boolean isUsedAsDockLayout() {
         return usedAsDockLayout;
@@ -227,14 +233,19 @@ public abstract class LayoutContext {
         } else if (dc != null) {
             obj = dc.getValue();
         }
-
+        System.err.println(" !!!!!!!!!!! undock = " + obj);
         Dockable dockableObj = Dockable.of(obj);
         if ((obj instanceof Node) && dockableObj != null && dockableObj.getContext().getLayoutContext().isDocked(dockableObj)) {
             ctx = dockableObj.getContext();
             ctx.getLayoutContext().remove(obj);
-
+            Node node = (Node) obj;
+            if ( node.getProperties().get(Constraint.PROPERTY_NAME) != null  ){
+                System.err.println("2) !!!!!!!!!!! DELETE node = " + node);
+                System.err.println("node.getProperties().get(Constraint.PROPERTY_NAME) = " + node.getProperties().get(Constraint.PROPERTY_NAME));
+                ((Constraint)node.getProperties().get(Constraint.PROPERTY_NAME)).delete();
+            }
             ctx.setLayoutContext(null);
-            LayoutContext tc = ctx.getLayoutContext();
+            //LayoutContext tc = ctx.getLayoutContext();
         } else if (dockableObj == null) {
             if (dc.getDragSource() != null) {
                 dc.getDragSource().remove(dc.getValue());
@@ -244,6 +255,7 @@ public abstract class LayoutContext {
     }
 
     public abstract void remove(Object obj);
+    public abstract void dock(Point2D mousePos, Dockable dockable);
 
     public static class DefaultScopeEvaluator implements ScopeEvaluator {
 

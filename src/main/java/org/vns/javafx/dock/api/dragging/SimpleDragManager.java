@@ -258,13 +258,13 @@ public class SimpleDragManager implements DragManager, EventHandler<MouseEvent> 
             return;
         }
         FramePane.hideAll(resultStage);
-        System.err.println("BEFORE getTopNode");
+//        System.err.println("BEFORE getTopNode");
         //Node topPane = TopNodeHelperOLD.getTopNode(resultStage, ev.getScreenX(), ev.getScreenY(), (n) -> {
             
         Node topPane = TopNodeHelper.getTop(resultStage, ev.getScreenX(), ev.getScreenY(), (n) -> {
             return DockRegistry.isDockLayout(n);
         });
-        System.err.println("AFTER topPane = " + topPane);
+//        System.err.println("AFTER topPane = " + topPane);
         if (topPane != null) {
             root = topPane;
         } else if (!DockRegistry.isDockLayout(root)) {
@@ -374,7 +374,7 @@ public class SimpleDragManager implements DragManager, EventHandler<MouseEvent> 
         if (indicatorManager != null) {
             Point2D pt = new Point2D(ev.getScreenX(), ev.getScreenY());
             LayoutContext tc = indicatorManager.getTargetContext();
-
+//            System.err.println("SimpleDragManager tc = " + tc);
             //
             // Dragged value cannot be the same as targetNode 
             //

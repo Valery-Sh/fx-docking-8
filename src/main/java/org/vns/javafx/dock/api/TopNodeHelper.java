@@ -1,14 +1,10 @@
 package org.vns.javafx.dock.api;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Stack;
 import java.util.function.Predicate;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.vns.javafx.dock.api.dragging.view.FramePane;
 
@@ -188,14 +184,14 @@ public class TopNodeHelper {
         }
         
         Node top = testTop(node, screenX, screenY, predicate);
-        System.err.println("************* 1) top = " + top);
+
         if ( top == null ) {
             return null;
         }
         while ( top != null && ! predicate.test(top)   ) {
             top = top.getParent();
         }
-        System.err.println("************* 2) return top = " + top);
+
         return top;
     }
 

@@ -18,6 +18,7 @@ package org.vns.javafx.designer;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import org.vns.javafx.ContextLookup;
+import org.vns.javafx.designer.descr.NodeDescriptor;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.DragContainer;
 import org.vns.javafx.dock.api.LayoutContext;
@@ -35,9 +36,10 @@ public class TrashTrayLayoutContext extends LayoutContext {
         super(layoutNode);
         setContext();
     }
+
     private void setContext() {
-        TrashTray t = (getLayoutNode() instanceof TrashTray) ? (TrashTray)getLayoutNode() : null ;
-        if ( t != null && t.isDesigner() ) {
+        TrashTray t = (getLayoutNode() instanceof TrashTray) ? (TrashTray) getLayoutNode() : null;
+        if (t != null && t.isDesigner()) {
             getScopes().add(new Scope("designer"));
         }
     }
@@ -46,10 +48,15 @@ public class TrashTrayLayoutContext extends LayoutContext {
     protected void initLookup(ContextLookup lookup) {
         lookup.putUnique(PositionIndicator.class, new DefaultPositionIndicator(this));
     }
+    @Override
+    protected boolean isAcceptable(Object value) {
+        NodeDescriptor nd = NodeDescriptor.get(value.getClass());
+        return (nd != null);
+    }
 
     @Override
     public void dock(Point2D mousePos, Dockable dockable) {
-     
+
         Dockable d = dockable;
         DragContainer dc = dockable.getContext().getDragContainer();
         Object obj = null;
@@ -67,7 +74,7 @@ public class TrashTrayLayoutContext extends LayoutContext {
             return;
         }
         ((TrashTray) getLayoutNode()).add(obj);
-        
+
         commitDock(obj);
     }
 

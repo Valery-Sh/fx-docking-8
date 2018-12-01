@@ -171,17 +171,28 @@ public class TreeItemBuilder {
 
         HBox box = new HBox(new HBox()); // placeholder 
         NodeDescriptor nd = NodeDescriptorRegistry.getInstance().getDescriptor(obj.getClass());
-        String tp = nd.getTitleProperty();
         String text = "";
-        if (tp != null) {
-            BeanAdapter adapter = new BeanAdapter(obj);
-            text = (String) adapter.get(tp);
-            if (text == null) {
-                text = "";
+        String title = nd.getTitle();
+        if (title != null) {
+            text = title;
+        } else {
+            String tp = nd.getTitleProperty();
+
+            if (tp != null) {
+                BeanAdapter adapter = new BeanAdapter(obj);
+                text = (String) adapter.get(tp);
+                if (text == null) {
+                    text = "";
+                }
             }
         }
-
-        Label label = new Label((obj.getClass().getSimpleName() + " " + text).trim());
+        Label label = new Label();
+        if (nd.getTitle() != null) {
+            label.setText(title);
+        } else {
+            label.setText((obj.getClass().getSimpleName() + " " + text).trim());
+        }
+        //Label label = new Label((obj.getClass().getSimpleName() + " " + text).trim());
 
         String styleClass = nd.getStyleClass();
         if (styleClass == null) {
@@ -294,22 +305,32 @@ public class TreeItemBuilder {
         if (obj == null) {
             iconLabel.setText(title.trim());
         } else {
-            NodeDescriptor nc = NodeDescriptorRegistry.getInstance().getDescriptor(obj.getClass());
-            title = "";
-            String tp = nc.getTitleProperty();
-            if (tp != null) {
-                BeanAdapter adapter = new BeanAdapter(obj);
-                title = (String) adapter.get(tp);
-                if (title == null) {
-                    title = "";
+            NodeDescriptor nd = NodeDescriptorRegistry.getInstance().getDescriptor(obj.getClass());
+            title = nd.getTitle();
+            if (title == null) {
+                title = "";
+                String tp = nd.getTitleProperty();
+                if (tp != null) {
+                    BeanAdapter adapter = new BeanAdapter(obj);
+                    title = (String) adapter.get(tp);
+                    if (title == null) {
+                        title = "";
+                    }
                 }
+                title = "";
             }
-            title = "";
-            Label glb = new Label(obj.getClass().getSimpleName());
-            glb.getStyleClass().add("tree-item-node-" + obj.getClass().getSimpleName().toLowerCase());
-            retval.getChildren().add(glb);
+            Label label = new Label();
+            if (nd.getTitle() != null) {
+                label.setText(nd.getTitle());
+            } else {
+                label.setText((obj.getClass().getSimpleName() + " " + title).trim());
+            }
 
-            glb.setText(glb.getText() + " " + title.trim());
+            //Label glb = new Label(obj.getClass().getSimpleName());
+            label.getStyleClass().add("tree-item-node-" + obj.getClass().getSimpleName().toLowerCase());
+            retval.getChildren().add(label);
+
+            //glb.setText(glb.getText() + " " + title.trim());
         }
         return retval;
     }
@@ -336,6 +357,7 @@ public class TreeItemBuilder {
             return false;
         }
         TreeItemEx dragItem = EditorUtil.findTreeItemByObject(treeView, dragObject);
+        System.err.println("1. TreeItemBuilder isAdmissiblePosition dragObject = " + dragObject);
         //
         // First check if the layoutNode item corresponds to LIST ItemType
         //
@@ -344,10 +366,12 @@ public class TreeItemBuilder {
         NodeDescriptor nd = null;
         if (!isList) {
             if (target.getValue() != null) {
-                nd = NodeDescriptorRegistry.getInstance().getDescriptor(target.getValue().getClass());
+                nd = NodeDescriptor.get(target.getValue().getClass());
             }
         }
+        System.err.println("2. TreeItemBuilder isAdmissiblePosition target.itemType = " + target.getItemType());
         if (target.getItemType() == LIST || target.getItemType() == DEFAULTLIST) {
+System.err.println("3. TreeItemBuilder isAdmissiblePosition dragObject = " + dragObject);            
             if (dragItem != null && dragItem.previousSibling() == place) {
                 return false;
             }
@@ -411,6 +435,7 @@ public class TreeItemBuilder {
                 return ba.getType(prop.getName()).isAssignableFrom(dragObject.getClass());
             }
         }
+        System.err.println("10. TreeItemBuilder isAdmissiblePosition dragObject = " + dragObject);
         return isAcceptable(target, dragObject);
     }
 

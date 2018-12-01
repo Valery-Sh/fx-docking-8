@@ -28,9 +28,7 @@ import javafx.collections.transformation.FilteredList;
  * @author Valery
  */
 public class BaseContextLookup implements ContextLookup {
-    /**
-     * The map collection
-     */
+    
     public final ObservableMap<Class, List<Object>> lookup = FXCollections.observableHashMap();
 
     @Override

@@ -44,6 +44,7 @@ public class NodeDescriptorRegistry {
             //
             Annotation annotation = clazz.getDeclaredAnnotation(DefaultProperty.class);
             if (annotation != null) {
+                
                 String name = ((DefaultProperty) annotation).value();
                 retval = new NodeDescriptor();
                 retval.setType(clazz.getName());

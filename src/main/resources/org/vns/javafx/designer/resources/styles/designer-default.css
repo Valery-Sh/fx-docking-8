@@ -119,6 +119,12 @@
 .tree-item-node-gridpane {
     -fx-graphic: url(../images/gridpane-16x16.png);
 }
+.tree-item-node-rowconstraints {
+    -fx-graphic: url(../images/row-constraints-16x16.png);
+}
+.tree-item-node-columnconstraints {
+    -fx-graphic: url(../images/column-constraints-16x16.png);
+}
 .tree-item-node-borderpane {
     -fx-graphic: url(../images/borderpane-16x16.png);
 }

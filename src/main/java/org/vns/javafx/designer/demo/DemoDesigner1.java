@@ -34,6 +34,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -145,9 +146,11 @@ public class DemoDesigner1 extends Application {
         Pane topPane = new Pane();
         MyVBox centerPane = new MyVBox(eb,tx, cb,dn);
         centerPane.setId("CCCCCCCCCCCCCCCCCCC");
+        GridPane gridPane1 = new GridPane();
         root1.setTop(topPane);
         root1.setCenter(centerPane);
         root1.setLeft(new Label("My Label 1"));
+        root1.setRight(gridPane1);
         //new TreeItemBuilder().build(null);
 /*        System.err.println("root1.getChildren = " + root1.getChildren());
         root1.getChildren().forEach(n1 -> {
@@ -195,7 +198,7 @@ public class DemoDesigner1 extends Application {
         //rightPaneRoot.setStyle("-fx-background-color: SIENNA; -fx-padding: 10 10 10 10");
         sp.setStyle("-fx-background-color: SIENNA; -fx-padding: 20 20 20 20");
         //Scene scene1 = new Scene(sp);
-        
+        //sceneView.createDefaultSkin();
         sp.getChildren().addListener((Change<? extends Node> c) -> {
             while (c.next()) {
                 if ( c.wasAdded() ) {
@@ -220,6 +223,7 @@ public class DemoDesigner1 extends Application {
             scene1.setRoot(root1);
         });
         formButton.setOnAction(a -> {
+            System.err.println("GridPane.rowConstraints size = " + gridPane1.getRowConstraints().size());
             System.err.println("CLICKED CENTER ");
             Node nd = root1.getCenter();
             System.err.println("CLICKED CENTER scaleX     = " + nd.getScaleX());

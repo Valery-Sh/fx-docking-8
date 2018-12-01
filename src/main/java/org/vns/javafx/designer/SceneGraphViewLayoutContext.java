@@ -21,9 +21,12 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.RowConstraints;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.vns.javafx.ContextLookup;
+import org.vns.javafx.designer.descr.NodeDescriptor;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.DragContainer;
@@ -92,7 +95,7 @@ public class SceneGraphViewLayoutContext extends LayoutContext {
 
     @Override
     public void dock(Point2D mousePos, Dockable dockable) {
-        
+
         Dockable d = dockable;
         Window window = null;
 
@@ -147,7 +150,7 @@ public class SceneGraphViewLayoutContext extends LayoutContext {
             Platform.runLater(() -> {
                 //nf.show(av);
             });
-*/            
+             */
         }
     }
 
@@ -176,7 +179,7 @@ public class SceneGraphViewLayoutContext extends LayoutContext {
      */
     @Override
     public boolean isAdmissiblePosition(Dockable dockable, Point2D mousePos) {
-
+//        System.err.println("isAdmissiblePosition v = " + getValue(dockable));
         SceneView gv = (SceneView) getLayoutNode();
         if (gv.getTreeView(mousePos.getX(), mousePos.getY()) != null) {
             if (gv.getTreeView().getRoot() == null) {
@@ -220,11 +223,12 @@ public class SceneGraphViewLayoutContext extends LayoutContext {
         return getDragIndicatorManager().getDragIndicator();
     }
 
-   @Override
-    public boolean isAcceptable(Dockable dockable) {
-        return super.isAcceptable(dockable);
+    @Override
+    protected boolean isAcceptable(Object value) {
+        NodeDescriptor nd = NodeDescriptor.get(value.getClass());
+        return ( nd != null );
     }
-
+    
     protected boolean acceptValue(Point2D mousePos, Object value) {
         SceneView gv = (SceneView) getLayoutNode();
         boolean retval = false;
@@ -245,8 +249,8 @@ public class SceneGraphViewLayoutContext extends LayoutContext {
 
     @Override
     public boolean contains(Object obj) {
-        SceneView gv = (SceneView) getLayoutNode();        
-        if ( gv.getTreeView().getRoot() != null && gv.getTreeView().getRoot().getValue() == obj  ) {
+        SceneView gv = (SceneView) getLayoutNode();
+        if (gv.getTreeView().getRoot() != null && gv.getTreeView().getRoot().getValue() == obj) {
             return true;
         }
         return false;
