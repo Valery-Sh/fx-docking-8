@@ -28,4 +28,27 @@ public interface Resizer {
     void resize(double x, double y);
     void start(MouseEvent ev, Window window, Cursor cursor, Cursor... supportedCursors);
     void start(MouseEvent ev, WindowNodeFraming resizer, Cursor cursor, Cursor... supportedCursors);
+    
+    public static class DefaultResizer implements Resizer {
+
+        @Override
+        public boolean isStarted() {
+            return true;
+        }
+
+        @Override
+        public void resize(double x, double y) {
+            
+        }
+
+        @Override
+        public void start(MouseEvent ev, Window window, Cursor cursor, Cursor... supportedCursors) {
+
+        }
+
+        @Override
+        public void start(MouseEvent ev, WindowNodeFraming resizer, Cursor cursor, Cursor... supportedCursors) {
+        }
+        
+    }
 }

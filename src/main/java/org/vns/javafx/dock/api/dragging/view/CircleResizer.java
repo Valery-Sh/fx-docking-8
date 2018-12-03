@@ -15,40 +15,46 @@
  */
 package org.vns.javafx.dock.api.dragging.view;
 
+import javafx.scene.Node;
 import javafx.scene.layout.Region;
+import javafx.scene.shape.Circle;
 import javafx.stage.Window;
+//import static org.vns.javafx.dock.api.dragging.view.NodeResizer.windowBounds;
 
 /**
  *
  * @author Valery
  */
-public class NodeResizer extends AbstractResizer {
+public class CircleResizer extends AbstractResizer {
 
-    public NodeResizer(Window window, Region node) {
-        super(window,node);
+    public CircleResizer(Window window, Node node) {
+        super(window, node);
     }
+
     @Override
     protected void setSize() {
-        Region node = (Region) getNode();
-        node.setPrefWidth(node.getWidth());
-        node.setPrefHeight(node.getHeight());
-    }    
+        Circle node = (Circle) getNode();
+        node.setRadius(node.getRadius());
+    }
+
     @Override
     protected void setXLayout(double wDelta, double xDelta, double curX) {
-        Region node = (Region) getNode();
-        if ((node.getWidth() > node.minWidth(-1) || xDelta <= 0)) {
-            node.setPrefWidth(wDelta + node.getPrefWidth());
-            mouseXProperty().set(curX);
-        }
+        Circle node = (Circle) getNode();
+//        if ((node.getRadius() > node.minWidth(-1) || xDelta <= 0)) {
+        node.setRadius(wDelta / 2 + node.getRadius());
+        mouseXProperty().set(curX);
+//        }
 
     }
+
     @Override
     protected void setYLayout(double hDelta, double yDelta, double curY) {
-         Region node = (Region) getNode();
-         if ((node.getHeight() > node.minHeight(-1) || yDelta <= 0)) {
-            node.setPrefHeight(hDelta + node.getPrefHeight());
-            mouseYProperty().set(curY);
-         }
 
-    }    
+        Circle node = (Circle) getNode();
+//         if ((node.getRadius() > node.minHeight(-1) || yDelta <= 0)) {
+        node.setRadius(hDelta / 2 + node.getRadius());
+        mouseYProperty().set(curY);
+//         }
+
+    }
 }

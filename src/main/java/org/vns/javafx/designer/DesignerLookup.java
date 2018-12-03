@@ -28,6 +28,9 @@ import org.vns.javafx.dock.api.Selection.SelectionHandler;
 import org.vns.javafx.dock.api.Selection.SelectionListener;
 import org.vns.javafx.designer.DesignerScenePaneContext.DesignerScenePaneContextFactory;
 import org.vns.javafx.dock.api.dragging.view.NodeFraming;
+import org.vns.javafx.dock.api.dragging.view.ResizerFactory;
+import org.vns.javafx.dock.api.dragging.view.ResizerFactory.NodeResizerFactory;
+import org.vns.javafx.dock.api.dragging.view.Resizer;
 import org.vns.javafx.dock.api.dragging.view.StageNodeFraming;
 import org.vns.javafx.dock.api.dragging.view.WindowNodeFraming;
 
@@ -86,6 +89,11 @@ public class DesignerLookup { // implements ContextLookup {
     }
     
     public void initDockRegistry() {
+
+        saveDockRegistry(ResizerFactory.class);
+        DockRegistry.getInstance().getLookup().put(ResizerFactory.class,new NodeResizerFactory());
+//        DockRegistry.getInstance().getLookup().put(NodeResizerFactory.class,new RegionNodeResizerFactory());
+        
         saveDockRegistry(TrashTray.class);
         DockRegistry.getInstance().getLookup().putUnique(TrashTray.class, new TrashTray());
         
@@ -119,7 +127,7 @@ public class DesignerLookup { // implements ContextLookup {
         return getInstance().lookup.lookup(clazz);
     }
 
-    public static <T> List<? extends T> lookupAll(Class<T> clazz) {
+    public static <T> List<? extends T> lookupAll(Class clazz) {
         return getInstance().lookup.lookupAll(clazz);
     }
 
@@ -133,6 +141,9 @@ public class DesignerLookup { // implements ContextLookup {
 
     public static <T> void putUnique(Class key, T obj) {
         getInstance().lookup.putUnique(key, obj);
+    }
+    public static <T> void put(Class key, T obj) {
+        getInstance().lookup.put(key, obj);
     }
 
     public static <T> void remove(Class key, T obj) {

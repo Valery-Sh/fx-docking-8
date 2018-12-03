@@ -19,6 +19,8 @@ package org.vns.javafx.designer.demo;
 import com.sun.javafx.css.StyleManager;
 import com.sun.javafx.stage.StageHelper;
 import java.net.URL;
+import java.util.List;
+import java.util.Set;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.beans.Observable;
@@ -39,6 +41,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.vns.javafx.dock.DockNode;
 import org.vns.javafx.dock.DockPane;
@@ -46,7 +52,7 @@ import org.vns.javafx.dock.DockSideBar;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.LayoutContext;
-import org.vns.javafx.dock.api.LayoutContextFactory;
+import org.vns.javafx.dock.api.DefaultLayoutContextFactory;
 
 import org.vns.javafx.designer.PalettePane;
 import org.vns.javafx.designer.DesignerLookup;
@@ -55,7 +61,10 @@ import org.vns.javafx.designer.SceneView;
 import org.vns.javafx.designer.TrashTray;
 import org.vns.javafx.designer.TreeItemBuilder;
 import org.vns.javafx.designer.TreeItemEx;
+import org.vns.javafx.designer.descr.NodeDescriptor;
+import org.vns.javafx.dock.api.LayoutContextFactory;
 import org.vns.javafx.dock.api.DockLayout;
+import org.vns.javafx.dock.api.Scope;
 import org.vns.javafx.dock.api.dragging.DragManager;
 
 /**
@@ -67,7 +76,6 @@ public class DemoDesigner1 extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         Button tb = new Button();
-        
         tb.toFront();
         if ( null instanceof Node) {
             System.err.println("NULL !!!!!!!");
@@ -99,7 +107,7 @@ public class DemoDesigner1 extends Application {
         formPane.setStyle("-fx-background-color: yellow");
         formPane.getChildren().addAll(formButton);//, resetButton);
         formDockNode.setContent(formPane);
-        LayoutContextFactory ctxFactory = new LayoutContextFactory();
+        DefaultLayoutContextFactory ctxFactory = new DefaultLayoutContextFactory();
         LayoutContext ctx = ctxFactory.getContext(formPane);
         System.err.println("ctx=" + ctx);
         DockRegistry.makeDockLayout(formPane, ctx);
@@ -144,11 +152,18 @@ public class DemoDesigner1 extends Application {
         dn.setContent(new Label("Dock Node Content"));
         dn.setScaleX(0.5);
         Pane topPane = new Pane();
-        MyVBox centerPane = new MyVBox(eb,tx, cb,dn);
+        Circle circle = new Circle(10);
+        Rectangle rect = new Rectangle(40,20);
+        Ellipse ellipse = new Ellipse(20,20);
+        Text text = new Text("text");
+        MyHBox centerPane = new MyHBox(eb,tx, cb,dn, text, circle, rect, ellipse);
         centerPane.setId("CCCCCCCCCCCCCCCCCCC");
         GridPane gridPane1 = new GridPane();
-        root1.setTop(topPane);
-        root1.setCenter(centerPane);
+        root1.setTop(centerPane);
+        root1.setCenter(topPane);
+        
+        //root1.setTop(topPane);
+        //root1.setCenter(centerPane);
         root1.setLeft(new Label("My Label 1"));
         root1.setRight(gridPane1);
         //new TreeItemBuilder().build(null);
@@ -178,10 +193,18 @@ public class DemoDesigner1 extends Application {
         cb.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
             System.err.println("filter cb mouse pressed source = " + e.getSource() + "; target = " + e.getTarget());
         });
+         cb.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+            System.err.println("filter cb mouse clicked source = " + e.getSource() + "; target = " + e.getTarget());
+        });
         cb.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
             System.err.println("handler cb mouse pressed source = " + e.getSource() + "; target = " + e.getTarget());
             e.consume();
         });   
+        cb.addEventHandler(MouseEvent.MOUSE_MOVED, e -> {
+            System.err.println("handler cb mouse moved source = " + e.getSource() + "; target = " + e.getTarget());
+            e.consume();
+        });   
+        
         cb.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> {
             System.err.println("handler cb mouse ENTERED source = " + e.getSource() + "; target = " + e.getTarget());
             e.consume();
@@ -223,6 +246,22 @@ public class DemoDesigner1 extends Application {
             scene1.setRoot(root1);
         });
         formButton.setOnAction(a -> {
+           Set<Scope> scs = Dockable.of(centerPane).getContext().getScopes();
+           System.err.println("centerPane is docklayout = " + DockLayout.of(centerPane));
+           System.err.println("centerPane scopes = " + scs);
+           scs = Dockable.of(gridPane1).getContext().getScopes();
+           System.err.println("gridPane1 is dockable = " + Dockable.of(gridPane1));
+           System.err.println("gridPane1 scopes = " + scs);
+           scs = Dockable.of(topPane).getContext().getScopes();
+           scs.forEach(s -> {
+               System.err.println("   --- scope = " + s.getId());
+           });
+
+            if ( true ) {
+               return;
+            }
+            
+            System.err.println("centerPane is dockable = " + Dockable.of(centerPane));
             System.err.println("GridPane.rowConstraints size = " + gridPane1.getRowConstraints().size());
             System.err.println("CLICKED CENTER ");
             Node nd = root1.getCenter();
@@ -234,8 +273,10 @@ public class DemoDesigner1 extends Application {
             System.err.println("EventDisp formButton = " + formButton.getEventDispatcher());
             //eb.setFocusTraversable(false);
             TreeItemEx o = EditorUtil.findTreeItemByObject(sceneView.getTreeView(), centerPane);
-            System.err.println("TREEITEMEX VBox itemValue = " + o.getItemType() );
+            System.err.println("TREEITEMEX MyVBox itemValue = " + o.getItemType() );
             o = EditorUtil.findTreeItemByObject(sceneView.getTreeView(), topPane);
+            NodeDescriptor nd1 = NodeDescriptor.get(centerPane.getClass());
+            System.err.println("nd1 = " + nd1);
             System.err.println("TREEITEMEX Pane itemValue = " + o.getItemType() );
             System.err.println("TREEITEMEX ROOT itemValue = " + ((TreeItemEx)sceneView.getTreeView().getRoot()).getItemType() );
             if ( nd != null && nd.getScaleX() == 1 ) {

@@ -68,8 +68,8 @@ public class NodeContent extends NodeProperty {
      * @return true if the parent node descriptor defines the default property 
      * with the same name as this object has. Otherwise returns false
      */  
-    @Override
-    public boolean isDefault() {
-        return super.isDefault();
-    }
+    //@Override
+//    public boolean isDefault() {
+//        return super.isDefault();
+//    }
 }

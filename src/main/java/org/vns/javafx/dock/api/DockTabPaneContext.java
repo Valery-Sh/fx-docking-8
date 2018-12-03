@@ -80,7 +80,7 @@ public class DockTabPaneContext extends LayoutContext { //implements ObjectRecei
                         }
 
                         for (Tab d : list) {
-                            if (d.getContent() != null && Dockable.isDockable(d.getContent())) {
+                            if (d.getContent() != null && Dockable.test(d.getContent())) {
                                 undock(Dockable.of(d.getContent()));
                             }
                         }

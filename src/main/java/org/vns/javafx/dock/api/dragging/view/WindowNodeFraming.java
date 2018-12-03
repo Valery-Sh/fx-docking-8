@@ -15,6 +15,7 @@
  */
 package org.vns.javafx.dock.api.dragging.view;
 
+import java.util.List;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -27,11 +28,13 @@ import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import static javafx.scene.input.KeyCode.T;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.vns.javafx.designer.DesignerLookup;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 
@@ -116,9 +119,10 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
         window.setOnHidden(e -> {
             DockRegistry.unregister(window);
         });
-        if (getNode() instanceof Region) {
-            init((Region) getNode());
-        }
+        //2.12 if (getNode() instanceof Region) {
+        //    init((Region) getNode());
+        //}
+        init(getNode());
         initScene();
     }
 
@@ -139,7 +143,7 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
         return window;
     }
 
-    private void init(Region region) {
+    private void init(Node node) {
 
         root = new StackPane() {
             @Override
@@ -162,8 +166,11 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
 
         borderWidth = root.getInsets().getLeft() + root.getInsets().getRight();
         borderHeight = root.getInsets().getTop() + root.getInsets().getBottom();
-
-        nodeInsets = ((Region) region).getInsets();
+        if (node instanceof Region) {
+            nodeInsets = ((Region) node).getInsets();
+        } else {
+            nodeInsets = null;
+        }
         if (nodeInsets != null) {
             insetsWidth = nodeInsets.getLeft() + nodeInsets.getRight();
             insetsHeight = nodeInsets.getTop() + nodeInsets.getBottom();
@@ -180,10 +187,11 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
 
         window.setWidth(getNode().getLayoutBounds().getWidth() + borderWidth);
         window.setHeight(getNode().getLayoutBounds().getHeight() + borderHeight);
-
-        ((Region) getNode()).setPrefWidth(((Region) getNode()).getWidth());
-        ((Region) getNode()).setPrefHeight(((Region) getNode()).getHeight());
-
+        if ( getNode() instanceof Region ) {
+            ((Region) getNode()).setPrefWidth(((Region) getNode()).getWidth());
+            ((Region) getNode()).setPrefHeight(((Region) getNode()).getHeight());
+        }
+        
         root.setPrefWidth(getNode().getLayoutBounds().getWidth() + borderWidth);
         root.setPrefHeight(getNode().getLayoutBounds().getHeight() + borderHeight);
 
@@ -191,8 +199,10 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
 
             borderWidth = root.getInsets().getLeft() + root.getInsets().getRight();
             borderHeight = root.getInsets().getTop() + root.getInsets().getBottom();
-
-            Insets nodeInsets = ((Region) region).getInsets();
+            Insets nodeInsets = null;
+            if ( node instanceof Region  ) {   
+                nodeInsets = ((Region) node).getInsets();
+            }
             if (nodeInsets != null) {
                 insetsWidth = nodeInsets.getLeft() + nodeInsets.getRight();
                 insetsHeight = nodeInsets.getTop() + nodeInsets.getBottom();
@@ -216,7 +226,7 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
         //
         //  show to widthProperty and heightProperty
         //
-        nodeWindow = region.getScene().getWindow();
+        nodeWindow = node.getScene().getWindow();
         setWindowSize(getNode().getLayoutBounds(), borderWidth, borderHeight);
 
         bindWindowPosition(nodeWindow);
@@ -276,9 +286,14 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
         if (nodeWindow == newOwner) {
             window.hide();
         }
-
-        resizer = new NodeResizer(window, (Region) getNode());
-
+        resizer = new Resizer.DefaultResizer();
+        List<? extends ResizerFactory> list = DockRegistry.getInstance().getLookup().lookupAll(ResizerFactory.class);
+        for ( ResizerFactory f : list) {
+            if ( f.getResizer(window, getNode()) != null ) {
+                resizer = f.getResizer(window, getNode());
+                break;
+            }
+        }
         doShow(newOwner);
     }
 
@@ -292,20 +307,21 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
         } else if (ev.getEventType() == MouseEvent.MOUSE_RELEASED) {
             getNode().getScene().getRoot().removeEventFilter(MouseEvent.MOUSE_DRAGGED, this);
             getNode().getScene().getRoot().removeEventFilter(MouseEvent.MOUSE_RELEASED, this);
-            
+
             hide();
 
             if (frameControl != null) {
                 frameControl.show();
             }
-            
+
         }
     }
 
     public void redirectMouseEvents(MouseEvent ev, Point2D startMousePos, FramePane redirectSource) {
         frameControl = redirectSource;
         redirectMouseEvents(ev, startMousePos);
-    }    
+    }
+
     public void redirectMouseEvents(MouseEvent ev, Point2D startMousePos) {
 
         saveCursor = getNode().getScene().getCursor();
@@ -320,6 +336,7 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
         getWindow().getScene().setCursor(saveCursor);
         resizer.start(ev, this, saveCursor, getSupportedCursors());
     }
+
     @Override
     protected void finalizeOnHide(Node node) {
         if (root != null) {

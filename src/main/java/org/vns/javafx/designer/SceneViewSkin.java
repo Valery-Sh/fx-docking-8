@@ -45,7 +45,7 @@ import org.vns.javafx.dock.api.dragging.MouseDragHandler;
 import org.vns.javafx.dock.api.indicator.IndicatorManager;
 import org.vns.javafx.dock.api.DockLayout;
 import org.vns.javafx.dock.api.LayoutContext;
-import org.vns.javafx.dock.api.LayoutContextFactory;
+import org.vns.javafx.dock.api.DefaultLayoutContextFactory;
 import org.vns.javafx.dock.api.Scope;
 import org.vns.javafx.dock.api.dragging.view.FramePane;
 import org.vns.javafx.dock.api.dragging.view.NodeFraming;
@@ -322,7 +322,7 @@ public class SceneViewSkin extends SkinBase<SceneView> {
             getSkinnable().getTreeView().setRoot(null);
             return;
         }
-        LayoutContext lc = new LayoutContextFactory().getContext(getSkinnable().getRoot());
+        LayoutContext lc = DockRegistry.getLayoutContext(getSkinnable().getRoot());
         DockRegistry.makeDockLayout(getSkinnable().getRoot(), lc);
         if (getSkinnable().isDesigner() && !containsDesignerScope(lc.getScopes())) {
             lc.getScopes().add(new Scope("designer"));

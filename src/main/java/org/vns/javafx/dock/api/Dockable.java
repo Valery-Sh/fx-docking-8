@@ -16,7 +16,7 @@ import javafx.scene.Node;
  */
 public interface Dockable {
     public static final String LOOKUP_SELECTOR = "dockable-e651abfa-c321-4249-b78a-120db404b641";
-    public static final String DOCKABLE_KEY = "dockable-marker-e651abfa-c321-4249-b78a-120db404b641";
+    public static final String DOCKABLE = "dockable-marker-e651abfa-c321-4249-b78a-120db404b641";
     
     /**
      * Returns a node of type {@code Region} that implements this interface or
@@ -51,8 +51,11 @@ public interface Dockable {
     static Dockable of(Object obj) {
         return DockRegistry.dockable(obj);
     }
-    static boolean isDockable(Object obj) {
+    static boolean test(Object obj) {
         return DockRegistry.isDockable(obj);
+    }
+    static Dockable register(Node node) {
+        return DockRegistry.makeDockable(node);
     }
     
 }

@@ -80,7 +80,7 @@ import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.DockableContext;
 import org.vns.javafx.dock.api.DragContainer;
 import org.vns.javafx.dock.api.LayoutContext;
-import org.vns.javafx.dock.api.LayoutContextFactory;
+import org.vns.javafx.dock.api.DefaultLayoutContextFactory;
 import static org.vns.javafx.designer.PalettePane.NodePolicy.BOTH;
 import static org.vns.javafx.designer.PalettePane.NodePolicy.DOCKABLE;
 import static org.vns.javafx.designer.PalettePane.NodePolicy.DOCKLAYOUT;
@@ -180,25 +180,57 @@ public class PalettePane extends Control {
 
         PaletteItem item = getModel().getItem(value.getClass());
         if (item != null) {
+            setLayoutContext(value, true);
+        } else if (DockLayout.of(value) == null) {
+            LayoutContext lc = DockRegistry.getLayoutContext(value);
+//            LayoutContextFactory f = new LayoutContextFactory();
+//            lc = f.getContext((Node) value);
+            if (lc != null) {
+                DockRegistry.makeDockLayout((Node) value, lc);
+            }
+        }
+        
+        if (DockLayout.of(value) != null) {
+            if (!((Node) value).getStyleClass().contains("designer-dock-context")) {
+                ((Node) value).getStyleClass().add("designer-dock-context");
+            }
+            boolean exists = false;
+            for (Scope s : DockLayout.of(value).getLayoutContext().getScopes()) {
+                if ("designer".equals(s.getId())) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                DockLayout.of(value).getLayoutContext().getScopes().add(new Scope("designer"));
+            }
+        }
+
+    }//setLayoutContext
+
+    public void setLayoutContext(Object value, boolean paletteRegistered) {
+        if (!(value instanceof Node)) {
+            return;
+        }
+
+        PaletteItem item = getModel().getItem(value.getClass());
+        if (item != null) {
             NodePolicy itemPolicy = item.getProducedNodePolicy();
             if (itemPolicy == DOCKLAYOUT || itemPolicy == BOTH) {
 
                 if (DockLayout.of(value) == null) {
                     LayoutContext lc = null;
                     if (item.getLayoutContextClass() == null) {
-                        LayoutContextFactory f = new LayoutContextFactory();
-                        lc = f.getContext((Node) value);
+                        DefaultLayoutContextFactory f = new DefaultLayoutContextFactory();
+                        lc = DockRegistry.getLayoutContext(value);
                     }
                     if (lc != null) {
                         DockRegistry.makeDockLayout((Node) value, lc);
-                        ((Node) value).getStyleClass().add("designer-dock-context");
                     }
-                }
-                if (DockLayout.of(value) != null) {
-                    DockLayout.of(value).getLayoutContext().getScopes().add(new Scope("designer"));
                 }
             }
         }
+
     }//setLayoutContext
 
     /**
@@ -207,7 +239,7 @@ public class PalettePane extends Control {
      *
      * @param value the value to make {@code Dockable}
      */
-    public void setDockableContext(Object value) {
+    public void setDockableContext(Object value, boolean paletteRegistered) {
         if (!(value instanceof Node)) {
             return;
         }
@@ -219,13 +251,39 @@ public class PalettePane extends Control {
                 if (Dockable.of(value) == null && (itemPolicy == DOCKABLE || itemPolicy == BOTH)) {
                     if (getProducedNodePolicy() == DOCKABLE || getProducedNodePolicy() == BOTH) {
                         DockRegistry.makeDockable((Node) value);
-                        ((Node) value).getStyleClass().add("designer-dock-context");
                     }
                 }
-                if (Dockable.of(value) != null) {
-                    Dockable.of(value).getContext().getScopes().add(new Scope("designer"));
-                }
+            }
+        }
+    }
 
+    public void setDockableContext(Object value) {
+        if (!(value instanceof Node)) {
+            return;
+        }
+
+        PaletteItem item = getModel().getItem(value.getClass());
+        if (item != null) {
+            setDockableContext(value, true);
+        } else if (Dockable.of(value) == null) {
+            if (Dockable.of(value) == null) {
+                DockRegistry.makeDockable((Node) value);
+            }
+        }
+
+        if (Dockable.of(value) != null) {
+            if (!((Node) value).getStyleClass().contains("designer-dock-context")) {
+                ((Node) value).getStyleClass().add("designer-dock-context");
+            }
+            boolean exists = false;
+            for (Scope s : Dockable.of(value).getContext().getScopes()) {
+                if ("designer".equals(s.getId())) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                Dockable.of(value).getContext().getScopes().add(new Scope("designer"));
             }
         }
     }
@@ -263,7 +321,7 @@ public class PalettePane extends Control {
         }
     }
 
-/*    public void setCustomEventDispather(Object value) {
+    /*    public void setCustomEventDispather(Object value) {
         if (!(value instanceof Node)) {
             return;
         }
@@ -276,7 +334,7 @@ public class PalettePane extends Control {
             ped.start((Node) value);
         }
     }
-*/
+     */
     @Override
     public String getUserAgentStylesheet() {
         return DesignerLookup.class.getResource("resources/styles/designer-default.css").toExternalForm();
@@ -477,7 +535,7 @@ public class PalettePane extends Control {
         pc.addItem(lb, GridPane.class);
         lb.getStyleClass().add("tree-item-node-gridpane");
         lb.applyCss();
-        
+
         lb = new Label("RowConstraints");
         pc.addItem(lb, RowConstraints.class);
         lb.getStyleClass().add("tree-item-node-rowconstraints");
@@ -1262,7 +1320,7 @@ public class PalettePane extends Control {
 
     }
 
-/*    public static class MouseEventDispatcher implements PaletteEventDispatcher {
+    /*    public static class MouseEventDispatcher implements PaletteEventDispatcher {
 
         private EventDispatcher initial;
         private Node node;
@@ -1430,5 +1488,5 @@ public class PalettePane extends Control {
         }
 
     }
-*/
+     */
 }//PalettePane

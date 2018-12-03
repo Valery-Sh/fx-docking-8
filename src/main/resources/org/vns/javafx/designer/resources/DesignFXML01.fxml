@@ -20,9 +20,9 @@
     </NodeDescriptor>
     
     <NodeDescriptor type="javafx.scene.layout.GridPane" defaultProperty="children">
-        <NodeList name="rowConstraints" title="rowConstraints" alwaysVisible="true"/>
-        <NodeList name="columnConstraints" title="columnConstraints" alwaysVisible="true"/>
-        <NodeList name="children" title="children" alwaysVisible="true" />
+        <NodeList name="rowConstraints" title="rowConstraints" alwaysVisible="true" default="true" />
+        <NodeList name="columnConstraints" title="columnConstraints" alwaysVisible="true"  default="true"/>
+        <NodeList name="children" title="children" alwaysVisible="true" default="true"/>
     </NodeDescriptor>    
     <NodeDescriptor type="javafx.scene.layout.ConstraintsBase" title="constraint" />
     <!--NodeDescriptor type="javafx.scene.layout.ColumnConstraints" /-->

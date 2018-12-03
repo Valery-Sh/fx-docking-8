@@ -33,8 +33,8 @@ public class DockRegistry {
 //    private final Map<Window, Window> owners = new HashMap<>();
     private final ObservableList<Window> excluded = FXCollections.observableArrayList();
 
-    private final ObservableMap<Node, Dockable> dockables = FXCollections.observableHashMap();
-    private final ObservableMap<Node, DockLayout> dockLayouts = FXCollections.observableHashMap();
+    //private final ObservableMap<Node, Dockable> dockables = FXCollections.observableHashMap();
+    //private final ObservableMap<Node, DockLayout> dockLayouts = FXCollections.observableHashMap();
 
 //    private BeanRemover beanRemover;
 
@@ -116,10 +116,10 @@ public class DockRegistry {
         }
     }
 
-    public static ObservableMap<Node, Dockable> getDockables() {
+/*    public static ObservableMap<Node, Dockable> getDockables() {
         return getInstance().dockables;
     }
-
+*/
     public static void start() {
         if (!getInstance().registerDone) {
             getInstance().registerDone = true;
@@ -411,12 +411,12 @@ public class DockRegistry {
         return retlist;
     }
 
-    protected boolean isNodeDockable(Node node) {
+/*    protected boolean isNodeDockable(Node node) {
         boolean retval = node instanceof Dockable;
         if (!retval && dockables.get(node) != null) {
             retval = true;
         } else if (!retval) {
-            Object d = node.getProperties().get(Dockable.DOCKABLE_KEY);
+            Object d = node.getProperties().get(Dockable.DOCKABLE);
 
             if (d != null && (d instanceof Dockable) && ((Dockable) d).node() == node) {
                 retval = true;
@@ -424,7 +424,7 @@ public class DockRegistry {
         }
         return retval;
     }
-
+*/
     public static Dockable makeDockable(Node node) {
         if (isDockable(node)) {
             return dockable(node);
@@ -434,7 +434,7 @@ public class DockRegistry {
         //      d.getContext().getLayoutContext().setTargetNode(d.node().getParent());
         //  }
         d.getContext().setDragNode(node);
-        node.getProperties().put(Dockable.DOCKABLE_KEY, d);
+        node.getProperties().put(Dockable.DOCKABLE, d);
         return d;
     }
 
@@ -452,14 +452,14 @@ public class DockRegistry {
 //        Dockable.of(obj).getContext().setLayoutContext(null);
 //        Dockable.of(obj).getContext().setDragNode(dn);
         
-        Dockable.of(obj).node().getProperties().remove(Dockable.DOCKABLE_KEY);
+        Dockable.of(obj).node().getProperties().remove(Dockable.DOCKABLE);
     }
     public static void unregisterDockLayout(Object obj) {
         if ( (obj instanceof DockLayout) || DockLayout.of(obj) == null ) {
             return;
         }
         DockLayout.of(obj).getLayoutContext().reset();
-        DockLayout.of(obj).layoutNode().getProperties().remove(DockLayout.DOCKLAYOUTS_KEY);
+        DockLayout.of(obj).layoutNode().getProperties().remove(DockLayout.DOCKLAYOUT);
         
         
     }
@@ -469,15 +469,15 @@ public class DockRegistry {
         if (node instanceof DockLayout) {
             return (DockLayout) node;
         }
-        if (getInstance().dockLayouts.get(node) != null) {
-            return getInstance().dockLayouts.get(node);
+        if ( node.getProperties().get(DockLayout.DOCKLAYOUT) != null ) {
+            return (DockLayout) node.getProperties().get(DockLayout.DOCKLAYOUT);
         }
         DockLayout d = new DefaultDockLayout(node, layoutContext);
-        node.getProperties().put(DockLayout.DOCKLAYOUTS_KEY, d);
+        node.getProperties().put(DockLayout.DOCKLAYOUT, d);
         return d;
     }
 
-    public void register(Dockable dockable) {
+/*    public void register(Dockable dockable) {
         if (dockable.node() instanceof Dockable) {
             return;
         }
@@ -486,44 +486,85 @@ public class DockRegistry {
         }
         dockables.put(dockable.node(), dockable);
     }
-
-    public void register(DockLayout dockTarget) {
-        if (dockTarget.layoutNode() instanceof DockLayout) {
+*/
+/*    public void register(DockLayout dockLayout) {
+        if (dockLayout.layoutNode() instanceof DockLayout) {
             return;
         }
-        if (dockLayouts.get(dockTarget.layoutNode()) != null) {
+        if (dockLayouts.get(dockLayout.layoutNode()) != null) {
             return;
         }
-        dockLayouts.put(dockTarget.layoutNode(), dockTarget);
+        dockLayouts.put(dockLayout.layoutNode(), dockLayout);
 
     }
-
-    public DockLayout makeDockLayout(Node node) {
+*/
+    public static LayoutContext getLayoutContext(Object obj) {
+        if (isDockLayout(obj)) {
+            return dockLayout(obj).getLayoutContext();
+        }
+        Node node = null;
+        if ( obj == null || ! (obj instanceof Node ) ) {
+            return null;
+        }
+        node = (Node) obj;
+        
+        LayoutContext retval = new DefaultLayoutContextFactory().getContext(node);
+        
+        if (retval == null) {
+            //
+            // try to find in lookup
+            //
+            List<? extends LayoutContextFactory> list = DockRegistry.getInstance().getLookup().lookupAll(LayoutContextFactory.class);
+            for ( LayoutContextFactory f : list ) {
+                retval = f.getContext(node);                
+                if ( retval != null ) {
+                    break;
+                }
+            }
+        }
+        return retval;
+        
+    }    
+    public static DockLayout makeDockLayout(Node node) {
         if (isDockLayout(node)) {
             return dockLayout(node);
         }
-        LayoutContextFactory f = new LayoutContextFactory();
-        LayoutContext c = f.getContext(node);
+        
+        LayoutContext c = new DefaultLayoutContextFactory().getContext(node);
+        
         if (c == null) {
-            return null;
+            //
+            // try to find in lookup
+            //
+            List<? extends LayoutContextFactory> list = DockRegistry.getInstance().getLookup().lookupAll(LayoutContextFactory.class);
+            for ( LayoutContextFactory f : list ) {
+                c = f.getContext(node);                
+                if ( c != null ) {
+                    break;
+                }
+            }
+            if ( c == null ) {
+                return null;
+            }
         }
         DockLayout dt = new DefaultDockLayout(node, c);
-        register(dt);
+        node.getProperties().put(DockLayout.DOCKLAYOUT, dt);
         return dt;
     }
-
-    public Dockable getDefaultDockable(Node node) {
+    //
+    // DELETE
+/*    public Dockable getDefaultDockable(Node node) {
         if (node instanceof Dockable) {
             return (Dockable) node;
         }
-        if (dockables.get(node) != null) {
-            return dockables.get(node);
+        if (node.getProperties().get(Dockable.DOCKABLE) != null) {
+            return (Dockable) node.getProperties().get(Dockable.DOCKABLE);
         }
         Dockable d = new DefaultDockable(node);
-        dockables.put(node, d);
+        node.getProperties().put(Dockable.DOCKABLE, d);
         return d;
     }
-
+*/
     public static boolean isDockable(Object obj) {
         if (obj instanceof Dockable) {
             return true;
@@ -531,7 +572,8 @@ public class DockRegistry {
         if (!(obj instanceof Node)) {
             return false;
         }
-        return getInstance().isNodeDockable((Node) obj);
+        Node node = (Node) obj;
+        return node.getProperties().get(Dockable.DOCKABLE) != null;
     }
 
     public static Dockable dockable(Object obj) {
@@ -547,14 +589,7 @@ public class DockRegistry {
         }
         Node node = (Node) obj;
 
-        Dockable retval = getInstance().dockables.get(node);
-        if (retval == null) {
-            Object d = node.getProperties().get(Dockable.DOCKABLE_KEY);
-            if (d != null && (d instanceof Dockable) && ((Dockable) d).node() == node) {
-                retval = (Dockable) d;
-            }
-        }
-        return retval;
+        return (Dockable) node.getProperties().get(Dockable.DOCKABLE);
     }
 
 /*    public static boolean instanceOfDockLayout(Node node) {
@@ -568,22 +603,23 @@ public class DockRegistry {
         if (!(obj instanceof Node)) {
             return false;
         }
-        return getInstance().isNodeDockLayout((Node) obj);
+        Node node = (Node) obj;
+        return node.getProperties().get(DockLayout.DOCKLAYOUT) != null;
     }
 
-    private boolean isNodeDockLayout(Node node) {
+/*    private boolean isNodeDockLayout(Node node) {
         boolean retval = node instanceof DockLayout;
         if (!retval && dockLayouts.get(node) != null) {
             retval = true;
         } else if (!retval) {
-            Object d = node.getProperties().get(DockLayout.DOCKLAYOUTS_KEY);
+            Object d = node.getProperties().get(DockLayout.DOCKLAYOUT);
             if (d != null && (d instanceof DockLayout) && ((DockLayout) d).layoutNode() == node) {
                 retval = true;
             }
         }
         return retval;
     }
-
+*/
     public static DockLayout dockLayout(Object obj) {
         if (obj == null) {
             return null;
@@ -591,14 +627,10 @@ public class DockRegistry {
         if (obj instanceof DockLayout) {
             return (DockLayout) obj;
         }
-        DockLayout retval = getInstance().dockLayouts.get(obj);
-        if (retval == null && (obj instanceof Node)) {
-            Object d = ((Node) obj).getProperties().get(DockLayout.DOCKLAYOUTS_KEY);
-            if (d != null && (d instanceof DockLayout) && ((DockLayout) d).layoutNode() == obj) {
-                retval = (DockLayout) d;
-            }
+        if ( ! (obj instanceof Node) ) {
+            return null;
         }
-        return retval;
+        return  (DockLayout) ((Node) obj).getProperties().get(DockLayout.DOCKLAYOUT);
 
     }
 

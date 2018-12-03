@@ -112,6 +112,8 @@ public class FramePane extends Control {
 
     public void hide() {
         setVisible(false);
+        
+        //setBoundNode(null);
         getSideShapes().forEach((k, v) -> {
             v.setVisible(false);
         });
@@ -121,10 +123,12 @@ public class FramePane extends Control {
         Platform.runLater(() -> {
             setVisible(true);
             toFront();
+            //skinBase.adjustBoundsToNode();
             getSideShapes().forEach((k, v) -> {
                 v.setVisible(true);
                 v.toFront();
             });
+            layoutChildren();
         });
     }
 
@@ -172,7 +176,6 @@ public class FramePane extends Control {
     }
 
     public void setBoundNode(Node boundNode) {
-
         this.boundNode.set(boundNode);
     }
 
@@ -448,11 +451,12 @@ public class FramePane extends Control {
             rect.setX(1);
             rect.setY(1);
             Platform.runLater(() -> {
+                rect.setX(0);
+                rect.setY(0);
                 if (ctrl.getBoundNode() == null) {
                     return;
                 }
-                rect.setX(0);
-                rect.setY(0);
+               
                 Bounds sceneB = ctrl.getBoundNode().localToScene(ctrl.getBoundNode().getLayoutBounds());
                 double insw = insets != null ? insets.getLeft() + insets.getRight() : 0;
                 double insh = insets != null ? insets.getTop() + insets.getBottom() : 0;

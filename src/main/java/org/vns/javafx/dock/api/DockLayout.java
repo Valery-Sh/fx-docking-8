@@ -19,7 +19,7 @@ import javafx.scene.Node;
 public interface DockLayout {
     
     public static final String LOOKUP_SELECTOR = "docklayout-e651abfa-c321-4249-b78a-120db404b641";
-    public static final String DOCKLAYOUTS_KEY = "docklayot-marker-e651abfa-c321-4249-b78a-120db404b641";
+    public static final String DOCKLAYOUT = "docklayot-marker-e651abfa-c321-4249-b78a-120db404b641";
     
     /**
      * Returns a node of type {@code Region} that implements this interface or
@@ -45,4 +45,16 @@ public interface DockLayout {
     static DockLayout of(Object obj) {
         return DockRegistry.dockLayout(obj);
     }
+    
+    static boolean test(Object obj) {
+        return DockRegistry.isDockLayout(obj);
+    }    
+    
+    static DockLayout register(Node node, LayoutContext context) {
+        return DockRegistry.makeDockLayout(node, context);
+    }    
+    static DockLayout tryRegister(Node node) {
+        return DockRegistry.makeDockLayout(node);
+    }    
+    
 }

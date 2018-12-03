@@ -63,7 +63,7 @@ public class TestRegistryDock extends Application {
         /////////////////////////////////////
         
         btn1.setOnAction(a->{
-            Dockable d = DockRegistry.getInstance().getDefaultDockable(btn2_1);
+            Dockable d = DockRegistry.makeDockable(btn2_1);
             d.getContext().setDragNode(d.node());
             //d.getContext().setFloating(true);
         });

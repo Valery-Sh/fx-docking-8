@@ -36,7 +36,7 @@ public class TestTabPaneTargetContext1 extends Application {
         dockButton.setMaxHeight(dockButton.getPrefHeight());
         dockButton.setMaxWidth(dockButton.getPrefWidth());
         
-        Dockable dockableButton = DockRegistry.getInstance().getDefaultDockable(dockButton);
+        Dockable dockableButton = DockRegistry.makeDockable(dockButton);
         dockableButton.getContext().setDragNode(dockButton);
         dockableButton.getContext().setTitle("Dockable Button");
 

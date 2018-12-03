@@ -15,40 +15,39 @@
  */
 package org.vns.javafx.dock.api.dragging.view;
 
-import javafx.scene.layout.Region;
+import javafx.scene.Node;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.stage.Window;
+//import static org.vns.javafx.dock.api.dragging.view.NodeResizer.windowBounds;
 
 /**
  *
  * @author Valery
  */
-public class NodeResizer extends AbstractResizer {
+public class TextResizer extends AbstractResizer {
 
-    public NodeResizer(Window window, Region node) {
-        super(window,node);
+    public TextResizer(Window window, Node node) {
+        super(window, node);
     }
+
     @Override
     protected void setSize() {
-        Region node = (Region) getNode();
-        node.setPrefWidth(node.getWidth());
-        node.setPrefHeight(node.getHeight());
-    }    
+        Text node = (Text) getNode();
+        node.setWrappingWidth(node.localToScreen(node.getBoundsInLocal()).getWidth());
+    }
+
     @Override
     protected void setXLayout(double wDelta, double xDelta, double curX) {
-        Region node = (Region) getNode();
-        if ((node.getWidth() > node.minWidth(-1) || xDelta <= 0)) {
-            node.setPrefWidth(wDelta + node.getPrefWidth());
+        Text node = (Text) getNode();
+        if ((node.getWrappingWidth() >= node.minWidth(-1) || xDelta <= 0)) {
+            node.setWrappingWidth(wDelta + node.getWrappingWidth());
             mouseXProperty().set(curX);
         }
 
     }
+
     @Override
     protected void setYLayout(double hDelta, double yDelta, double curY) {
-         Region node = (Region) getNode();
-         if ((node.getHeight() > node.minHeight(-1) || yDelta <= 0)) {
-            node.setPrefHeight(hDelta + node.getPrefHeight());
-            mouseYProperty().set(curY);
-         }
-
-    }    
+    }
 }

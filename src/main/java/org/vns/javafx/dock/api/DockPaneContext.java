@@ -188,9 +188,9 @@ public class DockPaneContext extends LayoutContext {
         if (contains(dragged.node())) {
             return;
         }
-        if (!(dragged instanceof Node) && !DockRegistry.getDockables().containsKey(dragged.node())) {
-            DockRegistry.getDockables().put(dragged.node(), dragged);
-        }
+//        if (!(dragged instanceof Node) && !DockRegistry.getDockables().containsKey(dragged.node())) {
+//            DockRegistry.getDockables().put(dragged.node(), dragged);
+//        }
 
         Node node = dragged.node();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Your Organisation.
+ * Copyright 2018 Your Organisation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vns.javafx;
+package org.vns.javafx.designer.demo;
 
-import java.util.List;
+import javafx.scene.Node;
+import javafx.scene.layout.HBox;
 
 /**
  *
  * @author Valery
  */
-public interface ContextLookup {
-    <T> T lookup(Class<T> clazz);
-    <T> List<? extends T> lookupAll(Class<T> clazz);    
-    <T> void add(T obj);
-    <T> void remove(T obj);
-    //<T> void put(Class key, T obj);
-    <T> void putUnique(Class key, T obj);
-    <T> void put(Class key, T obj);
-    <T> void remove(Class key, T obj);
-    <T> void clear(Class key);
+public class MyHBox extends HBox {
     
+
+    public MyHBox() {
+    }
+
+
+    public MyHBox(Node... children) {
+        super(children);
+    }
+
 }

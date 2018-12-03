@@ -29,7 +29,7 @@ import org.vns.javafx.dock.DockSideBar;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.LayoutContext;
-import org.vns.javafx.dock.api.LayoutContextFactory;
+import org.vns.javafx.dock.api.DefaultLayoutContextFactory;
 
 import org.vns.javafx.designer.PalettePane;
 import org.vns.javafx.designer.DesignerLookup;

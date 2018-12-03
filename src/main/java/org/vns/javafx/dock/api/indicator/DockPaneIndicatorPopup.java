@@ -122,18 +122,10 @@ public class DockPaneIndicatorPopup extends IndicatorPopup {
 
     @Override
     protected void initContent() {
-        System.err.println("DockPaneIndicatorPopup initContent");
         Pane paneIndicatorPane = getTargetContext().getPositionIndicator().getIndicatorPane();
         paneIndicatorPane.setMouseTransparent(true);
-        //Pane nodeIndicatorPane = getLayoutContext().getNodeIndicator().getIndicatorPane();
         Pane nodeIndicatorPane = getNodeIndicator().getIndicatorPane();        
         nodeIndicatorPane.setMouseTransparent(true);
-/*        setOnShown(s -> {
-            getScene().getStylesheets().add("org/vns/javafx/dock/api/resources/default.css");
-//            System.err.println("DACKPANE DOCKPANE INDICATOR POPUP STYLESHEET");
-            
-        });
-*/        
         nodeIndicatorPopup = new IndicatorPopup(getTargetContext());
         nodeIndicatorPopup.getProperties().put("POPUP", "nodeIndicatorPopup");
         if (getTargetNode() instanceof Region) {
@@ -200,7 +192,6 @@ public class DockPaneIndicatorPopup extends IndicatorPopup {
      * indicators.
      */
     public IndicatorPopup getNodeIndicatorPopup() {
-        //System.err.println("getNodeIndicatorPopup");
         return nodeIndicatorPopup;
     }
 
@@ -395,7 +386,6 @@ public class DockPaneIndicatorPopup extends IndicatorPopup {
 
         Button btn;
         if (nodeIndicatorPopup.isShowing()) {
-            //System.err.println("nodeIndicatorPopup.isShowing()");
             if ((btn = getSelectedButton(getNodeIndicator().getTopButtons(), screenX, screenY)) != null) {
                 showDockPlace(btn, targetNode, Side.TOP);
             } else if ((btn = getSelectedButton(getNodeIndicator().getLeftButtons(), screenX, screenY)) != null) {

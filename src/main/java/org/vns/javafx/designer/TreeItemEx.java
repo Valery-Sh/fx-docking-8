@@ -44,7 +44,7 @@ public class TreeItemEx extends TreeItem<Object> {
     private ItemType itemType = ItemType.CONTENT;
 
     public static enum ItemType {
-        CONTENT, LIST, DEFAULTLIST, ELEMENT,
+        CONTENT, LIST, DEFAULTLIST, ELEMENT, MIXED
     }
 
     public TreeItemEx() {

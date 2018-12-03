@@ -25,6 +25,7 @@ import javafx.scene.layout.VBox;
  * @author Valery
  */
 public class MyVBox extends VBox {
+    
     private ObjectProperty<Node> title = new SimpleObjectProperty<>();
 
     public MyVBox() {

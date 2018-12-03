@@ -80,7 +80,6 @@ public abstract class LayoutContext {
             DockableContext dockableContext = Dockable.of(obj).getContext();
             if (dockableContext.getLayoutContext() != this) {
                 dockableContext.setLayoutContext(this);
-                //System.err.println("---------------- commitDock");
                 ConstraintFactory f = getLookup().lookup(ConstraintFactory.class);
                 if ( f != null ) {
                     Constraint c = f.getConstraint(Dockable.of(obj).node());
@@ -233,15 +232,12 @@ public abstract class LayoutContext {
         } else if (dc != null) {
             obj = dc.getValue();
         }
-        System.err.println(" !!!!!!!!!!! undock = " + obj);
         Dockable dockableObj = Dockable.of(obj);
         if ((obj instanceof Node) && dockableObj != null && dockableObj.getContext().getLayoutContext().isDocked(dockableObj)) {
             ctx = dockableObj.getContext();
             ctx.getLayoutContext().remove(obj);
             Node node = (Node) obj;
             if ( node.getProperties().get(Constraint.PROPERTY_NAME) != null  ){
-                System.err.println("2) !!!!!!!!!!! DELETE node = " + node);
-                System.err.println("node.getProperties().get(Constraint.PROPERTY_NAME) = " + node.getProperties().get(Constraint.PROPERTY_NAME));
                 ((Constraint)node.getProperties().get(Constraint.PROPERTY_NAME)).delete();
             }
             ctx.setLayoutContext(null);
@@ -272,9 +268,7 @@ public abstract class LayoutContext {
             if (dockableContext.getDragContainer() != null) {
                 
                 Object obj = dockableContext.getDragContainer().getValue();
-                //System.err.println("evaluate: dragContainer obj = " + obj);
                 if (Dockable.of(obj) != null) {
-                  //  System.err.println("evaluate: dragContainer obj is Dockable ");
                     dset.addAll(Dockable.of(obj).getContext().getScopes());
                 }
             } else {

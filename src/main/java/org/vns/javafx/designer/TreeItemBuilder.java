@@ -31,10 +31,14 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import static org.vns.javafx.designer.SceneView.ANCHOR_OFFSET;
 import static org.vns.javafx.designer.SceneView.FIRST;
+import static org.vns.javafx.designer.SceneView.LAST;
 import org.vns.javafx.designer.TreeItemEx.ItemType;
 import static org.vns.javafx.designer.TreeItemEx.ItemType.CONTENT;
 import static org.vns.javafx.designer.TreeItemEx.ItemType.DEFAULTLIST;
 import static org.vns.javafx.designer.TreeItemEx.ItemType.LIST;
+import static org.vns.javafx.designer.TreeItemEx.ItemType.MIXED;
+import org.vns.javafx.designer.demo.MyHBox;
+import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.bean.BeanAdapter;
 import org.vns.javafx.dock.api.bean.ReflectHelper;
 
@@ -87,8 +91,15 @@ public class TreeItemBuilder {
         if (palette == null) {
             return;
         }
+        if ( obj instanceof MyHBox) {
+            System.err.println("1. TreeItemBuilder.setContexts is Dockable MyHBox = " + (Dockable.of(obj) != null) );
+        }
         palette.setLayoutContext(obj);
         palette.setDockableContext(obj);
+        if ( obj instanceof MyHBox) {
+            System.err.println("2. TreeItemBuilder.setContexts is Dockable MyHBox = " + (Dockable.of(obj) != null) );
+        }
+        
     }
 
     public TreeItemEx build(Object obj) {
@@ -129,15 +140,18 @@ public class TreeItemBuilder {
         NodeDescriptor nd = NodeDescriptorRegistry.getInstance().getDescriptor(obj.getClass());
 
         BeanAdapter adapter = new BeanAdapter(obj);
-
-        nd.getProperties().forEach(cp -> {
-            int cpIdx = nd.getProperties().indexOf(cp);
+        int defaultCount = 0;
+        boolean allVisible = true;
+        for (NodeProperty cp : nd.getProperties()) {
+            //nd.getProperties().forEach(cp -> {
+            //int cpIdx = nd.getProperties().indexOf(cp);
             Object cpObj = adapter.get(cp.getName());
-            boolean isNodeContent = false;
-            boolean hideIfNull = false;
+            //boolean isNodeContent = false;
+            //boolean hideIfNull = false;
 
             if ((cp instanceof NodeList)) {
                 if (nd.getProperties().size() == 1 && !((NodeList) cp).isAlwaysVisible()) {
+                    allVisible = false;
                     //
                     // Omit TreeItem for ListItem
                     //
@@ -151,19 +165,33 @@ public class TreeItemBuilder {
                     }
                     retval.setItemType(ItemType.DEFAULTLIST);
                 } else {
+                    if (!((NodeList) cp).isAlwaysVisible()) {
+                        allVisible = false;
+                    }
                     TreeItemEx listItem = build(cpObj, (NodeList) cp);
                     retval.getChildren().add(listItem);
                     listItem.setPropertyName(cp.getName());
                     PalettePane.addDesignerStyles(cpObj);
                 }
-
+                if (cp.isDefault()) {
+                    defaultCount++;
+                }
             } else if ((cp instanceof NodeContent) && (cpObj != null || !((NodeContent) cp).isHideWhenNull())) {
                 TreeItemEx item = build(cpObj, (NodeContent) cp);
                 item.setPropertyName(cp.getName());
                 retval.getChildren().add(item);
                 PalettePane.addDesignerStyles(cpObj);
+
+                if (cp.isDefault()) {
+                    defaultCount++;
+                }
+            } else {
+                allVisible = false;
             }
-        });
+        }//for
+        if (allVisible && defaultCount >= 1) {
+            retval.setItemType(MIXED);
+        }
         return retval;
     }
 
@@ -358,25 +386,33 @@ public class TreeItemBuilder {
         }
         TreeItemEx dragItem = EditorUtil.findTreeItemByObject(treeView, dragObject);
         System.err.println("1. TreeItemBuilder isAdmissiblePosition dragObject = " + dragObject);
+        System.err.println("   --- TreeItemBuilder isAdmissiblePosition dragDragItem = " + dragItem);
+        System.err.println("   --- TreeItemBuilder target == place = " + (target == place));
+        if (target == place) {
+            System.err.println("place.getDragDropQualifier() = " + place.getDragDropQualifier());
+        }
         //
         // First check if the layoutNode item corresponds to LIST ItemType
         //
-        boolean isList = target.getItemType() == LIST;
+//        boolean isList = target.getItemType() == LIST;
 
         NodeDescriptor nd = null;
-        if (!isList) {
+        if (target.getItemType() != LIST) {
             if (target.getValue() != null) {
                 nd = NodeDescriptor.get(target.getValue().getClass());
             }
         }
+        if (target == place && place.getDragDropQualifier() == LAST && nd != null && target.getItemType() == MIXED) {
+            return isAcceptable(target, dragObject);
+        }
         System.err.println("2. TreeItemBuilder isAdmissiblePosition target.itemType = " + target.getItemType());
         if (target.getItemType() == LIST || target.getItemType() == DEFAULTLIST) {
-System.err.println("3. TreeItemBuilder isAdmissiblePosition dragObject = " + dragObject);            
+            System.err.println("3. TreeItemBuilder isAdmissiblePosition dragObject = " + dragObject);
             if (dragItem != null && dragItem.previousSibling() == place) {
                 return false;
             }
             if (dragItem == place) {
-
+                System.err.println("4. TreeItemBuilder isAdmissiblePosition dragItem == place = ");
                 if (treeView.getTreeItemLevel(place) - treeView.getTreeItemLevel(target) > 1) {
 
                     int level = treeView.getTreeItemLevel(target) + 1;
@@ -440,7 +476,7 @@ System.err.println("3. TreeItemBuilder isAdmissiblePosition dragObject = " + dra
     }
 
     protected boolean isAcceptable(TreeItemEx target, Object toAccept) {
-
+        System.err.println("TreeItemBuilder isAcceptable obj = " + toAccept);
         if (toAccept == null) {
             return false;
         }
@@ -450,7 +486,7 @@ System.err.println("3. TreeItemBuilder isAdmissiblePosition dragObject = " + dra
             //
             // The ItemType of the layoutNode TreeItem equals to NodeElement
             //
-            nd = NodeDescriptorRegistry.getInstance().getDescriptor(target.getValue().getClass());
+            nd = NodeDescriptor.get(target.getValue().getClass());
             NodeProperty prop = nd.getDefaultContentProperty();
             if (prop != null) {
                 BeanAdapter ba = new BeanAdapter((target.getValue()));
@@ -464,6 +500,20 @@ System.err.println("3. TreeItemBuilder isAdmissiblePosition dragObject = " + dra
                     BeanAdapter adapter = new BeanAdapter(parent.getValue());
                     retval = adapter.getType(cp.getName()).isAssignableFrom(toAccept.getClass());
                     break;
+                case MIXED:
+                    //TreeItemEx listItem = getListTreeItemFor(target);
+/*                    String propName = null;
+                    propName = getListPropertyNameFor(target);
+                    Class clazz = ReflectHelper.getListGenericType(target.getValue().getClass(), propName);
+                    if (clazz != null) {
+                        retval = clazz.isAssignableFrom(toAccept.getClass());
+                    }
+                     */
+                    System.err.println("TreeItemBuilde MIXED isAcceptable(item,obj) = " + getDefaultPropertyNameFor(target, toAccept));
+                    retval = getDefaultPropertyNameFor(target, toAccept) != null;
+
+                    break;
+
                 case LIST:
                 case DEFAULTLIST:
                     TreeItemEx listItem = getListTreeItemFor(target);
@@ -516,6 +566,40 @@ System.err.println("3. TreeItemBuilder isAdmissiblePosition dragObject = " + dra
                 retval = p.getName();
             }
         }
+        return retval;
+    }
+
+    /**
+     * Called if the the property {@code itemType} of the given item is equal to
+     * {@code ItemType.MIXED}.
+     *
+     * @param item the item whose property is searched
+     * @param dragObject the dragged object
+     * @return the property name or null.
+     */
+    protected String getDefaultPropertyNameFor(TreeItemEx item, Object dragObject) {
+        String retval = null;
+        NodeDescriptor nd = NodeDescriptorRegistry.getInstance().getDescriptor(item.getValue().getClass());
+        for (NodeProperty p : nd.getProperties()) {
+            if (!p.isDefault()) {
+                continue;
+            }
+            String name = p.getName();
+
+            if (p instanceof NodeList) {
+                Class clazz = ReflectHelper.getListGenericType(item.getValue().getClass(), name);
+                if (clazz != null && clazz.isAssignableFrom(dragObject.getClass())) {
+                    retval = name;
+                    break;
+                }
+            } else if (p instanceof NodeContent) {
+                BeanAdapter adapter = new BeanAdapter(item.getValue());
+                if (adapter.getType(p.getName()).isAssignableFrom(dragObject.getClass())) {
+                    retval = name;
+                    break;
+                }
+            }
+        }//for
         return retval;
     }
 
@@ -598,7 +682,13 @@ System.err.println("3. TreeItemBuilder isAdmissiblePosition dragObject = " + dra
         // position can change, since the method updateOnMove deletes the item which
         // corresponds to the dragged value
         //
+        
+        if (target == place && place.getDragDropQualifier() == LAST && target.getValue() != null && target.getItemType() == MIXED) {
+            accept(treeView, target, value);
+            return;
+        }
         int insertIndex = getInsertIndex(treeView, target, place);
+        
 
         if (target != null && (target.getItemType() == LIST || target.getItemType() == DEFAULTLIST)) {
             TreeItemEx it = EditorUtil.findTreeItemByObject(treeView, value);
@@ -613,7 +703,52 @@ System.err.println("3. TreeItemBuilder isAdmissiblePosition dragObject = " + dra
         update(treeView, target, insertIndex, value);
 
     }
+    /**
+     * Executes when the target item equals to place and the itemType property value
+     * of the target item equals to ItemType.MIXED.
+     * 
+     * @param treeView an instance of TreeViewEx
+     * @param target the target item with itemType ItemType.MIXED 
+     * @param value the dragged value
+     */
+    public void accept(TreeViewEx treeView, TreeItemEx target, Object value) {
+        //TreeItemEx defaultItem = 
+        NodeDescriptor nd = NodeDescriptor.get(target.getValue().getClass());
+        
+        if ( nd == null ) {
+            return;
+        }
+        NodeProperty defaultProperty = null;
+        String propName = getDefaultPropertyNameFor(target, value);        
+        if ( propName == null ) {
+            return;
+        }
+        System.err.println("TreeItemBuilder accept propName = " + propName);
+        for ( NodeProperty p : nd.getProperties()) {
+            System.err.println("   --- p.getName = " + p.getName());
+            if ( propName.equals(p.getName() )) {
+                defaultProperty = p;
+                break;
+            }
+        }
+        TreeItemEx item = (TreeItemEx) target.getChildren().get(nd.getProperties().indexOf(defaultProperty));
+        
+        
+        int insertIndex = item.getChildren().size();
+        if (item != null && (item.getItemType() == LIST || item.getItemType() == DEFAULTLIST)) {
+            TreeItemEx it = EditorUtil.findTreeItemByObject(treeView, value);
+            if (it != null) {
+                int idx = item.getChildren().indexOf(it);
+                if (idx >= 0 && idx < insertIndex) {
+                    insertIndex--;
+                }
+            }
+        }
 
+        update(treeView, item, insertIndex, value);
+        
+    }
+    
     protected void update(TreeViewEx treeView, TreeItemEx target, int insertIndex, Object sourceObject) {
 
         switch (target.getItemType()) {
@@ -660,6 +795,7 @@ System.err.println("3. TreeItemBuilder isAdmissiblePosition dragObject = " + dra
      * used to insert a new TreeItem
      */
     protected int getInsertIndex(TreeViewEx treeView, TreeItemEx target, TreeItemEx place) {
+       
         int idx = -1;
 
         if (target == place) {
@@ -684,6 +820,12 @@ System.err.println("3. TreeItemBuilder isAdmissiblePosition dragObject = " + dra
             }
             idx = target.getChildren().indexOf(parent) + 1;
         }
+        return idx;
+    }
+
+    protected int getInsertIndex(TreeViewEx treeView, TreeItemEx target, Object value) {
+        int idx = target.getChildren().size();
+
         return idx;
     }
 

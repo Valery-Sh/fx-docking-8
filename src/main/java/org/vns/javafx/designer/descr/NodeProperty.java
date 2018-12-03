@@ -22,7 +22,8 @@ package org.vns.javafx.designer.descr;
 public abstract class  NodeProperty extends NodeElement {
 
     private String name;
-
+    private boolean defaultProperty;
+    
     private NodeDescriptor descriptor;
     /**
      * Returns the name of the property
@@ -38,15 +39,24 @@ public abstract class  NodeProperty extends NodeElement {
     public void setName(String name) {
         this.name = name;
     }
+
+    public boolean isDefault() {
+        return defaultProperty;
+    }
+
+    public void setDefault(boolean defaultProperty) {
+        this.defaultProperty = defaultProperty;
+    }
+    
     /**
      * Checks whether the parent node descriptor defines the default property
      * with the same name as this object has.
      * @return true if the parent node descriptor defines the default property 
      * with the same name as this object has. Otherwise returns false
      */
-    protected boolean isDefault() {
-        return getName().equals(getDescriptor().getDefaultContentProperty().getName());
-    }
+//    protected boolean isDefault() {
+//        return getName().equals(getDescriptor().getDefaultContentProperty().getName());
+//    }
     /**
      * Returns the parent node descriptor
      * @return the parent node descriptor
