@@ -44,7 +44,7 @@ public class DefaultMouseDragHandler extends MouseDragHandler {
             return;
         }
         
-        Dockable dockable = getContext().dockable();
+        Dockable dockable = getContext().getDockable();
         if (!getContext().isDraggable()) {
             ev.consume();
             return;
@@ -62,7 +62,7 @@ public class DefaultMouseDragHandler extends MouseDragHandler {
              dm = createDragManager(ev);
         } else if ( (dc != null) && dc.getPlaceholder() != null) {
             //dm = getDragManager(ev);
-            dm = Dockable.of(dc.getPlaceholder()).getContext().newDragManager();
+            dm = Dockable.of(dc.getPlaceholder()).getContext().getDragManager();
         } else {
              dm = createDragManager(ev);
         }

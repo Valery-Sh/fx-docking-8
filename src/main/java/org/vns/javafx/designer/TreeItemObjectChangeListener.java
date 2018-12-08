@@ -74,19 +74,13 @@ public class TreeItemObjectChangeListener implements ChangeListener {
         if (propItem == null) {
             if (oldValue == null && newValue != null) {
                 TreeItemEx item = new TreeItemBuilder().build(newValue, prop);
-/*                if (item != null && sr != null && !sr.contains(newValue)) {
-                    //
-                    //changed outside and not by dragging 
-                    //
-                    treeItem.getChildren().add(insertPos, item);
-                    item.setExpanded(false);
-                } else 
-*/                
                 if (item != null ) {
                     treeItem.getChildren().add(insertPos, item);
+//                    NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
                     if (nf != null && (newValue instanceof Node)) {
                         Platform.runLater(() -> {
-                            nf.show((Node) newValue);
+                           // System.err.println("1 TreeItemObjectChangeListener before show");
+                            //nf.show((Node) newValue);
                         });
                     }
 
@@ -131,21 +125,14 @@ public class TreeItemObjectChangeListener implements ChangeListener {
                 // May be is NodeContent and not hidden when null
                 TreeItemEx item = new TreeItemBuilder().build(newValue, prop);
 
-/*                if (item != null && sr != null && !sr.contains(newValue)) {
-                    //
-                    //changed outside and not by dragging 
-                    //
-                    List<Boolean> expValues = downUpExpandedValues(propItemParent);
-                    propItemParent.getChildren().set(propItemParent.getChildren().indexOf(propItem), item);
-                    item.setExpanded(false);
-                } else 
-*/
                 if ( item != null ){
                     item.setExpanded(false);
                     propItemParent.getChildren().set(propItemParent.getChildren().indexOf(propItem), item);
                     if (nf != null && (newValue instanceof Node)) {
                         Platform.runLater(() -> {
-                            nf.show((Node) newValue);
+                           // System.err.println("2 TreeItemObjectChangeListener before show");
+                            
+                            //nf.show((Node) newValue);
                         });
                     }
                 }

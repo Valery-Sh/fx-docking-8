@@ -258,23 +258,23 @@ public class TestDockPaneControl extends Application {
 
         TabNode tab1 = new TabNode("Tab1 of TabNode");
         //Dockable.register(tab1);
-        tab1.getContext().setDragNode(tab1.node());
-        root1.getChildren().add(tab1.node());
+        tab1.getContext().setDragNode(tab1.getNode());
+        root1.getChildren().add(tab1.getNode());
 
         TabNode tab2 = new TabNode("Tab2");
         //DockRegistry.getInstance().register(tab2);
-        tab2.getContext().setDragNode(tab2.node());
+        tab2.getContext().setDragNode(tab2.getNode());
         Node node = new Label("Tab2 Label");
         tab2.getContext().setDragContainer(new DragContainer(DragContainer.placeholderOf(node), node));
         //tab2.getContext().getDragContainer().setCarrier(Dockable.of(tab2));        
-        root1.getChildren().add(tab2.node());
+        root1.getChildren().add(tab2.getNode());
 
         TabNode tab3 = new TabNode("Tab3");
         //DockRegistry.getInstance().register(tab3);
-        tab3.getContext().setDragNode(tab3.node());
+        tab3.getContext().setDragNode(tab3.getNode());
         tab3.getContext().setDragContainer(new DragContainer(DragContainer.placeholderOf("Shyshkin"), "Shyshkin"));
         //tab2.getContext().getDragContainer().setCarrier(Dockable.of(tab2));        
-        root1.getChildren().add(tab3.node());
+        root1.getChildren().add(tab3.getNode());
 
         Button dockableBtn1 = new Button("dockableBtn1");
 
@@ -547,7 +547,7 @@ public class TestDockPaneControl extends Application {
         }
 
         @Override
-        public Node node() {
+        public Node getNode() {
             node.setText(getText());
             return node;
         }

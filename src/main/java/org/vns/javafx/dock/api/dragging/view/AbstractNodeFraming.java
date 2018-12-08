@@ -54,7 +54,7 @@ public abstract class AbstractNodeFraming implements NodeFraming {
         }
         setNode(node);
         //
-        // Check when null to avoid proplem when the method isAcceptable is overidden
+        // Check when null to avoid problem when the method isAcceptable is overidden
         //
         if (node != null) {
             initializeNode();
@@ -109,6 +109,7 @@ public abstract class AbstractNodeFraming implements NodeFraming {
 
     protected abstract void finalizeOnHide(Node node);
 
+    
     private void finalizeNode() {
         getNode().parentProperty().removeListener(nodeParentListener);
         getNode().sceneProperty().removeListener(nodeSceneListener);
@@ -128,7 +129,10 @@ public abstract class AbstractNodeFraming implements NodeFraming {
 
         //setNode(null);        
     }
-
+    @Override
+    public void showParent(Node node) {
+        
+    }
 //    @Override
     public boolean isShowing(Node node) {
         return isShowing() && (getNode() == node);

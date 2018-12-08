@@ -30,6 +30,7 @@ public interface NodeFraming {
 */    
     
     void show(Node node);
+    void showParent(Node node);
     void hide();
     void removeListeners();
     

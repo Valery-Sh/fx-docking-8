@@ -78,7 +78,7 @@ public abstract class MouseDragHandler implements EventHandler<MouseEvent> {
         if ( startMousePos == null ) {
             return null;
         }
-        if ( getContext().dockable().node() instanceof DockNode) {
+        if ( getContext().getDockable().getNode() instanceof DockNode) {
             //return startMousePos;
         }
         return new Point2D(0,0);
@@ -89,7 +89,7 @@ public abstract class MouseDragHandler implements EventHandler<MouseEvent> {
 
 
     public DragManager createDragManager(MouseEvent ev) {
-        dragManager = getContext().newDragManager();
+        dragManager = getContext().getDragManager();
         return dragManager;
     }
 

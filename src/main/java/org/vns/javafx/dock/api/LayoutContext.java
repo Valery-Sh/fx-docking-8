@@ -23,7 +23,8 @@ public abstract class LayoutContext {
     private Node layoutNode;
    
     private PositionIndicator positionIndicator;
-
+    //private boolean indicatorIntersection;
+    
     //private final ObjectProperty<Node> focusedDockNode = new SimpleObjectProperty<>();
 
     private boolean usedAsDockLayout = true;
@@ -82,8 +83,8 @@ public abstract class LayoutContext {
                 dockableContext.setLayoutContext(this);
                 ConstraintFactory f = getLookup().lookup(ConstraintFactory.class);
                 if ( f != null ) {
-                    Constraint c = f.getConstraint(Dockable.of(obj).node());
-                    Dockable.of(obj).node().getProperties().put(Constraint.PROPERTY_NAME, c);
+                    Constraint c = f.getConstraint(Dockable.of(obj).getNode());
+                    Dockable.of(obj).getNode().getProperties().put(Constraint.PROPERTY_NAME, c);
                 }
             }
         }
@@ -143,6 +144,7 @@ public abstract class LayoutContext {
     protected boolean isAcceptable(Object obj) {
         return false;
     }
+    
     public final void executeDock(Point2D mousePos, Dockable dockable) {
         dock(mousePos, dockable);
         commitDock(dockable.getContext().getDragValue());
@@ -199,10 +201,10 @@ public abstract class LayoutContext {
     }
 
     public boolean isDocked(Dockable dockable) {
-        Object obj = dockable.node();
+        Object obj = dockable.getNode();
         DragContainer dc = dockable.getContext().getDragContainer();
         if (dc != null && dc.getValue() != null && dc.isValueDockable()) {
-            obj = Dockable.of(dc.getValue()).node();
+            obj = Dockable.of(dc.getValue()).getNode();
         } else if (dc != null && dc.getValue() != null && !dc.isValueDockable()) {
             obj = dc.getValue();
         }
@@ -214,21 +216,21 @@ public abstract class LayoutContext {
      * @param obj the object to chack
      * @return true
      */
-    public boolean contains(Object obj) {
+/*    public boolean contains(Object obj) {
         return false;
     }
-
+*/
     public void undock(Dockable dockable) {
         if (dockable == null) {
             return;
         }
         DockableContext ctx = dockable.getContext();
-        Object obj = dockable.node();
+        Object obj = dockable.getNode();
 
         DragContainer dc = ctx.getDragContainer();
 
         if (dc != null && Dockable.of(dc.getValue()) != null) {
-            obj = Dockable.of(dc.getValue()).node();
+            obj = Dockable.of(dc.getValue()).getNode();
         } else if (dc != null) {
             obj = dc.getValue();
         }
@@ -249,7 +251,7 @@ public abstract class LayoutContext {
         }
 
     }
-
+    public abstract boolean contains(Object obj);
     public abstract void remove(Object obj);
     public abstract void dock(Point2D mousePos, Dockable dockable);
 

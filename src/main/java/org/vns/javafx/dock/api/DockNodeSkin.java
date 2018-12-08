@@ -64,8 +64,8 @@ public class DockNodeSkin extends SkinBase<DockNode> {
         layout.getChildren().add(titleBarPane);
         layout.getChildren().add(contentPane);
         getSkinnable().contentProperty().addListener(this::contentChanged);
-        Dockable.of(getSkinnable()).getContext().titleBarProperty().addListener(this::titlebarChanged);
-
+        //Dockable.of(getSkinnable()).getContext().titleBarProperty().addListener(this::titlebarChanged);
+        getSkinnable().titleBarProperty().addListener(this::titlebarChanged);
         getChildren().add(layout);
     }
 

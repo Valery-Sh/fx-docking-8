@@ -9,6 +9,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Control;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
@@ -35,6 +36,7 @@ public class DockUtil {
     public static double widthOf(Node node) {
         double w = 0;
         if (node.getScene() != null && node.getScene().getWindow() != null && node.getScene().getWindow().isShowing()) {            w = node.localToScreen(node.getBoundsInLocal()).getWidth();
+            w = node.localToScreen(node.getBoundsInLocal()).getWidth();
         } else {
             w = node.getLayoutBounds().getWidth();
         }
@@ -99,7 +101,82 @@ public class DockUtil {
                     && !(p.getClass().getName().startsWith("com.sun.javafx"));
         });
     }
+    public static Bounds sceneIntersection(Node node) {
+        Scene scene = node.getScene();
+        if ( scene == null ) {
+            return null;
+        }
+        Bounds retval = null;
+        
+        Bounds nodeBnd = node.localToScene(node.getBoundsInLocal());
+        
+        if ( nodeBnd.getMinX() > scene.getWidth() ) {
+            return retval;
+        }
+        if ( nodeBnd.getMinX() + nodeBnd.getWidth() < 0 ) {
+            return retval;
+        }
+        if ( nodeBnd.getMinY() > scene.getHeight() ) {
+            return retval;
+        }
+        if ( nodeBnd.getMinY() + nodeBnd.getHeight() < 0 ) {
+            return retval;
+        }
+        
+        double x = 0;
+        double y = 0;
+        double w = 0;
+        double h = 0;
 
+        if ( nodeBnd.getMinX() >=  0 ) {
+            x = nodeBnd.getMinX();
+            if ( x + nodeBnd.getWidth() <= scene.getWidth() ) {
+                w = nodeBnd.getWidth();
+            } else {
+                w = scene.getWidth() - x;
+            }
+        } else {
+            w = nodeBnd.getWidth() - nodeBnd.getMinX() ;
+            if ( w > scene.getWidth() ) {
+                w = scene.getWidth();
+            }
+        }
+        if ( nodeBnd.getMinY() >=  0 ) {
+            y = nodeBnd.getMinY();
+            if ( y + nodeBnd.getHeight() <= scene.getHeight() ) {
+                h = nodeBnd.getHeight();
+            } else {
+                h = scene.getHeight() - y;
+            }
+        } else {
+            h = nodeBnd.getHeight() - nodeBnd.getMinY();
+            if ( h > scene.getHeight() ) {
+                h = scene.getHeight();
+            }
+
+        }
+        return new BoundingBox(x,y,w,h);
+    }
+    public static Bounds sceneIntersection_OLD(Node node) {
+        Scene scene = node.getScene();
+        if ( scene == null ) {
+            return null;
+        }
+        Bounds nodeBnd = node.localToScene(node.getBoundsInLocal());
+        
+        double x = Math.max(0d, nodeBnd.getMinX() );
+        if ( x >= scene.getWidth() ) {
+            x = scene.getWidth();
+        }
+        double y = Math.max(0d, nodeBnd.getMinY() );
+        if ( y >= scene.getHeight() ) {
+            y = scene.getHeight();
+        }
+        double w = scene.getWidth() - x;
+        double h = scene.getHeight()- y;
+        return new BoundingBox(x,y,w,h);
+    }
+    
     /**
      * Returns {@code true} if the given point (specified in the screen
      * coordinate space) is contained within the shape of the given node. The

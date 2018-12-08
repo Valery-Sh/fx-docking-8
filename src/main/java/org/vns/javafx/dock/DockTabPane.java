@@ -48,7 +48,7 @@ public class DockTabPane extends TabPane {
     }
 
     public void dock(Dockable dockable) {
-        ((DockTabPaneContext) DockLayout.of(this).getLayoutContext()).doDock(0, dockable.node());
+        ((DockTabPaneContext) DockLayout.of(this).getLayoutContext()).doDock(0, dockable.getNode());
     }
 
     public void dock(int idx, Dockable dockable) {
@@ -60,7 +60,7 @@ public class DockTabPane extends TabPane {
             //03.04dockable.getContext().getLayoutContext().undock(dockable.node());
             dockable.getContext().getLayoutContext().undock(dockable);
         }
-        ((DockTabPaneContext) DockLayout.of(this).getLayoutContext()).doDock(idx, dockable.node());
+        ((DockTabPaneContext) DockLayout.of(this).getLayoutContext()).doDock(idx, dockable.getNode());
     }
 
     public void dockNode(Node node) {
@@ -77,7 +77,7 @@ public class DockTabPane extends TabPane {
             //03.04dockable.getContext().getLayoutContext().undock(dockable.node());
             dockable.getContext().getLayoutContext().undock(dockable);
         }
-        ((DockTabPaneContext) DockLayout.of(this).getLayoutContext()).doDock(idx, dockable.node());
+        ((DockTabPaneContext) DockLayout.of(this).getLayoutContext()).doDock(idx, dockable.getNode());
     }
     @Override
     protected void layoutChildren() {

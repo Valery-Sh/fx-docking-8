@@ -38,7 +38,7 @@ public class DemoDockBorderPane implements DockLayout {
     }
 
     @Override
-    public Region layoutNode() {
+    public Region getLayoutNode() {
         return targetPane;
     }
 
@@ -76,13 +76,13 @@ public class DemoDockBorderPane implements DockLayout {
             }
 */
             dockable.getContext().getLayoutContext().undock(dockable);
-            Node node = d.node();
+            Node node = d.getNode();
             Window stage = null;
             if (node.getScene() != null && node.getScene().getWindow() != null) { //&& (node.getScene().getWindow() instanceof Stage)) {
                 stage = node.getScene().getWindow();
             }
 
-            if (doDock(mousePos, d.node()) && stage != null) {
+            if (doDock(mousePos, d.getNode()) && stage != null) {
                 if ((stage instanceof Stage)) {
                     ((Stage) stage).close();
                 } else {
@@ -140,6 +140,11 @@ public class DemoDockBorderPane implements DockLayout {
             return false;
         }
          */
+
+        @Override
+        public boolean contains(Object obj) {
+            return false;
+        }
     }
 
     public static class BorderPanePositionIndicator extends PositionIndicator {

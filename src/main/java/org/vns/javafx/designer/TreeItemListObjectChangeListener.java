@@ -110,7 +110,8 @@ public class TreeItemListObjectChangeListener implements ListChangeListener {
                     //
                     Node n = (Node) list.get(list.size() - 1);
                     if (!SceneView.isFrame(n)) {
-                        nf.show((Node) list.get(list.size() - 1));
+                        //System.err.println("TreeItemListObjectChangeListener before show");
+                        //nf.show((Node) list.get(list.size() - 1));
                     }
         
                 }

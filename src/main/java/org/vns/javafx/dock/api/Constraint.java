@@ -319,6 +319,10 @@ public class Constraint {
 
         public GridPaneConstraint(Node node) {
             super(node);
+            /**
+             * A list of properties as they are may be saved in the GridPane's
+             * getProperties() collection.
+             */
             String[] propertiesKeys = new String[]{"gridpane-row", "gridpane-column",
                 "gridpane-row-span", "gridpane-column-span",
                 "gridpane-halignment", "gridpane-valignment",
@@ -327,6 +331,9 @@ public class Constraint {
                 "gridpane-margin"
 
             };
+            /**
+             * A list of names of static properties of the GridPane.
+             */            
             String[] propertyNames = new String[]{
                 "rowIndex", "columnIndex",
                 "rowSpan", "columnSpan",
@@ -359,10 +366,6 @@ public class Constraint {
             int c = getPropertyValue("columnIndex") == null ? 0 : (Integer)getPropertyValue("columnIndex");
             return "(" + r + "," + c + ")";
         }
-        /*        @Override
-        public void create(String[] propertiesKeys, String[] propertyNames, Property[] values) {
-            
-        }
-         */
-    }//class CommonConstraint
-}//class Constraints
+   
+    }//class GridPaneConstraint
+}//class Constraint

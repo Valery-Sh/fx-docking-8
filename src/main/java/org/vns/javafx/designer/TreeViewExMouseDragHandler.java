@@ -53,7 +53,7 @@ public class TreeViewExMouseDragHandler extends DefaultMouseDragHandler {
         if (!ev.isPrimaryButtonDown()) {
             return;
         }
-        TreeViewEx treeView = (TreeViewEx) getContext().dockable().node();
+        TreeViewEx treeView = (TreeViewEx) getContext().getDockable().getNode();
         SceneView sgv = treeView.getSceneGraphView();
         TreeItemEx item = sgv.getTreeItem(screenPos);
         //

@@ -3,6 +3,7 @@ package org.vns.javafx.dock.api.indicator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
@@ -103,10 +104,7 @@ public class DockPaneIndicatorPopup extends IndicatorPopup {
      * @param context the owner of the object to be created
      */
     public DockPaneIndicatorPopup(LayoutContext context) {
-        //super(DockRegistry.dockTarget(context.getTargetNode()));
-        //super(DockRegistry.dockTarget(context.getTargetNode()));
         super(context);
-        //getProperties().put("POPUP", "Dragpopup = " + this);        
     }
 
     /**
@@ -122,6 +120,10 @@ public class DockPaneIndicatorPopup extends IndicatorPopup {
 
     @Override
     protected void initContent() {
+        ChangeListener<? super Bounds> targetBoundsListener = (v,ov,nv) -> {
+            setX(getTargetNode().localToScreen(nv).getMinX());
+            setX(getTargetNode().localToScreen(nv).getMinY());
+        };
         Pane paneIndicatorPane = getTargetContext().getPositionIndicator().getIndicatorPane();
         paneIndicatorPane.setMouseTransparent(true);
         Pane nodeIndicatorPane = getNodeIndicator().getIndicatorPane();        
@@ -129,11 +131,13 @@ public class DockPaneIndicatorPopup extends IndicatorPopup {
         nodeIndicatorPopup = new IndicatorPopup(getTargetContext());
         nodeIndicatorPopup.getProperties().put("POPUP", "nodeIndicatorPopup");
         if (getTargetNode() instanceof Region) {
+            
             getPaneIndicator().getIndicatorPane().prefHeightProperty().bind(((Region) getTargetNode()).heightProperty());
             getPaneIndicator().getIndicatorPane().prefWidthProperty().bind(((Region) getTargetNode()).widthProperty());
 
             getPaneIndicator().getIndicatorPane().minHeightProperty().bind(((Region) getTargetNode()).heightProperty());
             getPaneIndicator().getIndicatorPane().minWidthProperty().bind(((Region) getTargetNode()).widthProperty());
+            
         } else {
             getTargetNode().layoutBoundsProperty().addListener((ov, oldValue, newValue) -> {
                 getPaneIndicator().getIndicatorPane().setPrefHeight(newValue.getHeight());
@@ -143,18 +147,11 @@ public class DockPaneIndicatorPopup extends IndicatorPopup {
 
             });
         }
+        getTargetNode().layoutBoundsProperty().addListener(targetBoundsListener);
+
         nodeIndicatorPopup.getContent().add(nodeIndicatorPane);
         getContent().add(paneIndicatorPane);
     }
-    //@Override
-/*    public ObservableList<IndicatorPopup> getIndicatorPopupChain() {
-        ObservableList<IndicatorPopup> list = FXCollections.observableArrayList();
-        list.add(this);
-        list.addAll(this,nodeIndicatorPopup);
-        return list;
-        
-    }
-*/
     /**
      * Returns an object of type {@link SideIndicator} to display indicators for
      * an object of type {@link org.vns.javafx.dock.api.DockLayout}.
@@ -171,13 +168,7 @@ public class DockPaneIndicatorPopup extends IndicatorPopup {
      *
      * @return Returns an object of type {@code SideIndicator}
      */
-//    public SideIndicator getNodeIndicator() {
-//        return (SideIndicator) getLayoutContext().getNodeIndicator();
-//    }
-    
-    //@Override
     public SideIndicator.NodeSideIndicator getNodeIndicator() {
-        
         if (nodeIndicator == null) {
             nodeIndicator = new SideIndicator.NodeSideIndicator(getTargetContext());
         }
@@ -204,8 +195,6 @@ public class DockPaneIndicatorPopup extends IndicatorPopup {
     public Node getDragTarget() {
         return dragTarget;
     }
-
-
     /**
      * Returns a side position of the selected dock node if any.
      *
@@ -236,24 +225,6 @@ public class DockPaneIndicatorPopup extends IndicatorPopup {
         dragTarget = null;
         getPaneIndicator().showIndicatorPopup(getDraggedNode(),pos.getX(), pos.getY());
     }
-    
-/*    @Override
-    public void showIndicatorPopup(Node dragged) {
-        setAutoFix(false);
-        Point2D pos = getTargetNode().localToScreen(0, 0);
-        dragTarget = null;
-        getPaneIndicator().showIndicatorPopup(dragged,pos.getX(), pos.getY());
-    }
-*/   
-
-/*    @Override
-    public void showSideIndicator(Node targetNode) {
-        setAutoFix(false);
-        Point2D pos = getTargetNode().localToScreen(0, 0);
-        dragTarget = null;
-        getPaneIndicator().showSideIndicator(pos.getX(), pos.getY(), targetNode);
-    }
-*/
     /**
      * Hides the pop up window when some condition are satisfied. If this pop up
      * is hidden returns true. If the mouse cursor is still inside the pane
@@ -375,7 +346,6 @@ public class DockPaneIndicatorPopup extends IndicatorPopup {
         // findDockable returns null
         //
         Node targetNode = DockUtil.findDockable(getTargetNode(), screenX, screenY);
-        //getNodeIndicator().showSideIndicator(screenX, screenY, targetNode);
         getNodeIndicator().showSideIndicator(screenX, screenY, targetNode);
 
         getPaneIndicator().hideDockPlace();
@@ -471,10 +441,9 @@ public class DockPaneIndicatorPopup extends IndicatorPopup {
 
     /**
      * Returns a shape of type {@code  Rectangle} to be displayed to showSideIndicator a
- proposed dock place
-     *
+     * proposed dock place
      * @return a shape of type {@code  Rectangle} to be displayed to showSideIndicator a
- proposed dock place
+     *  proposed dock place
      */
     @Override
     public Rectangle getDockPlace() {

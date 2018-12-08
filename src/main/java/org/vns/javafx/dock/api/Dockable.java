@@ -24,7 +24,7 @@ public interface Dockable {
      * 
      * @return an object of type {@code javafx.scene.layout.Region}
      */
-    Node node();
+    Node getNode();
     /**
      * Returns an object which provides a state and behavior during 
      * docking process.

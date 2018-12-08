@@ -48,7 +48,7 @@
 
     -fx-fill: -fx-selection-bar;
     -fx-opacity: 0.3;
-    -fx-stroke: -fx-selection-bar;;
+    -fx-stroke: -fx-selection-bar;
     -fx-stroke-width: 3;
     -fx-stroke-type: inside;
     -fx-stroke-line-cap: butt;
@@ -57,11 +57,15 @@
     -fx-border-color: rgb(255, 201, 14);
     -fx-border-width: 4;
 }
+.pane-indicator {
+    -fx-border-color: rgb(255, 201, 14);
+    -fx-border-width: 4;
+}
 .dock-place {
     -fx-fill: transparent;
     -fx-opacity: 0.3;
 
-    -fx-stroke:-fx-selection-bar;;
+    -fx-stroke:-fx-selection-bar;
     -fx-stroke-width: 3;
     -fx-stroke-type: inside;
     -fx-stroke-dash-array: 8 2;
@@ -109,7 +113,7 @@
 }
 
 /*============================================================
- *  Buttons th display dock position relative to a DockPane  *
+ *  Buttons to display dock position relative to a DockPane  *
  *===========================================================*/  
 .drag-pane-indicator {
     -fx-border-width: 1.0; 
@@ -273,18 +277,18 @@
 }
 .circle-shape-control {
     -fx-pref-width: 2.5;
-    -fx-pref-height: 2.5;
+    -fx-pref-height: 2.5
 }
 .shape-control .circle {
     -fx-stroke-type: outside; 
     -fx-stroke: rgb(255, 148, 40); 
-    -fx-stroke-width: 1; 
+    -fx-stroke-width: 1;
     -fx-fill: white;
 }
 .shape-control .rectangle {
     -fx-stroke-type: inside; 
     -fx-stroke: rgb(255, 148, 40); 
-    -fx-stroke-width: 1; 
+    -fx-stroke-width: 1;
     -fx-fill: white;
 }
 
@@ -294,9 +298,9 @@
     */    
 }
 .frame-control .resizable {
-    -fx-stroke-type: inside; 
+    -fx-stroke-type: inside;
     -fx-stroke: rgb(255, 148, 40); 
-    -fx-stroke-width: 2; 
+    -fx-stroke-width: 1;
     -fx-fill: transparent;
 }
 

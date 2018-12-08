@@ -39,7 +39,7 @@ public class FloatPopupControlView2 extends FloatPopupControlView {
 
     @Override
     public Window make(Dockable dockable, boolean show) {
-        Node node = dockable.node();
+        Node node = dockable.getNode();
 
         Point2D screenPoint = node.localToScreen(0, 0);
         if (screenPoint == null) {
@@ -84,11 +84,11 @@ public class FloatPopupControlView2 extends FloatPopupControlView {
                 if (floatPopup != null) {
                     floatPopup.hide();
                 }
-                dockable.node().parentProperty().removeListener(this);
+                dockable.getNode().parentProperty().removeListener(this);
             }
         };
         
-        dockable.node().parentProperty().addListener(pcl);
+        dockable.getNode().parentProperty().addListener(pcl);
 
         addResizer();
         

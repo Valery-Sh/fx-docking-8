@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -29,6 +30,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.Event;
 import javafx.event.EventDispatcher;
 import javafx.geometry.Point2D;
@@ -114,7 +116,10 @@ import org.vns.javafx.dock.api.dragging.MouseDragHandler;
 public class PalettePane extends Control {
 
     public static final String PALETTE_PANE = "palette-pane";
-
+    public static final String PROPERIES_STORE = "properties-store-be4ae273-2b29-4353-96c8-62ba83a4a237";
+    
+    //private ObservableMap<String,Object> propertiesStore = FXCollections.observableHashMap();
+            
     public static enum NodePolicy {
         DOCKABLE,
         DOCKLAYOUT,
@@ -130,6 +135,7 @@ public class PalettePane extends Control {
     private BooleanProperty animated = new SimpleBooleanProperty(true);
 
     private ObjectProperty<NodePolicy> producedNodePolicy = new SimpleObjectProperty(BOTH);
+    
 
     /**
      * Creates an instance of the class. The created palette contains an empty
@@ -160,7 +166,25 @@ public class PalettePane extends Control {
         }
         DockRegistry.makeDockable(this).getContext().setDragNode(null);
     }
-
+    /**
+     * Returns a map of properties of the given node which may be saved for 
+     * some reason.
+     * Sometimes it is not desirable the value of the property to be set
+     * in design time. For example we do not want the node to be focus traversable 
+     * but we suggest the property editor for the property {@code focusTraversabble}.
+     * So we save the true value if set but actually we set it to false.
+     * 
+     * @param node the node whose properties property contains the store.
+     * @return a map of properties
+     */
+    public static ObservableMap<String,Property> getPropertiesStore(Node node) {
+        ObservableMap<String,Property> map = (ObservableMap<String,Property>) node.getProperties().get(PROPERIES_STORE);
+        if ( map == null ) {
+            map = FXCollections.observableHashMap();
+            node.getProperties().put(PROPERIES_STORE,map);    
+        }
+        return map;
+    }
     public static void addDesignerStyles(Object obj) {
         if ((obj instanceof Node) && !((Node) obj).getStyleClass().contains("designer-mode")) {
             ((Node) obj).getStyleClass().add("designer-mode");
@@ -183,8 +207,6 @@ public class PalettePane extends Control {
             setLayoutContext(value, true);
         } else if (DockLayout.of(value) == null) {
             LayoutContext lc = DockRegistry.getLayoutContext(value);
-//            LayoutContextFactory f = new LayoutContextFactory();
-//            lc = f.getContext((Node) value);
             if (lc != null) {
                 DockRegistry.makeDockLayout((Node) value, lc);
             }
@@ -295,10 +317,6 @@ public class PalettePane extends Control {
      * @param value the value to customize
      */
     public void setCustomizer(Object value) {
-//        if (!(value instanceof Node)) {
-//            return;
-//        }
-
         PaletteItem item = getModel().getItem(value.getClass());
         if (item != null) {
             if (getModel().getCustomizer() != null) {
@@ -307,34 +325,9 @@ public class PalettePane extends Control {
             if (item.getCustomizer() != null) {
                 item.getCustomizer().customize(value);
             }
-            /*
-            if ((value instanceof Node) && item.getEventDispatcher() != null) {
-                try {
-                    PaletteEventDispatcher ped = item.getEventDispatcher().getClass().newInstance();
-                    ped.setPreventCondition(item.getEventDispatcher().getPreventCondition());
-                    ped.start((Node) value);
-                } catch (InstantiationException | IllegalAccessException ex) {
-                    Logger.getLogger(PalettePane.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-             */
         }
     }
 
-    /*    public void setCustomEventDispather(Object value) {
-        if (!(value instanceof Node)) {
-            return;
-        }
-        if ((value instanceof Node)) {
-            PaletteEventDispatcher ped = new MouseEventDispatcher();
-            PaletteItem item = getModel().getItem(value.getClass());
-            if (item != null && item.getPreventCondition() != null) {
-                ped.setPreventCondition(item.getPreventCondition());
-            }
-            ped.start((Node) value);
-        }
-    }
-     */
     @Override
     public String getUserAgentStylesheet() {
         return DesignerLookup.class.getResource("resources/styles/designer-default.css").toExternalForm();

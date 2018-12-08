@@ -42,7 +42,7 @@ public class FloatStageView2 extends FloatStageView {
 
     @Override
     public Window make(Dockable dockable, boolean show) {
-        Node node = dockable.node();
+        Node node = dockable.getNode();
 
         Point2D screenPoint = node.localToScreen(0, 0);
         if (screenPoint == null) {
@@ -83,11 +83,11 @@ public class FloatStageView2 extends FloatStageView {
                 if (window != null) {
                     window.hide();
                 }
-                dockable.node().parentProperty().removeListener(this);
+                dockable.getNode().parentProperty().removeListener(this);
             }
         };
 
-        dockable.node().parentProperty().addListener(pcl);
+        dockable.getNode().parentProperty().addListener(pcl);
         if (stageStyle == StageStyle.TRANSPARENT) {
             window.getScene().setFill(null);
         }

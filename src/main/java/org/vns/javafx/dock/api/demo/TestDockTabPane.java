@@ -62,7 +62,7 @@ public class TestDockTabPane extends Application {
         DockNode dn01 = new DockNode();
         dn01.setId("dn01");
         dpCenter.dock(dn01, Side.TOP);
-        dpCenter.dock(dockableButton.node(), Side.TOP);
+        dpCenter.dock(dockableButton.getNode(), Side.TOP);
         dn01.setTitle("DockNode: dn01");
         Button dn01Btn = new Button("Print");
         dn01Btn.setId("dn01Btn");

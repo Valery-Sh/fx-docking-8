@@ -32,7 +32,7 @@ public class DesignerFraming extends AbstractNodeFraming {
 
         SceneView sv = DesignerLookup.lookup(SceneView.class);
         Parent p = EditorUtil.getTopParentOf(node);
-        
+
         if (p != null && node != sv.getRoot()) {
             if (node.getParent() != null && node.getParent() != sv.getRoot()) {
                 FramePane parentPane = SceneView.getParentFrame();
@@ -40,12 +40,24 @@ public class DesignerFraming extends AbstractNodeFraming {
             }
             FramePane resizePane = SceneView.getResizeFrame();
             resizePane.setBoundNode(node);
-
         }
-        
+
         Selection sel = DockRegistry.lookup(Selection.class);
         if (sel != null) {
             sel.notifySelected(node);
+        }
+    }
+
+    @Override
+    public void showParent(Node node) {
+        SceneView sv = DesignerLookup.lookup(SceneView.class);
+        Parent p = EditorUtil.getTopParentOf(node);
+
+        if (p != null && node != sv.getRoot()) {
+            if (node.getParent() != null && node.getParent() != sv.getRoot()) {
+                FramePane parentPane = SceneView.getParentFrame();
+                parentPane.setBoundNode(node.getParent());
+            }
         }
     }
 
@@ -61,13 +73,7 @@ public class DesignerFraming extends AbstractNodeFraming {
             if (parentPane != null) {
                 parentPane.setBoundNode(null);
             }
-
         }
 
     }
-
-    public DesignerFraming() {
-
-    }
-
 }

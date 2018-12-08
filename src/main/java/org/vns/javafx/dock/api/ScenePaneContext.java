@@ -25,7 +25,7 @@ public class ScenePaneContext extends LayoutContext {
     }
 
     private void init() {
-        dockable.node().parentProperty().addListener(this::parentChanged);
+        dockable.getNode().parentProperty().addListener(this::parentChanged);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class ScenePaneContext extends LayoutContext {
 
         Dockable d = Dockable.of(o);
 
-        Node node = d.node();
+        Node node = d.getNode();
         Window stage = null;
         if (node.getScene() != null && node.getScene().getWindow() != null) { //&& (node.getScene().getWindow() instanceof Stage)) {
             stage = node.getScene().getWindow();

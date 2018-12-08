@@ -57,7 +57,7 @@ public interface FloatWindowView extends FloatView {
         BooleanProperty bp = new SimpleBooleanProperty(false) {
             @Override
             protected void invalidated() {
-                getDockable().node().pseudoClassStateChanged(PseudoClass.getPseudoClass("floating"), get());
+                getDockable().getNode().pseudoClassStateChanged(PseudoClass.getPseudoClass("floating"), get());
                 if (getWindowRoot() != null) {
                     getWindowRoot().pseudoClassStateChanged(PseudoClass.getPseudoClass("floating"), get());
                 }
@@ -78,13 +78,13 @@ public interface FloatWindowView extends FloatView {
         if (dockable instanceof DragContainer) {
             return false;
         }
-        Object obj = dockable.node();
+        Object obj = dockable.getNode();
         if (dockable.getContext().getDragContainer() != null && dockable.getContext().getDragContainer().getValue() != null) {
             if (!dockable.getContext().getDragContainer().isValueDockable()) {
                 obj = dockable.getContext().getDragContainer().getValue();
             } else {
                 obj = Dockable.of(dockable.getContext().getDragContainer().getValue());
-                obj = Dockable.of(obj).node();
+                obj = Dockable.of(obj).getNode();
             }
         }
 

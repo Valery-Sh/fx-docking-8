@@ -65,10 +65,10 @@ public class TrashTrayLayoutContext extends LayoutContext {
             if (!dc.isValueDockable()) {
                 obj = dc.getValue();
             } else {
-                obj = Dockable.of(dc.getValue()).node();
+                obj = Dockable.of(dc.getValue()).getNode();
             }
         } else {
-            obj = dockable.node();
+            obj = dockable.getNode();
         }
         if (contains(obj)) {
             return;

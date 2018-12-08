@@ -84,39 +84,48 @@ public class SceneEventDispatcher implements PalettePane.PaletteEventDispatcher 
     public Event dispatchEvent(Event event, EventDispatchChain tail) {
         //if ( EventType. )
         if (!(event instanceof MouseEvent)) {
+            //System.err.println("dispatchEvent event type " + event.getEventType());
             return null;
             //return initial.dispatchEvent(event, tail);
         }
-        MouseEvent mouseEvent = (MouseEvent) event;        
+
+        MouseEvent mouseEvent = (MouseEvent) event;
+
         if (mouseEvent.getEventType() == MouseEvent.MOUSE_ENTERED || mouseEvent.getEventType() == MouseEvent.MOUSE_ENTERED_TARGET) {
             return null;
-        }         
+        }
         if (mouseEvent.getEventType() == MouseEvent.MOUSE_EXITED || mouseEvent.getEventType() == MouseEvent.MOUSE_EXITED_TARGET) {
-            
-        }         
-        
+
+        }
+
         //
         // not primary button
         //
-
-        if ( SceneView.isFrameShape(event.getTarget()) ) {
+        if (SceneView.isFrameShape(event.getTarget())) {
             return initial.dispatchEvent(event, tail);
         }
-      
+        if (!(mouseEvent.getTarget() instanceof Node)) {
+            //System.err.println("mouseEvent.getTarget() = " + mouseEvent.getTarget());
+            return null;
+            //return initial.dispatchEvent(event, tail);            
+        }
         if (mouseEvent.getEventType() != MouseEvent.MOUSE_RELEASED && !mouseEvent.isPrimaryButtonDown()) {
-            if ( mouseEvent.getEventType() != MouseEvent.MOUSE_MOVED) {
+            if (mouseEvent.getEventType() != MouseEvent.MOUSE_MOVED) {
                 //System.err.println("INITIAL !!!!!!!!!!!!!!!!!!!!!!! " + mouseEvent.getEventType());
             }
             //return initial.dispatchEvent(event, tail);
-            
-            return event;
+//            if ( event.getTarget() instanceof Node )
+//                System.err.println("eventTarget = " + event.getTarget());
+                //return event;
         }
-        
+        if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED) {
+              //System.err.println("eventTarget = " + event.getTarget());
+
+        }
 //        if ( SceneView.isFrameShape(event.getTarget()) ) {
 //            return initial.dispatchEvent(event, tail);
 //        }
         //System.err.println("2 Scene dispatch ev " + mouseEvent.getEventType());
-
         if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED) {
             return pressed(event, tail);
         } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_RELEASED) {
@@ -127,12 +136,13 @@ public class SceneEventDispatcher implements PalettePane.PaletteEventDispatcher 
             return dragDetected(event, tail);
         } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED) {
             return dragged(event, tail);
-        } else  if (mouseEvent.getEventType() == MouseEvent.MOUSE_EXITED || mouseEvent.getEventType() == MouseEvent.MOUSE_EXITED_TARGET) {
+        } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_EXITED || mouseEvent.getEventType() == MouseEvent.MOUSE_EXITED_TARGET) {
             return mouseEnteredOrExited(event, tail);
+        } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED) {
+            return event;
         } else {
             return null;
         }
-
         //return initial.dispatchEvent(event, tail);
     }
 
@@ -166,13 +176,15 @@ public class SceneEventDispatcher implements PalettePane.PaletteEventDispatcher 
         //System.err.println("getDockableParent retval = " + p);
         return p;
     }
+
     protected Event mouseClicked(Event event, EventDispatchChain tail) {
-        System.err.println("DISPATCHER MOUSE MOVED");
+        //System.err.println("DISPATCHER MOUSE MOVED");
         //event.consume();
         return null;
         //event.consume();
         //return null;
     }
+
     protected Event pressed(Event event, EventDispatchChain tail) {
         //System.err.println("pickTop node = " + TopNodeHelper.pickTop(scene.getWindow(), ((MouseEvent)event).getScreenX(), ((MouseEvent)event).getScreenY(), n -> {return true;}));
 //        System.err.println("SCENE PRESSED TARGET = " + target);
@@ -187,23 +199,27 @@ public class SceneEventDispatcher implements PalettePane.PaletteEventDispatcher 
 //        if (target != null) {
 //            System.err.println("DRAGGED  WINDOW " + target.getScene().getWindow());
 //        }
+//        System.err.println("1. pressed target = " + target);
+//        System.err.println("pressed event.target = " + event.getTarget());
         if (target != null) {
             return null;
         }
 
         target = (Node) event.getTarget();
         node = getDockableParent(target);
+//        System.err.println("pressed target " + target + "; dockable node = " + node);
 //        System.err.println("PRESSED node = " + node);
         Selection.SelectionListener l = DockRegistry.lookup(Selection.SelectionListener.class);
         if (l != null) { //&& (event.getTarget() instanceof Node)) {
 //            System.err.println("PRESSED selectionListener = " + l);
             //l.handle((MouseEvent) event, (Node) event.getTarget());
             MouseEvent copy = (MouseEvent) event.copyFor(node, node);
+            System.err.println("pressed Selection.SelectionListener " + Selection.SelectionListener.class);
             l.handle(copy, node);
             //l.mousePressed(copy);
         }
         if (Dockable.of(node) != null) {
-            
+
 //            System.err.println("SceneDispatcher mousePressed node " + node);
 //            System.err.println("SceneDispatcher mousePressed source " + event.getSource());
 //        System.err.println("DefaultDragHandler mousePressed target " + ev.getTarget());
@@ -222,6 +238,7 @@ public class SceneEventDispatcher implements PalettePane.PaletteEventDispatcher 
         }
         released = false;
         pressed = true;
+//        System.err.println("2. pressed target = " + target);        
         return null;
 
         //return initial.dispatchEvent(event, tail);
@@ -229,6 +246,9 @@ public class SceneEventDispatcher implements PalettePane.PaletteEventDispatcher 
 
     protected Event released(Event event, EventDispatchChain tail) {
 //        System.err.println("dragget Scene RELEASED ");
+//        System.err.println("released event.target " + event.getTarget());
+//        System.err.println("1. released target " + target);
+
         if (Dockable.of(node) != null) {
             DragManager dm = Dockable.of(node).getContext().getDragDetector().getDragHandler().getDragManager();
 //            System.err.println("dragget Scene released  1 ");
@@ -244,6 +264,10 @@ public class SceneEventDispatcher implements PalettePane.PaletteEventDispatcher 
         released = true;
         dragged = false;
         dragDetected = false;
+//        System.err.println("2. released target " + target);
+        
+        //SceneView.getResizeFrame().layoutChildren();
+                
         return null;
 
     }
@@ -323,9 +347,10 @@ public class SceneEventDispatcher implements PalettePane.PaletteEventDispatcher 
 
         return null;
     }
+
     protected Event mouseEnteredOrExited(Event event, EventDispatchChain tail) {
         //System.err.println("**************** mouseEnteredOrExited = " + event.getTarget());
-        
+
         //node = getDockableParent(target);
         return null;
         //return initial.dispatchEvent(event, tail);

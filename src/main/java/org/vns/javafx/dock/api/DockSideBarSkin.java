@@ -165,7 +165,7 @@ public class DockSideBarSkin extends SkinBase<DockSideBar> {
 
     private void changeItems() {
         getSkinnable().getItems().forEach(d -> {
-            if (!getLayoutContext().contains(d.node())) {
+            if (!getLayoutContext().contains(d.getNode())) {
                 getLayoutContext().dock(d);
             }
         });

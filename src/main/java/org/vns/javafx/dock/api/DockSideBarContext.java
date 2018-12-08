@@ -112,7 +112,7 @@ public class DockSideBarContext extends LayoutContext {
         }
         boolean retval = false;
         for (Container c : itemMap.values()) {
-            if (c.getDockable().node() == obj) {
+            if (c.getDockable().getNode() == obj) {
                 retval = true;
                 break;
             }
@@ -130,31 +130,31 @@ public class DockSideBarContext extends LayoutContext {
             return;
         }
         Dockable dragged = Dockable.of(o);
-        doDock(null, dragged.node());
+        doDock(null, dragged.getNode());
     }
 
     protected String getButtonText(Dockable d) {
         String txt = d.getContext().getTitle();
-        if (txt == null && d.getContext().getProperties().getProperty("user-title") != null) {
-            txt = d.getContext().getProperties().getProperty("user-title");
-        } else if (txt == null && d.getContext().getProperties().getProperty("short-title") != null) {
-            txt = d.getContext().getProperties().getProperty("short-title");
+        if (txt == null && d.getContext().getProperties().get("user-title") != null) {
+            txt = (String) d.getContext().getProperties().get("user-title");
+        } else if (txt == null && d.getContext().getProperties().get("short-title") != null) {
+            txt = (String) d.getContext().getProperties().get("short-title");
         }
-        if (txt == null && d.node() instanceof Labeled) {
-            txt = ((Labeled) d.node()).getText();
+        if (txt == null && d.getNode() instanceof Labeled) {
+            txt = ((Labeled) d.getNode()).getText();
         }
-        if (txt == null && d.node().getId() != null) {
-            txt = d.node().getId();
+        if (txt == null && d.getNode().getId() != null) {
+            txt = d.getNode().getId();
         }
         if (txt == null || txt.trim().isEmpty()) {
-            txt = d.node().getClass().getSimpleName();
+            txt = d.getNode().getClass().getSimpleName();
         }
         return txt;
     }
 
     public boolean hasWindow(Dockable d) {
         boolean retval = false;
-        if (d.node().getScene() != null && d.node().getScene().getWindow() != null) {
+        if (d.getNode().getScene() != null && d.getNode().getScene().getWindow() != null) {
             retval = true;
         }
         return retval;
@@ -182,13 +182,13 @@ public class DockSideBarContext extends LayoutContext {
          */
         undock(dockable);
 
-        Node node = d.node();
+        Node node = d.getNode();
         Window stage = null;
         if (node.getScene() != null && node.getScene().getWindow() != null) { //&& (node.getScene().getWindow() instanceof Stage)) {
             stage = node.getScene().getWindow();
         }
 
-        if (doDock(mousePos, d.node()) && stage != null) {
+        if (doDock(mousePos, d.getNode()) && stage != null) {
             //d.getContext().setFloating(false);
             if ((stage instanceof Stage)) {
                 ((Stage) stage).close();
@@ -333,7 +333,7 @@ public class DockSideBarContext extends LayoutContext {
         Node dockNode = (Node) obj;
         Group r = null;
         for (Map.Entry<Group, Container> en : itemMap.entrySet()) {
-            if (en.getValue().getDockable().node() == dockNode) {
+            if (en.getValue().getDockable().getNode() == dockNode) {
                 r = en.getKey();
                 break;
             }
@@ -408,15 +408,15 @@ public class DockSideBarContext extends LayoutContext {
 
         public void addMouseExitListener() {
             mouseExitEventListener = this::mouseExited;
-            dockable.node().getScene().addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, mouseExitEventListener);
+            dockable.getNode().getScene().addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, mouseExitEventListener);
         }
 
         public void removeMouseExitListener() {
             if (mouseExitEventListener == null) {
                 return;
             }
-            dockable.node().getScene().getWindow().removeEventHandler(MouseEvent.MOUSE_EXITED_TARGET, mouseExitEventListener);
-            dockable.node().getScene().getWindow().removeEventFilter(MouseEvent.MOUSE_EXITED_TARGET, mouseExitEventListener);
+            dockable.getNode().getScene().getWindow().removeEventHandler(MouseEvent.MOUSE_EXITED_TARGET, mouseExitEventListener);
+            dockable.getNode().getScene().getWindow().removeEventFilter(MouseEvent.MOUSE_EXITED_TARGET, mouseExitEventListener);
         }
 
         public Dockable getDockable() {
@@ -431,7 +431,7 @@ public class DockSideBarContext extends LayoutContext {
             LayoutContext layoutContext = dockable.getContext().getLayoutContext();
             if (!ev.isPrimaryButtonDown() && !dockable.getContext().isFloating()) {
                 if (((DockSideBar) layoutContext.getLayoutNode()).isHideOnExit()) {
-                    dockable.node().getScene().getWindow().hide();
+                    dockable.getNode().getScene().getWindow().hide();
                 }
             }
         }

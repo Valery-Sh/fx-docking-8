@@ -50,7 +50,6 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.PopupWindow;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import org.vns.javafx.dock.api.StyleUtil;
 import org.vns.javafx.dock.api.DockLayout;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
@@ -441,7 +440,7 @@ public class TrashTray extends Control {
 
             setSupportedCursors(DEFAULT_CURSORS);
 
-            Node node = dockable.node();
+            Node node = dockable.getNode();
             //
             // Removes selected and then Removes all MMOUSE_CLICKED event handlers 
             // and filters of type SeectionListener
@@ -490,7 +489,7 @@ public class TrashTray extends Control {
 
             setSupportedCursors(DEFAULT_CURSORS);
 
-            Node node = dockable.node();
+            Node node = dockable.getNode();
             //
             // Removes selected and then Removes all MMOUSE_CLICKED event handlers 
             // and filters of type SeectionListener

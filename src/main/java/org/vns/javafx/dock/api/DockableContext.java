@@ -13,6 +13,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 import javafx.collections.ObservableSet;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -69,7 +70,7 @@ public class DockableContext {
     private final BooleanProperty resizable = new SimpleBooleanProperty(true);
     private final BooleanProperty acceptable = new SimpleBooleanProperty(true);
 
-    private boolean usedAsDockLayout = true;
+    private BooleanProperty usedAsDockLayout = new SimpleBooleanProperty(true);
 
     private DragDetector dragDetector;
 
@@ -77,7 +78,7 @@ public class DockableContext {
 
     private LayoutContext scenePaneContext;
 
-    private boolean draggable;
+    private BooleanProperty draggable = new SimpleBooleanProperty(true);
 
     private final ObservableSet<Scope> scopes = FXCollections.observableSet();
     
@@ -89,8 +90,8 @@ public class DockableContext {
      */
     private final ObjectProperty<LayoutContext> layoutContext = new SimpleObjectProperty<>();
 
-    private Properties properties;
-    
+    //private Properties properties;
+    private final ObservableMap<Object,Object> properties = FXCollections.observableHashMap();
     
     /**
      * Create a new object for the specified {@code dockable} object.
@@ -101,9 +102,8 @@ public class DockableContext {
         this.dockable = dockable;
 
         //titleBar = new TitleBarProperty(dockable.node());
-        titleBar.set(dockable.node());
+        titleBar.set(dockable.getNode());
         lookup = new BaseContextLookup();
-        draggable = true;
         dragDetector = new DragDetector(this);
 
         init();
@@ -159,7 +159,7 @@ public class DockableContext {
     }
 
     protected void addShowingListeners() {
-        dockable().node().sceneProperty().addListener(this::sceneChanged);
+        getDockable().getNode().sceneProperty().addListener(this::sceneChanged);
     }
 
     private void sceneChanged(ObservableValue<? extends Scene> observable, Scene oldValue, Scene newValue) {
@@ -170,7 +170,6 @@ public class DockableContext {
             Platform.runLater(() -> {
                 titleBar.removeListener(this::titlebarChanged);
                 titleBar.addListener(this::titlebarChanged);
-                //initDragManager();
             });
         }
     }
@@ -180,17 +179,20 @@ public class DockableContext {
             Platform.runLater(() -> {
                 titleBar.removeListener(this::titlebarChanged);
                 titleBar.addListener(this::titlebarChanged);
-                //initDragManager();
             });
         }
     }
-
-    public boolean isDraggable() {
+    
+    public BooleanProperty draggableProperty() {
         return draggable;
     }
 
+    public boolean isDraggable() {
+        return draggable.get();
+    }
+
     public void setDraggable(boolean draggable) {
-        this.draggable = draggable;
+        this.draggable.set(draggable);
     }
 
     public ObjectProperty<Node> dragNodeProperty() {
@@ -217,7 +219,17 @@ public class DockableContext {
     public void setDragNode(Node dragSource) {
         this.dragNode.set(dragSource);
     }
-
+  /**
+     * If the value of the property is {@code true} the node specified by the 
+     * method {@code node()} may be considered as a dock layout. 
+     * This means that an indicator pane which allows to choose a dock place appears. 
+     * If {@code false} then the node can't be a dock layout.
+     *
+     * @return an object of type BooleanProperty
+     */    
+    public BooleanProperty usedAsDockLayoutProperty() {
+        return usedAsDockLayout;
+    }
     /**
      * If {@code true} the node specified by the method {@code node()} may be
      * considered as a dock layout. This means that an indicator pane which
@@ -227,7 +239,7 @@ public class DockableContext {
      * @return true if the {@literal  dockable} cam be used as a dock layout
      */
     public boolean isUsedAsDockLayout() {
-        return usedAsDockLayout;
+        return usedAsDockLayout.get();
     }
 
     /**
@@ -240,7 +252,7 @@ public class DockableContext {
      * layout.
      */
     public void setUsedAsDockLayout(boolean usedAsDockLayout) {
-        this.usedAsDockLayout = usedAsDockLayout;
+        this.usedAsDockLayout.set(usedAsDockLayout);
     }
 
     protected void layoutContextChanged(ObservableValue<? extends LayoutContext> observable, LayoutContext oldValue, LayoutContext newValue) {
@@ -264,13 +276,17 @@ public class DockableContext {
      *
      * @return the properties collection.
      */
-    public Properties getProperties() {
+     public ObservableMap<Object,Object> getProperties() {
+         return properties;
+     }
+/*    public Properties getProperties() {
         if (properties == null) {
             properties = new Properties();
         }
         return properties;
     }
-
+*/
+    
     /**
      * Return an object property which represents a title bar as a node.
      *
@@ -349,7 +365,7 @@ public class DockableContext {
      *
      * @return the instance of type {@link Dockable}
      */
-    public Dockable dockable() {
+    public Dockable getDockable() {
         return this.dockable;
     }
 
@@ -404,14 +420,14 @@ public class DockableContext {
         if (dc != null && dc.getPlaceholder() != null && FloatView.isFloating(dc.getPlaceholder())) {
             retval = true;
         } else if (dc == null || dc.getPlaceholder() == null) {
-            retval = FloatView.isFloating(dockable().node());
+            retval = FloatView.isFloating(getDockable().getNode());
         }
         return retval;
     }
 
     /**
      *
-     * @return the {@code BooleanProperty} whick specifies whether the dockable
+     * @return the {@code BooleanProperty} which specifies whether the dockable
      * node is resizable
      */
     public BooleanProperty resizableProperty() {
@@ -444,7 +460,7 @@ public class DockableContext {
      * @return a default instance of the title bar
      */
     public Region createDefaultTitleBar(String title) {
-        DockTitleBar tb = new DockTitleBar(dockable());
+        DockTitleBar tb = new DockTitleBar(getDockable());
         tb.setId("titleBar");
         tb.getLabel().textProperty().bind(this.title);
         this.title.set(title);
@@ -453,8 +469,8 @@ public class DockableContext {
     }
 
     protected void titlebarChanged(ObservableValue ov, Node oldValue, Node newValue) {
-        getProperties().remove("nodeController-titlebar-minheight");
-        getProperties().remove("nodeController-titlebar-minwidth");
+        //getProperties().remove("nodeController-titlebar-minheight");
+        //getProperties().remove("nodeController-titlebar-minwidth");
         DockRegistry.unregisterDockable(newValue);
     }
 
@@ -464,26 +480,17 @@ public class DockableContext {
      *
      * @return the object which manages a dragging execution
      */
-    public DragManager newDragManager() {
-        return getDragManager(true);
-    }
     public DragManager getDragManager() {
+        if (dragManager == null) {
+            dragManager = createDragManager();
+        }
         return dragManager;
     }
-    protected DragManager getDragManager(boolean create) {
-        DragManager retval = dragManager;
-        if (create || retval == null) {
-            createDragManager();
-            retval = dragManager;
-        }
-        return retval;
-    }
-
     /**
      * Creates the object which manages a dragging execution. Can't be changed
      * during dragging.
      */
-    protected void createDragManager() {
+    private DragManager createDragManager() {
 
         DragManagerFactory dmf = null;
 
@@ -491,12 +498,25 @@ public class DockableContext {
 
         if (tc != null) {
             dmf = tc.getLookup().lookup(DragManagerFactory.class);
-        }    //dmf = null;
+        } 
         if (dmf == null) {
             dmf = dockable.getContext().getLookup().lookup(DragManagerFactory.class);
         }
-        dragManager = dmf.getDragManager(dockable);
+        return dmf.getDragManager(dockable);
     }
+    
+/*    public DragManager getDragManager() {
+        return dragManager;
+    }
+    private DragManager getDragManager(boolean create) {
+        DragManager retval = dragManager;
+        if (create || retval == null) {
+            createDragManager();
+            retval = dragManager;
+        }
+        return retval;
+    }
+*/
 
     /**
      * Returns the object which is an actual object to be docked
@@ -523,7 +543,7 @@ public class DockableContext {
         if (dc != null) {
             retval = dc.getValue();
         } else {
-            retval = dockable.node();
+            retval = dockable.getNode();
         }
         return retval;
     }

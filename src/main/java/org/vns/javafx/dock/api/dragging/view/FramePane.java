@@ -16,7 +16,6 @@
 package org.vns.javafx.dock.api.dragging.view;
 
 import java.util.Set;
-import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -59,7 +58,6 @@ public class FramePane extends Control {
     public static final String SHAPE_ID = "RESIZE-SHAPE-" + ID;
 
     private final ObservableMap<Direction, ResizeShape> sideShapes = FXCollections.observableHashMap();
-    
 
     private Class<?> shapeClass;
     private final ObjectProperty<Node> boundNode = new SimpleObjectProperty<>();
@@ -98,6 +96,7 @@ public class FramePane extends Control {
         }
         this.enableResize = enableResize;
         this.root = root;
+
         init();
     }
 
@@ -112,23 +111,19 @@ public class FramePane extends Control {
 
     public void hide() {
         setVisible(false);
-        
-        //setBoundNode(null);
         getSideShapes().forEach((k, v) -> {
             v.setVisible(false);
         });
     }
 
     public void show() {
-        Platform.runLater(() -> {
-            setVisible(true);
-            toFront();
-            //skinBase.adjustBoundsToNode();
-            getSideShapes().forEach((k, v) -> {
-                v.setVisible(true);
-                v.toFront();
-            });
-            layoutChildren();
+        setVisible(true);
+        toFront();
+        skinBase.adjustBoundsToNode();
+        layoutChildren();
+        getSideShapes().forEach((k, v) -> {
+            v.setVisible(true);
+            v.toFront();
         });
     }
 
@@ -188,6 +183,10 @@ public class FramePane extends Control {
     protected Skin<?> createDefaultSkin() {
         skinBase = new FramePaneSkin(this);
         return skinBase;
+    }
+
+    public Pane getPane() {
+        return (Pane) getChildren().get(0);
     }
 
     @Override
@@ -282,18 +281,25 @@ public class FramePane extends Control {
      * {@inheritDoc}
      */
     @Override
-    protected void layoutChildren() {
+    public void layoutChildren() {
+
+        /*        if (getBoundNode() != null) {
+            Bounds nodeBounds = getBoundNode().localToScene(getBoundNode().getBoundsInLocal());
+            Bounds rootBounds = getParent().localToScene(getParent().getBoundsInLocal());
+            setLayoutX(nodeBounds.getMinX() - rootBounds.getMinX());
+            setLayoutY(nodeBounds.getMinY() - rootBounds.getMinY());
+        }
+         */
+        //Bounds bnd = localToScene(getBoundsInLocal());
         final double x = snappedLeftInset();
         final double y = snappedTopInset();
+
         final double w = snapSize(getWidth()) - x - snappedRightInset();
         final double h = snapSize(getHeight()) - y - snappedBottomInset();
-        skinBase.layoutChildren(x, y, w, h);
+
         if (getBoundNode() != null) {
-            Bounds b = getBoundNode().getBoundsInParent();
-            b = getBoundNode().parentToLocal(b);
-            b = getBoundNode().localToScene(b);
-            setLayoutX(b.getMinX());
-            setLayoutY(b.getMinY());
+            Bounds nodeBounds = getBoundNode().localToScene(getBoundNode().getBoundsInLocal());
+            skinBase.layoutChildren(0, 0, nodeBounds.getWidth(), nodeBounds.getHeight());
         }
     }
 
@@ -305,6 +311,9 @@ public class FramePane extends Control {
         Rectangle rect;
 
         private ChangeListener<Node> boundNodeListener;
+        private final ChangeListener<? super Number> layoutXYListener = (o, ov, nv) -> {
+            adjustBoundsToNode();
+        };
         private final ChangeListener<Bounds> boundsInParentListener = (o, ov, nv) -> {
             adjustBoundsToNode();
         };
@@ -333,21 +342,27 @@ public class FramePane extends Control {
                 rect.getStyleClass().add("not-resizable");
             }
             pane = new Pane(rect);
+            pane.setManaged(false);
+            rect.setManaged(false);
+            ctrl.setManaged(false);
             pane.getStyleClass().add(CSS_CLASS);
 
             rect.toBack();
             pane.setStyle("-fx-background-color: transparent");
+            //pane.setStyle("-fx-background-color: yellow; -fx-border-color: green; -fx-border-width: 8");
             ctrl.setStyle("-fx-background-color: transparent");
+            //ctrl.setStyle("-fx-background-color: yellow; -fx-border-color: red; -fx-border-width: 8");
 
             ctrl.setMouseTransparent(true);
             pane.setMouseTransparent(true);
             rect.setMouseTransparent(true);
-            ctrl.setManaged(false);
+
             if (ctrl.isEnableResize()) {
                 createSideShapes();
             }
             initBoundNode();
             getChildren().add(pane);
+            ctrl.setVisible(false);
         }
 
         private void createSideShapes() {
@@ -392,6 +407,7 @@ public class FramePane extends Control {
             ctrl.getSideShapes().put(d, retval);
             EditorUtil.getChildren(ctrl.getRoot()).add(retval);
             retval.toFront();
+            retval.setVisible(false);
             return retval;
         }
 
@@ -400,6 +416,10 @@ public class FramePane extends Control {
             boundNodeListener = (v, ov, nv) -> {
                 if (ov != null) {
                     ov.boundsInParentProperty().removeListener(boundsInParentListener);
+                    ov.layoutXProperty().removeListener(layoutXYListener);
+                    ov.layoutYProperty().removeListener(layoutXYListener);
+                    //ov.layoutBoundsProperty().removeListener(boundsInParentListener);
+
                     ov.localToSceneTransformProperty().removeListener(localToSceneTransformListener);
                     if (ov instanceof Region) {
                         ((Region) ov).backgroundProperty().removeListener(backgroundListener);
@@ -415,17 +435,17 @@ public class FramePane extends Control {
                         addShapeMouseEventHandlers();
                     }
                     nv.boundsInParentProperty().addListener(boundsInParentListener);
+                    nv.layoutXProperty().addListener(layoutXYListener);
+                    nv.layoutYProperty().addListener(layoutXYListener);
+
+                    //nv.layoutBoundsProperty().addListener(boundsInParentListener);
                     nv.localToSceneTransformProperty().addListener(localToSceneTransformListener);
                     if (nv instanceof Region) {
                         ((Region) nv).backgroundProperty().addListener(backgroundListener);
                     }
-                    if (ctrl.getBoundNode().getScene() != null && ctrl.getBoundNode().getScene().getWindow() != null) {
-                        adjustBoundsToNode();
-                    }
                 } else if (!ctrl.getSideShapes().isEmpty()) {
                     removeShapeMouseEventHandlers();
                 }
-
                 if (nv == null) {
                     ctrl.hide();
                 } else {
@@ -434,35 +454,50 @@ public class FramePane extends Control {
                         adjustBoundsToNode();
                     }
                 }
+
             };
             ctrl.boundNodeProperty().addListener(boundNodeListener);
         }
 
         protected void adjustBoundsToNode() {
-            this.adjustBoundsToNode(null);
+            Insets ins = null;
+            if (ctrl.getBoundNode() != null && (ctrl.getBoundNode() instanceof Region) && ((Region) ctrl.getBoundNode()).getBackground() != null) {
+                ins = ((Region) ctrl.getBoundNode()).getBackground().getOutsets();
+            }
+            this.adjustBoundsToNode(ins);
         }
 
         protected void adjustBoundsToNode(Insets insets) {
-
-            //
-            // We change position of the rectangle in order to enforce layotChildren
-            // to be executed. rutLater will restore to (0,0) position
-            //
-            rect.setX(1);
-            rect.setY(1);
-            Platform.runLater(() -> {
-                rect.setX(0);
-                rect.setY(0);
-                if (ctrl.getBoundNode() == null) {
-                    return;
+            rect.setX(0);
+            rect.setY(0);
+            rect.setX(0);
+            rect.setY(0);
+            if (ctrl.getBoundNode() == null) {
+                return;
+            }
+            if (ctrl.getBoundNode() != null) {
+                Bounds nodeBounds = ctrl.getBoundNode().localToScene(ctrl.getBoundNode().getBoundsInLocal());
+                Bounds rootBounds = ctrl.getParent().localToScene(ctrl.getParent().getBoundsInLocal());
+                Bounds ctrlBounds = ctrl.localToScene(ctrl.getBoundsInLocal());
+                ctrl.relocate(nodeBounds.getMinX() - rootBounds.getMinX(), nodeBounds.getMinY() - rootBounds.getMinY());
+                //
+                // Now we must take into account the fact that the frame rect 
+                // may have stroke
+                //
+                if (ctrl.isEnableResize()) {
+                    ctrlBounds = ctrl.localToScene(ctrl.getBoundsInLocal());
+                    double xd = nodeBounds.getMinX() - ctrlBounds.getMinX();
+                    double yd = nodeBounds.getMinY() - ctrlBounds.getMinY();
+                    if (xd != 0 || yd != 0) {
+                        ctrl.relocate(nodeBounds.getMinX() - rootBounds.getMinX() + xd, nodeBounds.getMinY() - rootBounds.getMinY() + yd);
+                    }
                 }
-               
-                Bounds sceneB = ctrl.getBoundNode().localToScene(ctrl.getBoundNode().getLayoutBounds());
-                double insw = insets != null ? insets.getLeft() + insets.getRight() : 0;
-                double insh = insets != null ? insets.getTop() + insets.getBottom() : 0;
-                rect.setWidth(sceneB.getWidth() + insw);
-                rect.setHeight(sceneB.getHeight() + insh);
-            });
+            }
+            Bounds sceneB = ctrl.getBoundNode().localToScene(ctrl.getBoundNode().getLayoutBounds());
+            double insw = insets != null ? insets.getLeft() + insets.getRight() : 0;
+            double insh = insets != null ? insets.getTop() + insets.getBottom() : 0;
+            rect.setWidth(sceneB.getWidth() + insw);
+            rect.setHeight(sceneB.getHeight() + insh);
         }
 
         protected void addShapeMouseEventHandlers() {
@@ -526,10 +561,22 @@ public class FramePane extends Control {
 
         @Override
         protected void layoutChildren(double x, double y, double w, double h) {
+            //ctrl.resizeRelocate(x, y, w, h);
             if (ctrl.getBoundNode() != null) {
-                pane.resizeRelocate(x, y, w, h);
+                //pane.resizeRelocate(0, 0, w, h);
+                //pane.setLayoutX(0);
+                //pane.setLayoutY(0);
+
+                rect.setX(0);
+                rect.setY(0);
+
+                //adjustBoundsToNode();
             } else {
-                pane.resizeRelocate(x, y, w, h);
+                //pane.resizeRelocate(x, y, w, h);
+                pane.setLayoutX(0);
+                pane.setLayoutY(0);
+                rect.setX(0);
+                rect.setY(0);
             }
         }
 
@@ -556,8 +603,14 @@ public class FramePane extends Control {
 
             } else if (ev.getEventType() == MouseEvent.DRAG_DETECTED) {
                 WindowNodeFraming wnf = DockRegistry.getInstance().lookup(WindowNodeFraming.class);
-                framePane.hide();
-                wnf.show(framePane.getBoundNode());
+                //framePane.hide();
+                Node node = framePane.getBoundNode();
+                NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
+                if (nf != null) {
+                    nf.hide();
+                }
+                nf.showParent(node);
+                wnf.show(node);
                 wnf.redirectMouseEvents(ev, framePane.getStartMousePos(), framePane);
             } else if (ev.getEventType() == MouseEvent.MOUSE_RELEASED) {
                 shape.getScene().setCursor(Cursor.DEFAULT);

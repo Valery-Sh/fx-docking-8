@@ -27,7 +27,7 @@ public interface DockLayout {
      * 
      * @return an object of type {@code javafx.scene.layout.Region}
      */
-    Node layoutNode();
+    Node getLayoutNode();
     /**
      * Returns an object which provides a state and behavior of the layoutNode panel 
      * during a docking process. In contrast to the {@link Dockable} interface where

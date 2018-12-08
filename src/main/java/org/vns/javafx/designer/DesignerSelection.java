@@ -47,7 +47,6 @@ public class DesignerSelection extends Selection {
             }
         }
         notifySelected(toSelect);
-        //this.selected.set(toSelect);
     }
 
     protected void selectedChanged(ObservableValue ov, Object oldValue, Object newValue) {

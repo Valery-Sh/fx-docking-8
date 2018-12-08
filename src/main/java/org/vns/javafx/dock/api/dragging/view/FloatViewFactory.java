@@ -32,7 +32,7 @@ public class FloatViewFactory {
     }
     public FloatView getFloatView(DragManager dragManager) {
         FloatView retval = null;
-        Node node = dragManager.getDockable().node();
+        Node node = dragManager.getDockable().getNode();
         Window w = null;
         if ( node.getScene() != null && node.getScene().getWindow() != null) {
             w = node.getScene().getWindow();
@@ -47,7 +47,7 @@ public class FloatViewFactory {
     }
     public FloatView getFloatView(Dockable dockable) {
         FloatView retval = null;
-        Node node = dockable.node();
+        Node node = dockable.getNode();
         Window w = null;
         if ( node.getScene() != null && node.getScene().getWindow() != null) {
             w = node.getScene().getWindow();

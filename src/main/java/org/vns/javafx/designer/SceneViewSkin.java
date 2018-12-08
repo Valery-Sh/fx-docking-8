@@ -45,7 +45,6 @@ import org.vns.javafx.dock.api.dragging.MouseDragHandler;
 import org.vns.javafx.dock.api.indicator.IndicatorManager;
 import org.vns.javafx.dock.api.DockLayout;
 import org.vns.javafx.dock.api.LayoutContext;
-import org.vns.javafx.dock.api.DefaultLayoutContextFactory;
 import org.vns.javafx.dock.api.Scope;
 import org.vns.javafx.dock.api.dragging.view.FramePane;
 import org.vns.javafx.dock.api.dragging.view.NodeFraming;
@@ -309,7 +308,6 @@ public class SceneViewSkin extends SkinBase<SceneView> {
     }
 
     private void createSceneGraph(Node node) {
-        System.err.println("%%% node.getScene() = " + node.getScene());
         if (node.getScene() != null) {
             if ((node.getScene().getEventDispatcher() instanceof SceneEventDispatcher)) {
                 ((SceneEventDispatcher) node.getScene().getEventDispatcher()).finish(node.getScene());
@@ -334,7 +332,6 @@ public class SceneViewSkin extends SkinBase<SceneView> {
             dockable.getContext().getScopes().add(new Scope("designer"));
         }
         if (getSkinnable().getTreeView().getRoot() == null || getSkinnable().getTreeView().getRoot().getValue() != node) {
-            System.err.println("*** createSceneGraph");
             TreeItemEx item = new TreeItemBuilder().build(node);
             getSkinnable().getTreeView().setRoot(item);
         }
@@ -348,11 +345,15 @@ public class SceneViewSkin extends SkinBase<SceneView> {
         }
 
         Parent parent = null;
-        if (node.getParent() != null) {
+        if (node instanceof Parent) {
+            parent = (Parent) node;
+        } else  if (node.getParent() != null) {
             parent = node.getParent();
-        } else if (node instanceof Parent) {
+        } 
+/*        else if (node instanceof Parent) {
             parent = (Parent) node;
         }
+*/
         if (parent != null) {
             SceneView.addFramePanes(parent);
             SceneView.getParentFrame().hide();
@@ -360,7 +361,6 @@ public class SceneViewSkin extends SkinBase<SceneView> {
             parent.getStyleClass().add("designer-mode-root");
             parent.getStylesheets().add(DesignerLookup.class.getResource("resources/styles/designer-customize.css").toExternalForm());
         }
-        System.err.println("SceneViewSkin  3");
     }
 
     protected void mousePosChange(ObservableValue<? extends Point2D> observable, Point2D oldValue, Point2D newValue) {

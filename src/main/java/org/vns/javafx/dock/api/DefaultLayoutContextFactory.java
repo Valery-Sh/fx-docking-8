@@ -36,6 +36,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TitledPane;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
@@ -53,6 +55,7 @@ import org.vns.javafx.dock.DockUtil;
 import org.vns.javafx.dock.api.Constraint.GridPaneConstraint;
 import static org.vns.javafx.dock.api.LayoutContext.getValue;
 import org.vns.javafx.dock.api.indicator.IndicatorPopup;
+import org.vns.javafx.dock.api.indicator.IndicatorPopup.KeysDown;
 import org.vns.javafx.dock.api.indicator.PositionIndicator;
 
 /**
@@ -97,9 +100,10 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
         } else if (targetNode instanceof AnchorPane) {
             retval = new ListBasedTargetContext(targetNode);
         } else if (targetNode instanceof GridPane) {
-            //retval = null;
+
             retval = getPaneContext((Pane) targetNode);
             retval.getLookup().putUnique(ConstraintFactory.class, new GridPaneConstraintFactory());
+
         } else if (targetNode instanceof Pane) {
             retval = getPaneContext((Pane) targetNode);
         } else if (targetNode instanceof Accordion) {
@@ -112,7 +116,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
                         Object v = getValue(obj);
                         if (Dockable.of(v) != null) {
                             dragged = Dockable.of(v);
-                            b = (dragged.node() instanceof TitledPane);
+                            b = (dragged.getNode() instanceof TitledPane);
                         }
                     }
                     return b;
@@ -192,13 +196,13 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
 
             dockable.getContext().getLayoutContext().undock(dockable);
 
-            Node node = d.node();
+            Node node = d.getNode();
             Window stage = null;
             if (node.getScene() != null && node.getScene().getWindow() != null) { //&& (node.getScene().getWindow() instanceof Stage)) {
                 stage = node.getScene().getWindow();
             }
 
-            if (doDock(mousePos, d.node()) && stage != null) {
+            if (doDock(mousePos, d.getNode()) && stage != null) {
                 //d.getContext().setFloating(false);
                 if ((stage instanceof Stage)) {
                     ((Stage) stage).close();
@@ -212,7 +216,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
         protected boolean doDock(Point2D mousePos, Node node) {
             boolean retval = true;
             StackPane target = (StackPane) getLayoutNode();
-            BorderPane bp = (BorderPane) getPositionIndicator().getIndicatorPane();
+            BorderPane bp = (BorderPane) getPositionIndicator().getIndicatorPane().lookup("#stack-pane-indicator");
             if (DockUtil.contains(bp.getTop(), mousePos.getX(), mousePos.getY())) {
                 target.getChildren().add(node);
                 StackPane.setAlignment(node, Pos.TOP_CENTER);
@@ -276,8 +280,28 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
 
         @Override
         protected Pane createIndicatorPane() {
+            Pane indicator = new Pane() {
+                @Override
+                public String getUserAgentStylesheet() {
+                    return Dockable.class.getResource("resources/default.css").toExternalForm();
+                }
+            };
+            indicator.setId("stackpane-ind-pane");
+            indicator.getStyleClass().add("stackpane-indicator");
+            return indicator;
+        }
 
-            Pane targetPane = (Pane) getLayoutContext().getLayoutNode();
+        protected boolean isControlDown() {
+            if (getIndicatorPopup() == null) {
+                return false;
+            }
+            return getIndicatorPopup().getKeysDown() == IndicatorPopup.KeysDown.CTLR_DOWN;
+        }
+
+        @Override
+        protected void updateIndicatorPane() {
+
+            Pane targetNode = (Pane) getLayoutContext().getLayoutNode();
             Label topNode = new Label("Top");
             topNode.getStyleClass().add("top");
             Label rightNode = new Label("Right");
@@ -289,20 +313,27 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             Label centerNode = new Label("Center");
             centerNode.getStyleClass().add("center");
 
-            topNode.prefWidthProperty().bind(targetPane.widthProperty());
-            topNode.prefHeightProperty().bind(targetPane.heightProperty().divide(4));
+            topNode.prefWidthProperty().bind(targetNode.widthProperty());
+            topNode.prefHeightProperty().bind(targetNode.heightProperty().divide(4));
 
-            rightNode.prefHeightProperty().bind(targetPane.heightProperty().divide(2));
-            rightNode.prefWidthProperty().bind(targetPane.widthProperty().divide(4));
+            rightNode.prefHeightProperty().bind(targetNode.heightProperty().divide(2));
+            rightNode.prefWidthProperty().bind(targetNode.widthProperty().divide(4));
 
-            leftNode.prefHeightProperty().bind(targetPane.heightProperty().divide(2));
-            leftNode.prefWidthProperty().bind(targetPane.widthProperty().divide(4));
+            leftNode.prefHeightProperty().bind(targetNode.heightProperty().divide(2));
+            leftNode.prefWidthProperty().bind(targetNode.widthProperty().divide(4));
 
-            bottomNode.prefWidthProperty().bind(targetPane.widthProperty());
-            bottomNode.prefHeightProperty().bind(targetPane.heightProperty().divide(4));
+            bottomNode.prefWidthProperty().bind(targetNode.widthProperty());
+            bottomNode.prefHeightProperty().bind(targetNode.heightProperty().divide(4));
 
-            centerNode.prefHeightProperty().bind(targetPane.heightProperty().divide(2));
-            centerNode.prefWidthProperty().bind(targetPane.widthProperty().divide(2));
+            centerNode.prefHeightProperty().bind(targetNode.heightProperty().divide(2));
+            centerNode.prefWidthProperty().bind(targetNode.widthProperty().divide(2));
+
+            Bounds bnd = targetNode.localToScene(targetNode.getBoundsInLocal());
+            if (!isControlDown()) {
+                bnd = DockUtil.sceneIntersection(targetNode);
+            } 
+            System.err.println("bnd = " + bnd);
+            updateSnapshot(isControlDown());
 
             BorderPane indicator = new BorderPane(centerNode, topNode, rightNode, bottomNode, leftNode) {
                 @Override
@@ -310,14 +341,45 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
                     return Dockable.class.getResource("resources/default.css").toExternalForm();
                 }
             };
+            System.err.println("StackPane updateIndicatorPane");
+            indicator.setId("stack-pane-indicator");
             indicator.getStyleClass().add("stack-pane-indicator");
+
+            Node child = getIndicatorPane().lookup("#stack-pane-indicator");
+            getIndicatorPane().getChildren().remove(child);
+            getIndicatorPane().getChildren().add(indicator);
+            indicator.setManaged(false);
+
             topNode.setAlignment(Pos.CENTER);
             rightNode.setAlignment(Pos.CENTER);
             bottomNode.setAlignment(Pos.CENTER);
             leftNode.setAlignment(Pos.CENTER);
             centerNode.setAlignment(Pos.CENTER);
 
-            return indicator;
+            indicator.setPrefWidth(bnd.getWidth());
+            indicator.setPrefHeight(bnd.getHeight());
+            indicator.setMinWidth(bnd.getWidth());
+            indicator.setMinHeight(bnd.getHeight());
+
+            Bounds indPaneBnd = getIndicatorPane().localToScreen(getIndicatorPane().getBoundsInLocal());
+            Insets ins = getIndicatorPane().getInsets();
+
+            double dx = 0;
+            double dy = 0;
+
+            if (targetNode.getScene() != null && targetNode.getScene().getWindow() != null && indPaneBnd != null) {
+                if (isControlDown()) {
+                    dx = ins.getLeft();
+                    dy = ins.getTop();
+                } else {
+                    dx = targetNode.getScene().getWindow().getX() + targetNode.getScene().getX() + bnd.getMinX() - indPaneBnd.getMinX();
+                    dy = targetNode.getScene().getWindow().getY() + targetNode.getScene().getY() + bnd.getMinY() - indPaneBnd.getMinY();
+                }
+            }
+
+            indicator.setLayoutX(dx);
+            indicator.setLayoutY(dy);
+
         }
 
         @Override
@@ -325,7 +387,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
 
             boolean visible = true;
 
-            BorderPane bp = (BorderPane) getIndicatorPane();
+            BorderPane bp = (BorderPane) getIndicatorPane().lookup("#stack-pane-indicator");
 
             if (DockUtil.contains(bp.getTop(), x, y)) {
                 adjustPlace(bp.getTop());
@@ -352,7 +414,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             r.setY(((Region) node).getLayoutY());
         }
 
-    }
+    }//stackpane positionIndicator
 
     public static class PaneContext extends LayoutContext {
 
@@ -383,13 +445,13 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             //
             dockable.getContext().getLayoutContext().undock(dockable);
 
-            Node node = d.node();
+            Node node = d.getNode();
             Window stage = null;
             if (node.getScene() != null && node.getScene().getWindow() != null) { //&& (node.getScene().getWindow() instanceof Stage)) {
                 stage = node.getScene().getWindow();
             }
 
-            if (doDock(mousePos, d.node()) && stage != null) {
+            if (doDock(mousePos, d.getNode()) && stage != null) {
                 if ((stage instanceof Stage)) {
                     ((Stage) stage).close();
                 } else {
@@ -402,8 +464,11 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
         protected boolean doDock(Point2D mousePos, Node node) {
             boolean retval = true;
             Pane pane = (Pane) getLayoutNode();
-            double x = node.getScene().getWindow().getX();
-            double y = node.getScene().getWindow().getY();
+
+//            double x = node.getScene().getWindow().getX();
+//            double y = node.getScene().getWindow().getY();
+            double x = mousePos.getX();
+            double y = mousePos.getY();
 
             if (!DockUtil.contains(getLayoutNode(), x, y)) {
                 return false;
@@ -462,6 +527,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
                     return Dockable.class.getResource("resources/default.css").toExternalForm();
                 }
             };
+            indicator.getStyleClass().add("pane-indicator");
             return indicator;
         }
 
@@ -602,13 +668,13 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
 
             Dockable d = Dockable.of(o);
 
-            Node node = d.node();
+            Node node = d.getNode();
             Window stage = null;
             if (node.getScene() != null && node.getScene().getWindow() != null) { //&& (node.getScene().getWindow() instanceof Stage)) {
                 stage = node.getScene().getWindow();
             }
 
-            if (doDock(mousePos, d.node()) && stage != null) {
+            if (doDock(mousePos, d.getNode()) && stage != null) {
                 if ((stage instanceof Stage)) {
                     ((Stage) stage).close();
                 } else {
@@ -626,18 +692,20 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
                 return false;
             }
             int idx = -1;
-            Node innerNode = TopNodeHelper.getTop(targetNode, mousePos.getX(), mousePos.getY(), n -> {return getItems().contains(n);} );
-            if ( innerNode != null ) {
+            Node innerNode = TopNodeHelper.getTop(targetNode, mousePos.getX(), mousePos.getY(), n -> {
+                return getItems().contains(n);
+            });
+            if (innerNode != null) {
                 idx = getItems().indexOf(innerNode);
             }
-/*            for (int i = 0; i < items.size(); i++) {
+            /*            for (int i = 0; i < items.size(); i++) {
                 innerNode = items.get(i);
                 if (DockUtil.contains(innerNode, mousePos.getX(), mousePos.getY())) {
                     idx = i;
                     break;
                 }
             }
-*/
+             */
             if (idx == -1) {
                 items.add((T) node);
             } else if (((targetNode instanceof VBox) || ((targetNode instanceof Accordion)))) {
@@ -688,15 +756,25 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
         }
 
         @Override
+        protected void updateIndicatorPane() {
+            if (getIndicatorPopup() != null && getIndicatorPopup().getKeysDown() == KeysDown.CTLR_DOWN) {
+                updateSnapshot(true);
+            } else if (getIndicatorPopup() != null) {
+                updateSnapshot(false);
+            }
+        }
+
+        @Override
         public IndicatorPopup getIndicatorPopup() {
             IndicatorPopup ip = super.getIndicatorPopup();
-            ((Region) ip.getTargetNode()).layout();
-            ((Region) ip.getTargetNode()).requestLayout();
+//            ((Region) ip.getTargetNode()).layout();
+//            ((Region) ip.getTargetNode()).requestLayout();
             return ip;
         }
 
         @Override
         protected Pane createIndicatorPane() {
+
             Pane indicator = new Pane() {
                 @Override
                 public String getUserAgentStylesheet() {
@@ -714,7 +792,6 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             boolean visible = true;
 
             Pane p = (Pane) getIndicatorPane();
-            //System.err.println("showDockPlace DockUtil.contains(p, x, y) = " + DockUtil.contains(p, x, y));
             if (DockUtil.contains(p, x, y)) {
 
                 adjustPlace(p, x, y);
@@ -741,12 +818,10 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             Rectangle r = (Rectangle) getDockPlace();
             ListBasedTargetContext ctx = (ListBasedTargetContext) getLayoutContext();
             Region targetPane = (Region) ctx.getLayoutNode();
-            System.err.println("targetPane.getHeight = " + targetPane.getHeight());
-            System.err.println("targetPane.getWidth = " + targetPane.getWidth());
+
             Node innerNode = TopNodeHelper.getTop(ctx.getLayoutNode(), x, y, n -> {
                 return ctx.getItems().contains(n);
             });
-            System.err.println("innereNode = " + innerNode);
             //
             // We know that the indicatore pate never transformed
             //
@@ -798,6 +873,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
                 }
             }
         }
+
     }
 
     public static class NodeListChangeListener implements ListChangeListener<Node> {
@@ -831,12 +907,13 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             }//while
         }
     }
+
     public static class GridPaneConstraintFactory extends ConstraintFactory {
 
         @Override
         public Constraint getConstraint(Node node) {
             return new GridPaneConstraint(node);
         }
-        
     }
+
 }//LayoutContextFactory

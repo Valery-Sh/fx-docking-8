@@ -28,13 +28,11 @@ import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import static javafx.scene.input.KeyCode.T;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import org.vns.javafx.designer.DesignerLookup;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 
@@ -187,11 +185,11 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
 
         window.setWidth(getNode().getLayoutBounds().getWidth() + borderWidth);
         window.setHeight(getNode().getLayoutBounds().getHeight() + borderHeight);
-        if ( getNode() instanceof Region ) {
+        if (getNode() instanceof Region) {
             ((Region) getNode()).setPrefWidth(((Region) getNode()).getWidth());
             ((Region) getNode()).setPrefHeight(((Region) getNode()).getHeight());
         }
-        
+
         root.setPrefWidth(getNode().getLayoutBounds().getWidth() + borderWidth);
         root.setPrefHeight(getNode().getLayoutBounds().getHeight() + borderHeight);
 
@@ -200,7 +198,7 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
             borderWidth = root.getInsets().getLeft() + root.getInsets().getRight();
             borderHeight = root.getInsets().getTop() + root.getInsets().getBottom();
             Insets nodeInsets = null;
-            if ( node instanceof Region  ) {   
+            if (node instanceof Region) {
                 nodeInsets = ((Region) node).getInsets();
             }
             if (nodeInsets != null) {
@@ -288,8 +286,8 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
         }
         resizer = new Resizer.DefaultResizer();
         List<? extends ResizerFactory> list = DockRegistry.getInstance().getLookup().lookupAll(ResizerFactory.class);
-        for ( ResizerFactory f : list) {
-            if ( f.getResizer(window, getNode()) != null ) {
+        for (ResizerFactory f : list) {
+            if (f.getResizer(window, getNode()) != null) {
                 resizer = f.getResizer(window, getNode());
                 break;
             }
@@ -309,16 +307,37 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
             getNode().getScene().getRoot().removeEventFilter(MouseEvent.MOUSE_RELEASED, this);
 
             hide();
+//            if (frameControl != null) {
+                NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
+                if (nf != null) {
+                    //Platform.runLater(() -> {
+                        nf.show(getNode());
+                    //});
+                }
+//            }
+            /*            if (frameControl != null) {
+                Bounds nodeBounds = frameControl.localToScene(frameControl.getBoundsInLocal());
+                Bounds rootBounds = frameControl.getParent().localToScene(frameControl.getParent().getBoundsInLocal());
+                frameControl.setLayoutX(nodeBounds.getMinX() - rootBounds.getMinX());
+                frameControl.setLayoutY(nodeBounds.getMinY() - rootBounds.getMinY());
 
-            if (frameControl != null) {
                 frameControl.show();
-            }
 
+                Platform.runLater(() -> {
+                    Bounds nodeBounds1 = frameControl.localToScene(frameControl.getBoundsInLocal());
+                    Bounds rootBounds1 = frameControl.getParent().localToScene(frameControl.getParent().getBoundsInLocal());
+
+                    frameControl.setLayoutX(nodeBounds1.getMinX() - rootBounds1.getMinX());
+                    frameControl.setLayoutY(nodeBounds1.getMinY() - rootBounds1.getMinY());
+                });
+            }
+             */
         }
     }
 
     public void redirectMouseEvents(MouseEvent ev, Point2D startMousePos, FramePane redirectSource) {
         frameControl = redirectSource;
+        //frameControl.setBoundNode(null);
         redirectMouseEvents(ev, startMousePos);
     }
 

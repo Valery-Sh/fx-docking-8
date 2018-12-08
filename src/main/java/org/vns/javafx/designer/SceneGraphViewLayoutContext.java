@@ -15,14 +15,11 @@
  */
 package org.vns.javafx.designer;
 
-import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.RowConstraints;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.vns.javafx.ContextLookup;
@@ -108,14 +105,14 @@ public class SceneGraphViewLayoutContext extends LayoutContext {
 
         Node node = null;
         if (d != null) {
-            node = d.node();
+            node = d.getNode();
         }
 
         if (window == null && node.getScene() != null && node.getScene().getWindow() != null) { //&& (node.getScene().getWindow() instanceof Stage)) {
             window = node.getScene().getWindow();
         }
-        if (window == null && dockable.node() != node) {
-            node = dockable.node();
+        if (window == null && dockable.getNode() != node) {
+            node = dockable.getNode();
             if (node.getScene() != null && node.getScene().getWindow() != null) { //&& (node.getScene().getWindow() instanceof Stage)) {
                 window = node.getScene().getWindow();
             }
@@ -123,7 +120,7 @@ public class SceneGraphViewLayoutContext extends LayoutContext {
         Object value = getValue(dockable);
         Object toAccept = value;
         if (value instanceof Dockable) {
-            toAccept = ((Dockable) value).node();
+            toAccept = ((Dockable) value).getNode();
         }
         boolean accepted = acceptValue(mousePos, toAccept);
 
@@ -205,7 +202,7 @@ public class SceneGraphViewLayoutContext extends LayoutContext {
         }
 
         if (value instanceof Dockable) {
-            value = ((Dockable) value).node();
+            value = ((Dockable) value).getNode();
         }
         return new TreeItemBuilder().isAdmissiblePosition(gv.getTreeView(), target, place, value);
 

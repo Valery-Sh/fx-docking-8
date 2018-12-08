@@ -105,10 +105,10 @@ public class DockTabPane2Context extends LayoutContext { //implements ObjectRece
             d = Dockable.of(dc.getValue());
         }
         //28.03if (isDocked(d.node())) {
-        if (contains(d.node())) {
+        if (contains(d.getNode())) {
             return;
         }
-        Node node = d.node();
+        Node node = d.getNode();
         Window stage = null;
         if (node.getScene() != null && node.getScene().getWindow() != null) { //&& (node.getScene().getWindow() instanceof Stage)) {
             stage = node.getScene().getWindow();
@@ -135,7 +135,7 @@ public class DockTabPane2Context extends LayoutContext { //implements ObjectRece
         if (placeholder != null) {
             window = placeholder.getScene().getWindow();
         } else {
-            window = dockable.node().getScene().getWindow();
+            window = dockable.getNode().getScene().getWindow();
         }
         if (doDock(mousePos, tab) && window != null) {
             if ((window instanceof Stage)) {

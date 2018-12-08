@@ -17,6 +17,7 @@ package org.vns.javafx.dock.api.indicator;
 
 import javafx.scene.Node;
 import org.vns.javafx.dock.api.LayoutContext;
+import org.vns.javafx.dock.api.indicator.IndicatorPopup.KeysDown;
 
 /**
  *
@@ -42,10 +43,15 @@ public interface IndicatorManager {
     default boolean hideWhenOut(double x, double y) {
         return true;
     }
+    default void showIndicator(KeysDown keysDown) {
+        
+    }
+    default void setKeysDown(KeysDown keysDown) {
+        
+    }
     default void showIndicator() {
         
     }
-
-
+    
     PositionIndicator getPositionIndicator();
 }

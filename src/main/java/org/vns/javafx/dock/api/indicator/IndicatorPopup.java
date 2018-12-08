@@ -3,6 +3,9 @@ package org.vns.javafx.dock.api.indicator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
@@ -79,6 +82,18 @@ public class IndicatorPopup extends Popup implements IndicatorManager {
      */
     private final LayoutContext targetContext;
 
+    public enum KeysDown {
+        NONE,
+        CTLR_DOWN,
+        ALT_DOWN,
+        SHIFT_DOWN,
+        CTLR_ALT_DOWN,
+        CTLR_SHIFT_DOWN,
+        ALT_SHIFT_DOWN,
+    }
+    
+    private final ObjectProperty<KeysDown> keysDown = new SimpleObjectProperty(KeysDown.NONE);
+            
     private Node draggedNode;
 
     @Override
@@ -106,11 +121,23 @@ public class IndicatorPopup extends Popup implements IndicatorManager {
     private void init() {
         initContent();
     }
+    
+    public ObjectProperty<KeysDown> keysDownProperty() {
+        return keysDown;
+    }
+    public KeysDown getKeysDown() {
+        return keysDown.get();
+    }
 
-/*    public static IndicatorPopup getInstance(LayoutContext context) {
+    @Override
+    public void setKeysDown(KeysDown keys) {
+        this.keysDown.set(keys);
+    }
+
+    /*    public static IndicatorPopup getInstance(LayoutContext context) {
         return context.getLookup().lookup(IndicatorPopup.class);
     }
-*/
+     */
     @Override
     public void show(Window ownerWindow) {
         if (!(ownerWindow instanceof IndicatorPopup)) {
@@ -133,7 +160,7 @@ public class IndicatorPopup extends Popup implements IndicatorManager {
             throw new IllegalStateException("The parameter 'ownerWindow' must be of type " + getClass().getName());
         }
 
-        super.show(ownerWindow, anchorX-6, anchorY-6);
+        super.show(ownerWindow, anchorX - 6, anchorY - 6);
 
         if (((IndicatorPopup) ownerWindow).getChildWindows().contains(this)) {
             return;
@@ -156,11 +183,11 @@ public class IndicatorPopup extends Popup implements IndicatorManager {
 
     @Override
     public void show(Node ownerNode, double anchorX, double anchorY) {
-        Pane p = targetContext.getPositionIndicator().getIndicatorPane();        
+        Pane p = targetContext.getPositionIndicator().getIndicatorPane();
         Insets ins = p.getInsets();
-        super.show(ownerNode.getScene().getWindow(), anchorX-ins.getLeft(), anchorY-ins.getTop());
+        super.show(ownerNode.getScene().getWindow(), anchorX - ins.getLeft(), anchorY - ins.getTop());
     }
-    
+
     @Override
     public void hide() {
         if (getOwnerWindow() instanceof IndicatorPopup) {
@@ -182,54 +209,77 @@ public class IndicatorPopup extends Popup implements IndicatorManager {
     public Node getTargetNode() {
         return targetContext.getLayoutNode();
     }
+
     protected void initContent() {
+        ChangeListener<? super Bounds> boundsListener = (v, oldValue, newValue) -> {
+            Pane indicatorPane = targetContext.getPositionIndicator().getIndicatorPane();
+            indicatorPane.applyCss();
+            Insets ins = indicatorPane.getInsets();
+            Bounds bnd = getTargetNode().localToScene(getTargetNode().getBoundsInLocal());
+
+            indicatorPane.setPrefHeight(bnd.getHeight() + ins.getTop() + ins.getBottom());
+            indicatorPane.setPrefWidth(bnd.getWidth() + ins.getLeft() + ins.getRight());
+            indicatorPane.setMinHeight(bnd.getHeight() + ins.getTop() + ins.getBottom());
+            indicatorPane.setMinWidth(bnd.getWidth() + ins.getLeft() + ins.getRight());
+            Point2D pos = getTargetNode().localToScreen(0, 0);
+
+            setX(bnd.getMinX() - ins.getLeft());
+            setY(bnd.getMinY() - ins.getTop());
+
+            targetContext.getPositionIndicator().updateIndicatorPane();
+
+        };
+        ChangeListener<? super KeysDown> keysDownListener = (v, oldValue, newValue) -> {
+            targetContext.getPositionIndicator().updateIndicatorPane();
+        };        
+        setOnHidden(e -> {
+            getTargetNode().boundsInParentProperty().removeListener(boundsListener);
+            getTargetNode().layoutBoundsProperty().removeListener(boundsListener);
+            keysDownProperty().removeListener(keysDownListener);
+        });
         setOnShown(e -> {
+            keysDownProperty().addListener(keysDownListener);
+            
             if (targetContext.getPositionIndicator() == null || targetContext.getPositionIndicator().getIndicatorPane() == null) {
                 return;
             }
             if (targetContext.getPositionIndicator().getIndicatorPane() == null) {
                 return;
             }
-
+            
             Pane indicatorPane = targetContext.getPositionIndicator().getIndicatorPane();
+            indicatorPane.applyCss();
             Insets ins = indicatorPane.getInsets();
+            Bounds bnd = getTargetNode().localToScreen(getTargetNode().getBoundsInLocal());
+            Bounds localBnd = getTargetNode().getBoundsInLocal();
+            Point2D pos = getTargetNode().localToScreen(0, 0);
+            Point2D scenePos = new Point2D( getTargetNode().getScene().getX(),getTargetNode().getScene().getY());
+            Point2D winPos = new Point2D( getTargetNode().getScene().getWindow().getX(),getTargetNode().getScene().getWindow().getY());
+            
+            setX(bnd.getMinX() - ins.getLeft());
+            setY(bnd.getMinY() - ins.getTop());
+
             if (getTargetNode() instanceof Region) {
-/*                indicatorPane.prefHeightProperty().bind(((Region) getTargetNode()).heightProperty().add(ins.getTop() + ins.getBottom()));*
-                indicatorPane.prefWidthProperty().bind(((Region) getTargetNode()).widthProperty().add(ins.getLeft() + ins.getRight()));
+                indicatorPane.setPrefHeight(bnd.getHeight() + ins.getTop() + ins.getBottom());
+                indicatorPane.setPrefWidth(bnd.getWidth() + ins.getLeft() + ins.getRight());
+                indicatorPane.setMinHeight(bnd.getHeight() + ins.getTop() + ins.getBottom());
+                indicatorPane.setMinWidth(bnd.getWidth() + ins.getLeft() + ins.getRight());
 
-                indicatorPane.minHeightProperty().bind(((Region) getTargetNode()).heightProperty().add(ins.getTop() + ins.getBottom()));
-                indicatorPane.minWidthProperty().bind(((Region) getTargetNode()).widthProperty().add(ins.getLeft() + ins.getRight()));
-*/                
-                    Bounds b = getTargetNode().getBoundsInParent();
-                    indicatorPane.setPrefHeight(b.getHeight());
-                    indicatorPane.setPrefWidth(b.getWidth());
-                    indicatorPane.setMinHeight(b.getHeight());
-                    indicatorPane.setMinWidth(b.getWidth());
-                    
-                    getTargetNode().boundsInParentProperty().addListener((ov, oldValue, newValue) -> {
-                    indicatorPane.setPrefHeight(newValue.getHeight());
-                    indicatorPane.setPrefWidth(newValue.getWidth());
-                    indicatorPane.setMinHeight(newValue.getHeight());
-                    indicatorPane.setMinWidth(newValue.getWidth());
-
-                });
+                getTargetNode().boundsInParentProperty().addListener(boundsListener);
 
             } else {
-                getTargetNode().layoutBoundsProperty().addListener((ov, oldValue, newValue) -> {
-                    indicatorPane.setPrefHeight(newValue.getHeight());
-                    indicatorPane.setPrefWidth(newValue.getWidth());
-                    indicatorPane.setMinHeight(newValue.getHeight());
-                    indicatorPane.setMinWidth(newValue.getWidth());
-
-                });
+                getTargetNode().layoutBoundsProperty().addListener(boundsListener);
             }
+            
             indicatorPane.setMouseTransparent(true);
             if (!getContent().contains(indicatorPane)) {
                 getContent().add(indicatorPane);
-                
             }
-        });
-        
+            targetContext.getPositionIndicator().updateIndicatorPane();
+            
+        }
+        );
+
     }
 
     public ObservableList<IndicatorPopup> getAllChildIndicatorPopup() {
@@ -271,14 +321,19 @@ public class IndicatorPopup extends Popup implements IndicatorManager {
      * Shows this pop up window
      */
     @Override
-    public void showIndicator() {
+    public void showIndicator(KeysDown keysDown) {
         if (getPositionIndicator() == null) {
             return;
         }
+        
+        getPositionIndicator().updateIndicatorPane();
         setAutoFix(false);
         Point2D pos = getTargetNode().localToScreen(0, 0);
-        getPositionIndicator().showIndicatorPopup(getDraggedNode(), pos.getX(), pos.getY());
+        Pane pane = getPositionIndicator().getIndicatorPane();
+        Insets ins = pane.getInsets();
+        getPositionIndicator().showIndicatorPopup(getDraggedNode(), pos.getX() - ins.getLeft(), pos.getY() - ins.getTop());
     }
+
     /**
      * Hides the pop up window when some condition are satisfied. If this pop up
      * is hidden returns true. If the mouse cursor is still inside the pane
@@ -316,9 +371,13 @@ public class IndicatorPopup extends Popup implements IndicatorManager {
         if (getPositionIndicator() == null) {
             return;
         }
+        
         getPositionIndicator().showDockPlace(screenX, screenY);
-        ((Rectangle) getDockPlace()).strokeDashOffsetProperty().set(0);
+
+        ((Rectangle) getDockPlace()).strokeDashOffsetProperty().set(1);
         if (getDockPlace().isVisible()) {
+            getDockPlace().toFront();
+
             Timeline placeTimeline = new Timeline();
             placeTimeline.setCycleCount(Timeline.INDEFINITE);
             KeyValue kv = new KeyValue(((Rectangle) getDockPlace()).strokeDashOffsetProperty(), 12);

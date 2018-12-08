@@ -141,13 +141,13 @@ public class DockTabPaneContext extends LayoutContext { //implements ObjectRecei
             d = Dockable.of(dc.getValue());
         }
 
-        Node node = d.node();
+        Node node = d.getNode();
         Window stage = null;
         if (node.getScene() != null && node.getScene().getWindow() != null) { //&& (node.getScene().getWindow() instanceof Stage)) {
             stage = node.getScene().getWindow();
         }
 
-        if (doDock(mousePos, d.node()) && stage != null) {
+        if (doDock(mousePos, d.getNode()) && stage != null) {
             if ((stage instanceof Stage)) {
                 ((Stage) stage).close();
             } else {
@@ -162,7 +162,7 @@ public class DockTabPaneContext extends LayoutContext { //implements ObjectRecei
         if (placeholder != null) {
             window = placeholder.getScene().getWindow();
         } else {
-            window = dockable.node().getScene().getWindow();
+            window = dockable.getNode().getScene().getWindow();
         }
         if (doDock(mousePos, tab) && window != null) {
             if ((window instanceof Stage)) {
@@ -351,12 +351,12 @@ public class DockTabPaneContext extends LayoutContext { //implements ObjectRecei
 
     protected String getButtonText(Dockable d) {
         String txt = d.getContext().getTitle();
-        if (d.getContext().getProperties().getProperty("user-title") != null) {
-            txt = d.getContext().getProperties().getProperty("user-title");
-        } else if (d.getContext().getProperties().getProperty("short-title") != null) {
-            txt = d.getContext().getProperties().getProperty("short-title");
-        } else if (d.node().getId() != null && d.node().getId().isEmpty()) {
-            txt = d.node().getId();
+        if (d.getContext().getProperties().get("user-title") != null) {
+            txt = (String) d.getContext().getProperties().get("user-title");
+        } else if (d.getContext().getProperties().get("short-title") != null) {
+            txt = (String) d.getContext().getProperties().get("short-title");
+        } else if (d.getNode().getId() != null && d.getNode().getId().isEmpty()) {
+            txt = d.getNode().getId();
         }
         if (txt == null || txt.trim().isEmpty()) {
             txt = "";
@@ -374,7 +374,7 @@ public class DockTabPaneContext extends LayoutContext { //implements ObjectRecei
             tb.getProperties().put("titleBarMinHeight", ((Region) tb).getMinHeight());
             tb.getProperties().put("titleBarPrefHeight", ((Region) tb).getPrefHeight());
         }
-        dockable.node().getProperties().put("titleBar", tb);
+        dockable.getNode().getProperties().put("titleBar", tb);
         dockable.getContext().setTitleBar(null);
     }
 
@@ -387,7 +387,7 @@ public class DockTabPaneContext extends LayoutContext { //implements ObjectRecei
     }
 
     public void showContentTitleBar(Dockable dockable) {
-        Region tb = (Region) dockable.node().getProperties().get("titleBar");
+        Region tb = (Region) dockable.getNode().getProperties().get("titleBar");
         if (tb == null) {
             return;
         }

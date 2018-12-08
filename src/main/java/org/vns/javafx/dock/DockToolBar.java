@@ -52,7 +52,7 @@ public class DockToolBar extends ToolBar implements Dockable{
     }
 
     @Override
-    public Region node() {
+    public Region getNode() {
         return this;
     }
 

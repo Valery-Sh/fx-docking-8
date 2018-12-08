@@ -92,7 +92,7 @@ public class DragContainer { //extends Control implements Dockable{
     public Window getFloatingWindow(Dockable dockable) {
         
         if ( getPlaceholder() == null ) {
-            return dockable.node().getScene().getWindow();
+            return dockable.getNode().getScene().getWindow();
         }
         if (getPlaceholder().getScene() == null || getPlaceholder().getScene().getWindow() == null) {
             return null;
@@ -111,7 +111,7 @@ public class DragContainer { //extends Control implements Dockable{
     public static Node placeholderOf(Object value) {
         Node placeholder;
         if (Dockable.of(value) != null) {
-            placeholder = Dockable.of(value).node();
+            placeholder = Dockable.of(value).getNode();
         } else if ((value instanceof Node)) {
             Pane p = new Pane();
             p.getChildren().add((Node)value);

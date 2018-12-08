@@ -270,7 +270,10 @@ public class SceneView extends Control implements DockLayout {
             framePane = new FramePane(parent, false);
             framePane.setId(FramePane.PARENT_ID);
             EditorUtil.addToParent(parent, framePane);
+            
         }
+        framePane.setVisible(false);
+        
         framePane = parent.lookup("#" + FramePane.NODE_ID);
         if (framePane == null) {
             //
@@ -280,7 +283,32 @@ public class SceneView extends Control implements DockLayout {
             framePane.setId(FramePane.NODE_ID);
             EditorUtil.addToParent(parent, framePane);
         }
-
+        framePane.setVisible(false);
+    }
+    public static void removeFramePanes(Parent parent) {
+        Node framePane = parent.lookup("#" + FramePane.PARENT_ID);
+        if (framePane == null) {
+            return;
+            //
+            // Frame without resize shapes
+            //
+/*            framePane = new FramePane(parent, false);
+            framePane.setId(FramePane.PARENT_ID);
+            EditorUtil.addToParent(parent, framePane);
+*/            
+        } else {
+            EditorUtil.removeFromParent(parent, framePane);
+        }
+/*        framePane = parent.lookup("#" + FramePane.NODE_ID);
+        if (framePane == null) {
+            //
+            // Frame with resize shapes
+            //
+            framePane = new FramePane(parent);
+            framePane.setId(FramePane.NODE_ID);
+            EditorUtil.addToParent(parent, framePane);
+        }
+*/
     }
 
     public static FramePane getResizeFrame() {
@@ -362,7 +390,7 @@ public class SceneView extends Control implements DockLayout {
     }
 
     @Override
-    public Node layoutNode() {
+    public Node getLayoutNode() {
         return this;
     }
 

@@ -51,10 +51,6 @@ public class DesignerScenePaneContext extends ScenePaneContext {
         return Dockable.of(obj) != null && Dockable.of(obj).getContext().getLayoutContext() == this && item != null;
     }
 
-    @Override
-    public boolean isAcceptable(Dockable dockable) {
-        return super.isAcceptable(dockable);
-    }
     
     @Override
     public void remove(Object obj) {

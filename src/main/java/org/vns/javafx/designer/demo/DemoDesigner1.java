@@ -17,15 +17,11 @@
 package org.vns.javafx.designer.demo;
 
 import com.sun.javafx.css.StyleManager;
-import com.sun.javafx.stage.StageHelper;
 import java.net.URL;
-import java.util.List;
-import java.util.Set;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
-import javafx.beans.Observable;
 import javafx.collections.ListChangeListener.Change;
-import javafx.geometry.NodeOrientation;
+import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.Node;
@@ -33,6 +29,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.PopupControl;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -40,7 +37,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
@@ -56,16 +52,11 @@ import org.vns.javafx.dock.api.DefaultLayoutContextFactory;
 
 import org.vns.javafx.designer.PalettePane;
 import org.vns.javafx.designer.DesignerLookup;
-import org.vns.javafx.designer.EditorUtil;
 import org.vns.javafx.designer.SceneView;
 import org.vns.javafx.designer.TrashTray;
-import org.vns.javafx.designer.TreeItemBuilder;
-import org.vns.javafx.designer.TreeItemEx;
-import org.vns.javafx.designer.descr.NodeDescriptor;
-import org.vns.javafx.dock.api.LayoutContextFactory;
 import org.vns.javafx.dock.api.DockLayout;
-import org.vns.javafx.dock.api.Scope;
 import org.vns.javafx.dock.api.dragging.DragManager;
+import org.vns.javafx.dock.api.dragging.view.FramePane;
 
 /**
  *
@@ -77,13 +68,7 @@ public class DemoDesigner1 extends Application {
     public void start(Stage stage) throws Exception {
         Button tb = new Button();
         tb.toFront();
-        if ( null instanceof Node) {
-            System.err.println("NULL !!!!!!!");
-        }
-        System.err.println("");
-        StageHelper.getStages().addListener((Observable c) -> {
-            //System.err.println("stages.size() = " + StageHelper.getStages().size());
-        });
+     
         
         Node n;
 
@@ -113,8 +98,8 @@ public class DemoDesigner1 extends Application {
         DockRegistry.makeDockLayout(formPane, ctx);
         BorderPane root1 = new BorderPane();
         Button eb = new Button("Ext Button");
-        eb.setScaleX(0.5);
-        eb.setTranslateY(20);
+        //eb.setScaleX(0.5);
+        //eb.setTranslateY(20);
         eb.setOnMousePressed(e -> {
             System.err.println("@@ eb mousepressed");
         });
@@ -150,13 +135,18 @@ public class DemoDesigner1 extends Application {
         //cb.getItems().add("item 2");
         DockNode dn = new DockNode("Dock Node");
         dn.setContent(new Label("Dock Node Content"));
-        dn.setScaleX(0.5);
+        System.err.println(java.util.UUID.randomUUID());
+
+        //dn.setScaleX(0.5);
         Pane topPane = new Pane();
         Circle circle = new Circle(10);
         Rectangle rect = new Rectangle(40,20);
+
         Ellipse ellipse = new Ellipse(20,20);
         Text text = new Text("text");
         MyHBox centerPane = new MyHBox(eb,tx, cb,dn, text, circle, rect, ellipse);
+        //eb.setFocusTraversable(false);
+        root1.setFocusTraversable(false);
         centerPane.setId("CCCCCCCCCCCCCCCCCCC");
         GridPane gridPane1 = new GridPane();
         root1.setTop(centerPane);
@@ -165,7 +155,13 @@ public class DemoDesigner1 extends Application {
         //root1.setTop(topPane);
         //root1.setCenter(centerPane);
         root1.setLeft(new Label("My Label 1"));
-        root1.setRight(gridPane1);
+        
+        //root1.setRight(gridPane1);
+        Button spButton = new Button(" StackPane Button");
+        StackPane stackPane1 = new StackPane(spButton);
+        stackPane1.setStyle("-fx-background-color: red; -fx-padding: 20 20 20 20");
+        root1.setRight(stackPane1);
+        
         //new TreeItemBuilder().build(null);
 /*        System.err.println("root1.getChildren = " + root1.getChildren());
         root1.getChildren().forEach(n1 -> {
@@ -180,9 +176,10 @@ public class DemoDesigner1 extends Application {
         root1.setId("root1");
         sceneView.setRoot(root1);
 
-        StackPane sp = new StackPane();
-        //StackPane sp = new StackPane(root1);
-        Scene scene1 = new Scene(root1);
+        //StackPane sp = new StackPane();
+        StackPane sp = new StackPane(root1);
+        sp.setId("root-stackpane");
+        Scene scene1 = new Scene(sp);
         scene1.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
             //System.err.println("filter scene1 mouse pressed source = " + e.getSource() + "; target = " + e.getTarget());
             //e.consume();
@@ -211,7 +208,7 @@ public class DemoDesigner1 extends Application {
         });   
         
         root1.setStyle("-fx-padding: 5 5 5 5");
-        
+        //root1.setTranslateX(70);
 
         sceneView.rootProperty().addListener((v,ov,nv) -> {
          
@@ -246,6 +243,28 @@ public class DemoDesigner1 extends Application {
             scene1.setRoot(root1);
         });
         formButton.setOnAction(a -> {
+            
+            System.err.println("topPane.insets = " + topPane.getInsets());
+            eb.setFocusTraversable(false);
+            Bounds br = rect.localToScene(rect.getBoundsInLocal());
+            FramePane nr = (FramePane) root1.lookup("#" + FramePane.NODE_ID);
+            Rectangle frameRect = (Rectangle) nr.lookup("#" + "rectangle");
+            Bounds bnr = nr.localToScene(nr.getBoundsInLocal());
+            Bounds panebnd = nr.getPane().localToScene(nr.getPane().getBoundsInLocal());
+            Bounds frameRectbnd = frameRect.localToScene(frameRect.getBoundsInLocal());
+            
+            System.err.println("RECT = " + rect);
+            System.err.println("   --- rect.bounds       = " + br);            
+            System.err.println("   --- fp.bounds         = " + bnr);   
+            System.err.println("   --- fp.getPane.bounds = " + panebnd);   
+            System.err.println("   --- frameRect.bounds  = " + frameRectbnd);  
+            System.err.println("   --- frameRect         = " + frameRect);  
+            
+            
+            System.err.println("===========================================");
+/*           System.err.println("root1.width = " + root1.getWidth()); 
+           System.err.println("root1.bounds.width = " + root1.localToScene(root1.getBoundsInLocal()).getWidth()); 
+           System.err.println("centerPane.width = " + centerPane.localToScene(centerPane.getBoundsInLocal()).getWidth()); 
            Set<Scope> scs = Dockable.of(centerPane).getContext().getScopes();
            System.err.println("centerPane is docklayout = " + DockLayout.of(centerPane));
            System.err.println("centerPane scopes = " + scs);
@@ -300,7 +319,7 @@ public class DemoDesigner1 extends Application {
                 }
 
             }
-
+*/
         });
 
         root1.setId("root1 " + root.getClass().getSimpleName());
@@ -334,7 +353,7 @@ public class DemoDesigner1 extends Application {
         DockNode palleteDockNode = new DockNode(" Palette ");
         palleteDockNode.setContent(palettePane);
         //palleteDockNode.getContext().getDragManager().getHideOption();
-        palleteDockNode.getContext().newDragManager().setHideOption(DragManager.HideOption.CARRIER);
+        palleteDockNode.getContext().getDragManager().setHideOption(DragManager.HideOption.CARRIER);
         //System.err.println("dragManager.class = " + palleteDockNode.getContext().getDragManager().getClass().getSimpleName());
         paletteDockSideBar.getItems().add(Dockable.of(palleteDockNode));
 
