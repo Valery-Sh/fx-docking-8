@@ -44,7 +44,7 @@ public abstract class AbstractNodeFraming implements NodeFraming {
     private ChangeListener<Window> nodeWindowListener;
 
     @Override
-    public final void show(Node node) {
+    public final void show(Node node, Object... parms) {
         if (!isAcceptable(node)) {
             return;
         }
@@ -130,7 +130,7 @@ public abstract class AbstractNodeFraming implements NodeFraming {
         //setNode(null);        
     }
     @Override
-    public void showParent(Node node) {
+    public void showParent(Node node, Object... parms) {
         
     }
 //    @Override

@@ -307,31 +307,10 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
             getNode().getScene().getRoot().removeEventFilter(MouseEvent.MOUSE_RELEASED, this);
 
             hide();
-//            if (frameControl != null) {
                 NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
                 if (nf != null) {
-                    //Platform.runLater(() -> {
                         nf.show(getNode());
-                    //});
                 }
-//            }
-            /*            if (frameControl != null) {
-                Bounds nodeBounds = frameControl.localToScene(frameControl.getBoundsInLocal());
-                Bounds rootBounds = frameControl.getParent().localToScene(frameControl.getParent().getBoundsInLocal());
-                frameControl.setLayoutX(nodeBounds.getMinX() - rootBounds.getMinX());
-                frameControl.setLayoutY(nodeBounds.getMinY() - rootBounds.getMinY());
-
-                frameControl.show();
-
-                Platform.runLater(() -> {
-                    Bounds nodeBounds1 = frameControl.localToScene(frameControl.getBoundsInLocal());
-                    Bounds rootBounds1 = frameControl.getParent().localToScene(frameControl.getParent().getBoundsInLocal());
-
-                    frameControl.setLayoutX(nodeBounds1.getMinX() - rootBounds1.getMinX());
-                    frameControl.setLayoutY(nodeBounds1.getMinY() - rootBounds1.getMinY());
-                });
-            }
-             */
         }
     }
 

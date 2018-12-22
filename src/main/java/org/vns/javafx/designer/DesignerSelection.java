@@ -35,10 +35,10 @@ public class DesignerSelection extends Selection {
     }
 
     private void init() {
-        selectedProperty().addListener(this::selectedChanged);
+        //selectedProperty().addListener(this::selectedChanged);
     }
 
-    @Override
+/*    @Override
     public void setSelected(Object toSelect) {
         if (toSelect instanceof Node) {
             NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
@@ -48,9 +48,9 @@ public class DesignerSelection extends Selection {
         }
         notifySelected(toSelect);
     }
-
-    protected void selectedChanged(ObservableValue ov, Object oldValue, Object newValue) {
-
+*/
+/*    protected void selectedChanged(ObservableValue ov, Object oldValue, Object newValue) {
+        System.err.println("SELECTED CHANGED ov = " + oldValue + "; nv = " + newValue);
         NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
         if (newValue == null) {
             if (nf != null) {
@@ -67,7 +67,7 @@ public class DesignerSelection extends Selection {
         }
         notifySelected(newValue);
     }
-
+*/
     @Override
     public void notifySelected(Object value) {
         SceneView sgv = DesignerLookup.lookup(SceneView.class);
@@ -83,5 +83,4 @@ public class DesignerSelection extends Selection {
             }
         }
     }
-
 }

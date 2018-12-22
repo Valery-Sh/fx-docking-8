@@ -15,6 +15,7 @@
  */
 package org.vns.javafx.designer;
 
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
@@ -28,6 +29,7 @@ import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.DragContainer;
 import org.vns.javafx.dock.api.LayoutContext;
+import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.dragging.view.NodeFraming;
 import org.vns.javafx.dock.api.indicator.IndicatorManager;
 
@@ -81,12 +83,12 @@ public class SceneGraphViewLayoutContext extends LayoutContext {
     }
 
     /**
-     * To prevent setting of this LayoutContext to object dockable context.
+     * To prevent setting of this LayoutContext to object's {@code dockable} context.
      *
      * @param obj the docked object
      */
     @Override
-    public void commitDock(Object obj) {
+    protected void commitDock(Object obj) {
 
     }
 
@@ -131,6 +133,16 @@ public class SceneGraphViewLayoutContext extends LayoutContext {
                 window.hide();
             }
         }
+        
+        //final Selection sel = DockRegistry.lookup(Selection.class);
+        //System.err.println("=== selected = " + sel.getSelected());
+/*        final Node anode = (Node) toAccept;
+        if ( sel != null ) {
+            Platform.runLater(() -> {
+                sel.setSelected(anode);
+            });
+        }
+*/        
         NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
         if (nf != null) {
 

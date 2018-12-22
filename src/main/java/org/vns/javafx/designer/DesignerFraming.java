@@ -18,6 +18,9 @@ package org.vns.javafx.designer;
 import org.vns.javafx.dock.api.dragging.view.*;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Selection;
 
@@ -31,12 +34,31 @@ public class DesignerFraming extends AbstractNodeFraming {
     protected void initializeOnShow(Node node) {
 
         SceneView sv = DesignerLookup.lookup(SceneView.class);
+        if (sv == null || sv.getRoot().getScene() != node.getScene()) {
+            return;
+        }
         Parent p = EditorUtil.getTopParentOf(node);
-
+        //System.err.println("initializeOnShow node = " + node);
+        //System.err.println("initializeOnShow p = " + p);
         if (p != null && node != sv.getRoot()) {
             if (node.getParent() != null && node.getParent() != sv.getRoot()) {
+                System.err.println("node.getParent() = " + node.getParent());
+                /*                if (node.getParent() instanceof GridPane) {
+                    System.err.println("node.getParent() = " + node.getParent());
+                    System.err.println("node.getScene().getRoot() = " + node.getScene().getRoot());
+                    GridPaneFrame pf = new GridPaneFrame((GridPane) node.getParent());
+                    ((Pane)node.getScene().getRoot()).getChildren().add(pf);
+                    
+                    pf.show();
+                    pf.toFront();
+                } else {
+                    FramePane parentPane = SceneView.getParentFrame();
+                    parentPane.setBoundNode(node.getParent());
+                }
+                 */
                 FramePane parentPane = SceneView.getParentFrame();
                 parentPane.setBoundNode(node.getParent());
+
             }
             FramePane resizePane = SceneView.getResizeFrame();
             resizePane.setBoundNode(node);
@@ -49,7 +71,7 @@ public class DesignerFraming extends AbstractNodeFraming {
     }
 
     @Override
-    public void showParent(Node node) {
+    public void showParent(Node node, Object... parms) {
         SceneView sv = DesignerLookup.lookup(SceneView.class);
         Parent p = EditorUtil.getTopParentOf(node);
 
@@ -63,6 +85,10 @@ public class DesignerFraming extends AbstractNodeFraming {
 
     @Override
     protected void finalizeOnHide(Node node) {
+        SceneView sv = DesignerLookup.lookup(SceneView.class);
+        if (sv == null || sv.getRoot().getScene() != node.getScene()) {
+            return;
+        }
         Parent p = EditorUtil.getTopParentOf(node);
         if (p != null) {
             FramePane resizePane = SceneView.getResizeFrame();

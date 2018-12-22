@@ -41,8 +41,9 @@ public abstract class CompositePropertyEditorFactory {
     /**
      *
      * @param propertyName the name of the property
+     * @param propertyClass the class of the property
      * @param beanParentClass the class of the parent node
-     * @return the object of type {@code StaticConstraintPropertyEditor }
+     * @return the object of type {@code PropertyEditor }
      */
     public abstract PropertyEditor getEditor(String propertyName, Class<?> propertyClass,Class<?> beanParentClass);// {
 

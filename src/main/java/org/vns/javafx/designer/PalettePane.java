@@ -260,6 +260,7 @@ public class PalettePane extends Control {
      * {@code TreeItemBuilder}.
      *
      * @param value the value to make {@code Dockable}
+     * @param paletteRegistered the boolean value
      */
     public void setDockableContext(Object value, boolean paletteRegistered) {
         if (!(value instanceof Node)) {

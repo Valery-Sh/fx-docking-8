@@ -6,6 +6,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.stage.Window;
+import org.vns.javafx.dock.DockUtil;
 import org.vns.javafx.dock.api.dragging.view.FramePane;
 
 /**
@@ -174,7 +175,7 @@ public class TopNodeHelper {
         String skip = FramePane.CSS_CLASS;
         Point2D p = node.screenToLocal(screenX, screenY);
 
-        if (!node.contains(p) || node.getStyleClass().contains(skip)) {
+        if (!node.contains(p) || node.getStyleClass().contains(skip) || DockUtil.isForeign(node)) {
             return null;
         }
         if (!(node instanceof Parent) && predicate.test(node)) {
@@ -199,7 +200,7 @@ public class TopNodeHelper {
         String skip = FramePane.CSS_CLASS;
         Point2D p = node.screenToLocal(screenX, screenY);
 
-        if (!(node.contains(p) && !node.getStyleClass().contains(skip))) {
+        if (!(node.contains(p) && !node.getStyleClass().contains(skip) && !DockUtil.isForeign(node)) ) {
             return node;
         }
         if (node instanceof Parent) {

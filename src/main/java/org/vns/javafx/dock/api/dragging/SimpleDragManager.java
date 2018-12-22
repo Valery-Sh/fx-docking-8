@@ -32,6 +32,7 @@ import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.DragContainer;
 import org.vns.javafx.dock.api.LayoutContext;
 import org.vns.javafx.dock.api.SaveRestore;
+import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.TopNodeHelper;
 import static org.vns.javafx.dock.api.dragging.DragManager.HideOption.ALL;
 import static org.vns.javafx.dock.api.dragging.DragManager.HideOption.CARRIER;
@@ -136,9 +137,14 @@ public class SimpleDragManager implements DragManager, EventHandler<MouseEvent> 
             if (sr != null) {
                 sr.add(getDockable());
             }
-            NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
+/*            NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
             if (nf != null) {
                 nf.hide();
+            }
+*/
+            Selection sel = DockRegistry.lookup(Selection.class);
+            if ( sel != null ) {
+                sel.setSelected(null);
             }
             targetDockPane = ((Node) ev.getSource()).getScene().getRoot();
 
@@ -330,7 +336,6 @@ public class SimpleDragManager implements DragManager, EventHandler<MouseEvent> 
             indicatorManager.hide();
         }
         indicatorManager = newPopup;
-        System.err.println("SimpleDragManager before habdle keysDown = " + createKeysDown(ev));        
         indicatorManager.setKeysDown(createKeysDown(ev));
         
         if (!indicatorManager.isShowing()) {
@@ -415,7 +420,7 @@ public class SimpleDragManager implements DragManager, EventHandler<MouseEvent> 
 
                 if (LayoutContext.isDocked(tc, getDockable())) {
                     Object obj = LayoutContext.getValue(getDockable());
-                    NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
+/*22.12                    NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
                     if (nf != null && (obj != null)) {
                         Node nodeObj = null;
                         if (obj instanceof Node) {
@@ -424,7 +429,28 @@ public class SimpleDragManager implements DragManager, EventHandler<MouseEvent> 
                             nodeObj = Dockable.of(obj).getNode();
                         }
                         if (nodeObj != null) {
-                            nf.show(nodeObj);
+                            //22.12nf.show(nodeObj);
+                            Selection sel = DockRegistry.lookup(Selection.class);
+                            if ( sel != null ) {
+                                sel.setSelected(null);
+                                sel.setSelected(nodeObj);
+                            }
+                        }
+                    }
+*/
+                   if (obj != null) {
+                        Node nodeObj = null;
+                        if (obj instanceof Node) {
+                            nodeObj = (Node) obj;
+                        } else if (Dockable.of(obj) != null) {
+                            nodeObj = Dockable.of(obj).getNode();
+                        }
+                        if (nodeObj != null) {
+                            Selection sel = DockRegistry.lookup(Selection.class);
+                            if ( sel != null ) {
+                                sel.setSelected(null);
+                                sel.setSelected(nodeObj);
+                            }
                         }
                     }
                 }

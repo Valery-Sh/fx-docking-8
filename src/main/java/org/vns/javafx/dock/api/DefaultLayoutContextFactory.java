@@ -52,7 +52,7 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.vns.javafx.dock.DockUtil;
-import org.vns.javafx.dock.api.Constraint.GridPaneConstraint;
+import org.vns.javafx.dock.api.Constraints.GridPaneConstraints;
 import static org.vns.javafx.dock.api.LayoutContext.getValue;
 import org.vns.javafx.dock.api.indicator.IndicatorPopup;
 import org.vns.javafx.dock.api.indicator.IndicatorPopup.KeysDown;
@@ -102,7 +102,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
         } else if (targetNode instanceof GridPane) {
 
             retval = getPaneContext((Pane) targetNode);
-            retval.getLookup().putUnique(ConstraintFactory.class, new GridPaneConstraintFactory());
+            retval.getLookup().putUnique(ConstraintsFactory.class, new GridPaneConstraintsFactory());
 
         } else if (targetNode instanceof Pane) {
             retval = getPaneContext((Pane) targetNode);
@@ -332,7 +332,6 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             if (!isControlDown()) {
                 bnd = DockUtil.sceneIntersection(targetNode);
             } 
-            System.err.println("bnd = " + bnd);
             updateSnapshot(isControlDown());
 
             BorderPane indicator = new BorderPane(centerNode, topNode, rightNode, bottomNode, leftNode) {
@@ -341,7 +340,6 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
                     return Dockable.class.getResource("resources/default.css").toExternalForm();
                 }
             };
-            System.err.println("StackPane updateIndicatorPane");
             indicator.setId("stack-pane-indicator");
             indicator.getStyleClass().add("stack-pane-indicator");
 
@@ -908,11 +906,11 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
         }
     }
 
-    public static class GridPaneConstraintFactory extends ConstraintFactory {
+    public static class GridPaneConstraintsFactory extends ConstraintsFactory {
 
         @Override
-        public Constraint getConstraint(Node node) {
-            return new GridPaneConstraint(node);
+        public Constraints getConstraints(Node node) {
+            return new GridPaneConstraints(node);
         }
     }
 

@@ -25,7 +25,6 @@ import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.SaveRestore;
 import org.vns.javafx.dock.api.ScenePaneContext.ScenePaneContextFactory;
 import org.vns.javafx.dock.api.Selection.SelectionHandler;
-import org.vns.javafx.dock.api.Selection.SelectionListener;
 import org.vns.javafx.designer.DesignerScenePaneContext.DesignerScenePaneContextFactory;
 import org.vns.javafx.dock.api.dragging.view.NodeFraming;
 import org.vns.javafx.dock.api.dragging.view.ResizerFactory;
@@ -33,6 +32,7 @@ import org.vns.javafx.dock.api.dragging.view.ResizerFactory.NodeResizerFactory;
 import org.vns.javafx.dock.api.dragging.view.Resizer;
 import org.vns.javafx.dock.api.dragging.view.StageNodeFraming;
 import org.vns.javafx.dock.api.dragging.view.WindowNodeFraming;
+import org.vns.javafx.dock.api.Selection.MouseSelectionListener;
 
 /**
  *
@@ -109,8 +109,8 @@ public class DesignerLookup { // implements ContextLookup {
         saveDockRegistry(NodeFraming.class);        
         DockRegistry.getInstance().getLookup().putUnique(NodeFraming.class, new DesignerFraming());
 
-        saveDockRegistry(SelectionListener.class);        
-        DockRegistry.getInstance().getLookup().putUnique(SelectionListener.class, new SelectionHandler());
+        saveDockRegistry(MouseSelectionListener.class);        
+        DockRegistry.getInstance().getLookup().putUnique(MouseSelectionListener.class, new SelectionHandler());
 
 //        saveDockRegistry(ApplicationContext.class);        
 //        DockRegistry.getInstance().getLookup().putUnique(ApplicationContext.class, new DesignerApplicationContext());

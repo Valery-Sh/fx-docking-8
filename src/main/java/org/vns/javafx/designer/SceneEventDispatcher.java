@@ -25,6 +25,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
+import org.vns.javafx.dock.DockUtil;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.Selection;
@@ -101,13 +102,11 @@ public class SceneEventDispatcher implements PalettePane.PaletteEventDispatcher 
         //
         // not primary button
         //
-        if (SceneView.isFrameShape(event.getTarget())) {
+        if (SceneView.isFrameShape(event.getTarget()) || SceneView.isFrameLine(event.getTarget()) || DockUtil.isForeign(event.getTarget())) {
             return initial.dispatchEvent(event, tail);
         }
         if (!(mouseEvent.getTarget() instanceof Node)) {
-            //System.err.println("mouseEvent.getTarget() = " + mouseEvent.getTarget());
             return null;
-            //return initial.dispatchEvent(event, tail);            
         }
         if (mouseEvent.getEventType() != MouseEvent.MOUSE_RELEASED && !mouseEvent.isPrimaryButtonDown()) {
             if (mouseEvent.getEventType() != MouseEvent.MOUSE_MOVED) {
@@ -209,12 +208,12 @@ public class SceneEventDispatcher implements PalettePane.PaletteEventDispatcher 
         node = getDockableParent(target);
 //        System.err.println("pressed target " + target + "; dockable node = " + node);
 //        System.err.println("PRESSED node = " + node);
-        Selection.SelectionListener l = DockRegistry.lookup(Selection.SelectionListener.class);
+        Selection.MouseSelectionListener l = DockRegistry.lookup(Selection.MouseSelectionListener.class);
         if (l != null) { //&& (event.getTarget() instanceof Node)) {
 //            System.err.println("PRESSED selectionListener = " + l);
             //l.handle((MouseEvent) event, (Node) event.getTarget());
             MouseEvent copy = (MouseEvent) event.copyFor(node, node);
-            System.err.println("pressed Selection.SelectionListener " + Selection.SelectionListener.class);
+            System.err.println("pressed Selection.SelectionListener " + Selection.MouseSelectionListener.class);
             l.handle(copy, node);
             //l.mousePressed(copy);
         }

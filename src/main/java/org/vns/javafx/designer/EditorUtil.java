@@ -317,27 +317,7 @@ public class EditorUtil {
         return list;
     }
     
-/*    public static boolean addToParentOf(Node child, Node toAdd) {
-        boolean retval = false;
-        List children = getChildren(child);
-        if ( children != null ) {
-            retval = true;
-            int idx = children.indexOf(child);
-            children.add(idx,toAdd);
-        }
-        return retval;
-    }
 
-    public static boolean removeFromParentOf(Node child, Node toRemove) {
-        boolean retval = false;
-        List children = getChildren(child);
-        if ( children != null ) {
-            retval = true;
-            children.remove(toRemove);
-        }
-        return retval;
-    }    
-*/
     public static boolean addToParent(Parent parent, Node toAdd) {
         boolean retval = false;
         List children = getChildren(parent);

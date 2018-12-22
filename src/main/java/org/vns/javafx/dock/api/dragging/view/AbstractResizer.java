@@ -137,21 +137,8 @@ public abstract class AbstractResizer implements Resizer {
         }
     }
     protected abstract void setXLayout(double wDelta, double xDelta, double curX);
-    //protected void setXLayout(double wDelta, double xDelta, double curX) {
-       // if ((node.getWidth() > node.minWidth(-1) || xDelta <= 0)) {
-       //     node.setPrefWidth(wDelta + node.getPrefWidth());
-       //     mouseX.set(curX);
-       // }
-
-    //}
     protected abstract void setYLayout(double hDelta, double yDelta, double curY);
-    //protected void setYLayout(double hDelta, double yDelta, double curY) {
-        // if ((node.getHeight() > node.minHeight(-1) || yDelta <= 0)) {
-        //    node.setPrefHeight(hDelta + node.getPrefHeight());
-        //    mouseY.set(curY);
-        // }
-
-    //}
+  
 
     public void resizeUnmanaged(double x, double y) {
 
@@ -198,7 +185,7 @@ public abstract class AbstractResizer implements Resizer {
         //node.setPrefHeight(node.getHeight());
     
     
-    public static Cursor cursorBy(double nodeX, double nodeY, double width, double height, double left, double right, double top, double bottom, Cursor... supported) {
+/*    public static Cursor cursorBy(double nodeX, double nodeY, double width, double height, double left, double right, double top, double bottom, Cursor... supported) {
         boolean e, w, n, s;
         Cursor cursor = Cursor.DEFAULT;
         w = nodeX < left;
@@ -252,7 +239,7 @@ public abstract class AbstractResizer implements Resizer {
         }
         return cursorBy(mousePos, r.getWidth(), r.getHeight(), ins.getLeft(), ins.getRight(), ins.getTop(), ins.getBottom());
     }
-
+*/
     public Cursor getCursor() {
         return cursor;
     }

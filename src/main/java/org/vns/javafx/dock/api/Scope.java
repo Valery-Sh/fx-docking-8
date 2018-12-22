@@ -54,8 +54,14 @@ public class Scope {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Scope other = (Scope) obj;
-        return true;
+        if ( id == null && ((Scope)obj).getId() == null ) {
+            return true;
+        } else if ( id != null ) {
+            return id.equals(((Scope)obj).getId());
+        } else {
+            return ((Scope)obj).getId().equals(id);
+        }
+        
     }
 
     public BiPredicate<LayoutContext,DockableContext> getFilter() {

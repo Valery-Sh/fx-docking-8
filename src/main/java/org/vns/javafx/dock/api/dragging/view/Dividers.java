@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vns.javafx.dock.api;
+package org.vns.javafx.dock.api.dragging.view;
 
 import javafx.scene.Node;
 
@@ -21,6 +21,9 @@ import javafx.scene.Node;
  *
  * @author Valery
  */
-public abstract class ConstraintFactory {
-    public abstract Constraint getConstraint(Node node);
+public interface Dividers {
+    void show();
+    void hide();
+    void setResizable(boolean resizable);
+    boolean isShowing();
 }

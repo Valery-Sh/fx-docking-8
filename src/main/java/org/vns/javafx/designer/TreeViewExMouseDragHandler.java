@@ -54,7 +54,7 @@ public class TreeViewExMouseDragHandler extends DefaultMouseDragHandler {
             return;
         }
         TreeViewEx treeView = (TreeViewEx) getContext().getDockable().getNode();
-        SceneView sgv = treeView.getSceneGraphView();
+        SceneView sgv = treeView.getSceneView();
         TreeItemEx item = sgv.getTreeItem(screenPos);
         //
         // We don't drag the root item (item.getParent cannot be null )

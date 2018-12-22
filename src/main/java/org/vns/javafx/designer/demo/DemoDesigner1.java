@@ -36,6 +36,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Ellipse;
@@ -63,7 +64,7 @@ import org.vns.javafx.dock.api.dragging.view.FramePane;
  * @author Valery
  */
 public class DemoDesigner1 extends Application {
-
+    Label lb2_1 = new Label("Label (2,1)");
     @Override
     public void start(Stage stage) throws Exception {
         Button tb = new Button();
@@ -156,11 +157,13 @@ public class DemoDesigner1 extends Application {
         //root1.setCenter(centerPane);
         root1.setLeft(new Label("My Label 1"));
         
-        //root1.setRight(gridPane1);
+        root1.setRight(gridPane1);
         Button spButton = new Button(" StackPane Button");
+        spButton.setId("stackPaneButton");
         StackPane stackPane1 = new StackPane(spButton);
+         stackPane1.setId("stackPane1");
         stackPane1.setStyle("-fx-background-color: red; -fx-padding: 20 20 20 20");
-        root1.setRight(stackPane1);
+        //root1.setRight(stackPane1);
         
         //new TreeItemBuilder().build(null);
 /*        System.err.println("root1.getChildren = " + root1.getChildren());
@@ -243,8 +246,27 @@ public class DemoDesigner1 extends Application {
             scene1.setRoot(root1);
         });
         formButton.setOnAction(a -> {
-            
-            System.err.println("topPane.insets = " + topPane.getInsets());
+            System.err.println("gridPane1.getRowConstraits = " + gridPane1);
+            System.err.println("gridPane1.getRowConstraits.size = " + gridPane1.getRowConstraints().size());
+            if ( gridPane1.getRowConstraints().size() == 0 ) {
+                RowConstraints rc0 = new RowConstraints(30);
+                RowConstraints rc1 = new RowConstraints(40);
+                gridPane1.getRowConstraints().addAll(rc0,rc1);
+                
+                Label lb0_1 = new Label("label(0,1)");
+                gridPane1.getChildren().addAll(lb2_1,lb0_1);
+                GridPane.setRowIndex(lb2_1, 2);
+                GridPane.setColumnIndex(lb2_1, 1);
+                GridPane.setRowIndex(lb0_1, 0);
+                GridPane.setColumnIndex(lb0_1, 0);
+            } else if (gridPane1.getChildren().size() == 2 ){
+                gridPane1.getChildren().remove(lb2_1);
+                System.err.println("remove: Label2_1 gridpane-row = " + lb2_1.getProperties().get("gridpane-row"));
+            } else if (gridPane1.getChildren().size() == 1 ){
+                System.err.println("add: Label2_1 gridpane-row = " + lb2_1.getProperties().get("gridpane-row"));
+                gridPane1.getChildren().add(lb2_1);
+            }
+/*            System.err.println("topPane.insets = " + topPane.getInsets());
             eb.setFocusTraversable(false);
             Bounds br = rect.localToScene(rect.getBoundsInLocal());
             FramePane nr = (FramePane) root1.lookup("#" + FramePane.NODE_ID);
@@ -259,7 +281,7 @@ public class DemoDesigner1 extends Application {
             System.err.println("   --- fp.getPane.bounds = " + panebnd);   
             System.err.println("   --- frameRect.bounds  = " + frameRectbnd);  
             System.err.println("   --- frameRect         = " + frameRect);  
-            
+*/            
             
             System.err.println("===========================================");
 /*           System.err.println("root1.width = " + root1.getWidth()); 

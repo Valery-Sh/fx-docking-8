@@ -76,15 +76,15 @@ public abstract class LayoutContext {
     }
 
 
-    public void commitDock(Object obj) {
+    protected void commitDock(Object obj) {
         if (obj != null && DockRegistry.isDockable(obj)) {
             DockableContext dockableContext = Dockable.of(obj).getContext();
             if (dockableContext.getLayoutContext() != this) {
                 dockableContext.setLayoutContext(this);
-                ConstraintFactory f = getLookup().lookup(ConstraintFactory.class);
+                ConstraintsFactory f = getLookup().lookup(ConstraintsFactory.class);
                 if ( f != null ) {
-                    Constraint c = f.getConstraint(Dockable.of(obj).getNode());
-                    Dockable.of(obj).getNode().getProperties().put(Constraint.PROPERTY_NAME, c);
+                    Constraints c = f.getConstraints(Dockable.of(obj).getNode());
+                    Dockable.of(obj).getNode().getProperties().put(Constraints.PROPERTY_NAME, c);
                 }
             }
         }
@@ -211,15 +211,7 @@ public abstract class LayoutContext {
         return contains(obj);
     }
 
-    /**
-     *
-     * @param obj the object to chack
-     * @return true
-     */
-/*    public boolean contains(Object obj) {
-        return false;
-    }
-*/
+
     public void undock(Dockable dockable) {
         if (dockable == null) {
             return;
@@ -239,8 +231,8 @@ public abstract class LayoutContext {
             ctx = dockableObj.getContext();
             ctx.getLayoutContext().remove(obj);
             Node node = (Node) obj;
-            if ( node.getProperties().get(Constraint.PROPERTY_NAME) != null  ){
-                ((Constraint)node.getProperties().get(Constraint.PROPERTY_NAME)).delete();
+            if ( node.getProperties().get(Constraints.PROPERTY_NAME) != null  ){
+                ((Constraints)node.getProperties().get(Constraints.PROPERTY_NAME)).delete();
             }
             ctx.setLayoutContext(null);
             //LayoutContext tc = ctx.getLayoutContext();

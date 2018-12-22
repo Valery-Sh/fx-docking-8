@@ -13,25 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vns.javafx.dock.api.dragging.view;
+package org.vns.javafx.dock.api.indicator;
 
-import javafx.scene.Node;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Bounds;
 
 /**
  *
  * @author Valery
  */
-public interface NodeFraming {
+public class CellBounds {
+    //private Orientation orientation;
+    private final ObservableList<Bounds> rowBounds = FXCollections.observableArrayList();
+    private final ObservableList<Bounds> columnBounds = FXCollections.observableArrayList();
 
-/*    public static String ID = "ID-89528991-bd7a-4792-911b-21bf56660bfb";
-    public static String CSS_CLASS = "CSS-89528991-bd7a-4792-911b-21bf56660bfb";
-    public static final String RECTANGLE_ID = "RECT-" + ID;
-    public static final String CIRCLE_ID = "CIRCLE-" + ID;
-*/    
-    
-    void show(Node node, Object... parms);
-    void showParent(Node node, Object... parms);
-    void hide();
-    void removeListeners();
+
+    public ObservableList<Bounds> getRowBounds() {
+        return rowBounds;
+    }
+
+    public ObservableList<Bounds> getColumnBounds() {
+        return columnBounds;
+    }
     
 }

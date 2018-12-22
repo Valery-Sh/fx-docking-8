@@ -24,6 +24,7 @@ import org.vns.javafx.designer.descr.NodeElement;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeCell;
@@ -37,6 +38,8 @@ import static org.vns.javafx.designer.TreeItemEx.ItemType.CONTENT;
 import static org.vns.javafx.designer.TreeItemEx.ItemType.DEFAULTLIST;
 import static org.vns.javafx.designer.TreeItemEx.ItemType.LIST;
 import static org.vns.javafx.designer.TreeItemEx.ItemType.MIXED;
+import org.vns.javafx.dock.api.DockRegistry;
+import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.bean.BeanAdapter;
 import org.vns.javafx.dock.api.bean.ReflectHelper;
 
@@ -72,7 +75,6 @@ public class TreeItemBuilder {
     
     public TreeItemBuilder(boolean designer) {
         this.designer = designer;
-
     }
     public TreeItemBuilder(Object object) {
         this(true);
@@ -244,15 +246,15 @@ public class TreeItemBuilder {
         return retval;
     }
 
-    protected HBox createListContentContent(Object obj, NodeList h) {
+    protected HBox createListContentContent(Object obj, NodeList nodeList) {
         HBox box = new HBox(new HBox()); // placeholder 
-        String title = h.getTitle();
+        String title = nodeList.getTitle();
 
         if (title == null) {
             title = NodeList.DEFAULT_TITLE;
         }
         Label label = new Label(title.trim());
-        String styleClass = h.getStyleClass();
+        String styleClass = nodeList.getStyleClass();
         if (styleClass == null) {
             styleClass = NodeList.DEFAULT_STYLE_CLASS;
         }
@@ -261,7 +263,7 @@ public class TreeItemBuilder {
         return box;
     }
 
-    public final TreeItemEx createListContentItem(Object obj, NodeList h) {
+    public final TreeItemEx createListContentItem(Object obj, NodeList nodeList) {
         HBox box = new HBox();
         AnchorPane anchorPane = new AnchorPane(box);
         AnchorPane.setBottomAnchor(box, ANCHOR_OFFSET);
@@ -270,7 +272,7 @@ public class TreeItemBuilder {
         TreeItemEx retval = new TreeItemEx();
 
         retval.setValue(obj);
-        box.getChildren().add(createListContentContent(obj, h));
+        box.getChildren().add(createListContentContent(obj, nodeList));
 
         retval.setCellGraphic(anchorPane);
 
@@ -734,8 +736,11 @@ public class TreeItemBuilder {
                     ba.put(nd.getDefaultContentProperty().getName(), sourceObject);
                 }
                 break;
-
         }
+        Selection sel = DockRegistry.lookup(Selection.class);
+        Platform.runLater(() -> {
+            sel.setSelected(sourceObject);
+        });
     }
 
     protected void updateList(TreeViewEx treeView, TreeItemEx target, int placeIndex, Object sourceObject) {

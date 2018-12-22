@@ -13,25 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vns.javafx.dock.api.dragging.view;
-
-import javafx.scene.Node;
+package org.vns.javafx.dock.api.indicator;
 
 /**
  *
  * @author Valery
  */
-public interface NodeFraming {
-
-/*    public static String ID = "ID-89528991-bd7a-4792-911b-21bf56660bfb";
-    public static String CSS_CLASS = "CSS-89528991-bd7a-4792-911b-21bf56660bfb";
-    public static final String RECTANGLE_ID = "RECT-" + ID;
-    public static final String CIRCLE_ID = "CIRCLE-" + ID;
-*/    
-    
-    void show(Node node, Object... parms);
-    void showParent(Node node, Object... parms);
-    void hide();
-    void removeListeners();
+public class GridPanePositionIndicator {
     
 }

@@ -1,8 +1,12 @@
 package org.vns.javafx.dock;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import javafx.collections.ObservableList;
+import javafx.css.Styleable;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -24,6 +28,45 @@ import org.vns.javafx.dock.api.Dockable;
  * @author Valery
  */
 public class DockUtil {
+    
+    public static final String FOREIGN = "FOREIGN-89528991-bd7a-4792-911b-21bf56660bfb";
+    
+    public static boolean isForeign(Object obj) {
+        if ( ! (obj instanceof Styleable) ) {
+            return false;
+        }
+        return ((Styleable)obj).getStyleClass().contains(FOREIGN);
+    }
+    public static void setForeign(Styleable... nodes) {
+        for ( Styleable node : nodes) {
+            if ( ! node.getStyleClass().contains(FOREIGN) ) {
+                node.getStyleClass().add(FOREIGN);
+            }
+        }
+    }
+    
+    public static List<Node> getChildren(Parent p) {
+        
+        
+        ObservableList list = null;
+        
+        if ( p instanceof Pane ) {
+            list = ((Pane)p).getChildren();
+        }        
+        if ( list != null ) {
+            return list;
+        }
+        Class<?> c = p.getClass();
+        Method method;
+        try {
+            method = c.getDeclaredMethod("getChildren");
+            method.setAccessible(true);
+            list = (ObservableList) method.invoke(p);
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            
+        }
+        return list;
+    }
 
     public static Window getOwnerWindow(Node node) {
         Window retval = null;

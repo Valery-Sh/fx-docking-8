@@ -105,7 +105,7 @@ public class TrashTray extends Control {
             if (change.wasAdded()) {
                 List<TrayItem> list = (List<TrayItem>) change.getAddedSubList();
                 list.forEach(item -> {
-                    DockLayout.of(this).getLayoutContext().commitDock(item.getElement());
+                    ((TrashTrayLayoutContext)DockLayout.of(this).getLayoutContext()).commitDock(item.getElement());
                 });
             }
         }//while      

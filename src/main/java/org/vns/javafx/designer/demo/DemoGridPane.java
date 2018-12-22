@@ -54,7 +54,7 @@ import org.vns.javafx.dock.api.DefaultLayoutContextFactory;
 import org.vns.javafx.designer.PalettePane;
 import org.vns.javafx.designer.DesignerLookup;
 import org.vns.javafx.designer.SceneView;
-import org.vns.javafx.dock.api.Constraint;
+import org.vns.javafx.dock.api.Constraints;
 
 /**
  *
@@ -84,7 +84,7 @@ public class DemoGridPane extends Application {
         //GridPane.setConstraints(btn2, 3, 4, 1,2,null,VPos.TOP,null, Priority.NEVER, null);        
         GridPane.setFillHeight(btn2, true);
         GridPane.setFillWidth(btn2, false);
-        Constraint.GridPaneConstraint gpcBtn2 = new Constraint.GridPaneConstraint(btn2);
+        Constraints.GridPaneConstraints gpcBtn2 = new Constraints.GridPaneConstraints(btn2);
         GridPane.setConstraints(btn2, 1, 2, 2, 2, HPos.LEFT, VPos.BASELINE, Priority.NEVER, Priority.ALWAYS, new Insets(1,2,3,4));        
 //        System.err.println("priority = " + root.getRowConstraints().get(0));
         String str = gpcBtn2.toString(btn2.getProperties());
@@ -98,7 +98,7 @@ public class DemoGridPane extends Application {
 //        HBox hbox = new HBox(btn3, lb3);
 //        hbox.setStyle("-fx-background-color: transparent; ");
 //        root.add(hbox, 0, 0);
-        Constraint.GridPaneConstraint gpcBtn1 = new Constraint.GridPaneConstraint(btn1);
+        Constraints.GridPaneConstraints gpcBtn1 = new Constraints.GridPaneConstraints(btn1);
         //gpcBtn1.getNamedValues().get("fillHeight").bindBidirectional(gpcBtn2.getNamedValues().get("fillHeight"));
         //System.err.println("btn1 fillHeight = " + GridPane.isFillHeight(btn1));
 /*

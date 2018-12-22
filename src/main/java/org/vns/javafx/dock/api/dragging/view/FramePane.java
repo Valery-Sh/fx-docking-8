@@ -20,6 +20,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
@@ -58,6 +59,9 @@ public class FramePane extends Control {
     public static final String SHAPE_ID = "RESIZE-SHAPE-" + ID;
 
     private final ObservableMap<Direction, ResizeShape> sideShapes = FXCollections.observableHashMap();
+    
+    private final ObservableList<ResizeShape> cellHorLines = FXCollections.observableArrayList();
+    private final ObservableList<ResizeShape> cellVertLines = FXCollections.observableArrayList();
 
     private Class<?> shapeClass;
     private final ObjectProperty<Node> boundNode = new SimpleObjectProperty<>();
@@ -194,6 +198,7 @@ public class FramePane extends Control {
         return Dockable.class.getResource("resources/default.css").toExternalForm();
     }
 
+    @Override
     protected double computeMinWidth(final double height) {
         return ((FramePaneSkin) skinBase).computeMinWidth(height, snappedTopInset(), snappedRightInset(), snappedBottomInset(), snappedLeftInset());
     }
@@ -476,10 +481,13 @@ public class FramePane extends Control {
                 return;
             }
             if (ctrl.getBoundNode() != null) {
+             
                 Bounds nodeBounds = ctrl.getBoundNode().localToScene(ctrl.getBoundNode().getBoundsInLocal());
                 Bounds rootBounds = ctrl.getParent().localToScene(ctrl.getParent().getBoundsInLocal());
+                //Bounds rootBounds = ctrl.getScene().getRoot().localToScene(ctrl.getScene().getRoot().getBoundsInLocal());
                 Bounds ctrlBounds = ctrl.localToScene(ctrl.getBoundsInLocal());
                 ctrl.relocate(nodeBounds.getMinX() - rootBounds.getMinX(), nodeBounds.getMinY() - rootBounds.getMinY());
+//                ctrl.relocate(nodeBounds.getMinX() - rootBounds.getMinX(), nodeBounds.getMinY() - rootBounds.getMinY());
                 //
                 // Now we must take into account the fact that the frame rect 
                 // may have stroke
@@ -489,9 +497,12 @@ public class FramePane extends Control {
                     double xd = nodeBounds.getMinX() - ctrlBounds.getMinX();
                     double yd = nodeBounds.getMinY() - ctrlBounds.getMinY();
                     if (xd != 0 || yd != 0) {
-                        ctrl.relocate(nodeBounds.getMinX() - rootBounds.getMinX() + xd, nodeBounds.getMinY() - rootBounds.getMinY() + yd);
+                         ctrl.relocate(nodeBounds.getMinX() - rootBounds.getMinX() + xd, nodeBounds.getMinY() - rootBounds.getMinY() + yd);
                     }
+                } else {
+                    ctrl.relocate(nodeBounds.getMinX(), nodeBounds.getMinY());
                 }
+                
             }
             Bounds sceneB = ctrl.getBoundNode().localToScene(ctrl.getBoundNode().getLayoutBounds());
             double insw = insets != null ? insets.getLeft() + insets.getRight() : 0;
@@ -592,7 +603,7 @@ public class FramePane extends Control {
 
         public void handle(MouseEvent ev, ResizeShape shape, Cursor c) {
             if (ev.getEventType() == MouseEvent.MOUSE_MOVED) {
-                Point2D pt = shape.screenToLocal(ev.getScreenX(), ev.getScreenY());
+                //Point2D pt = shape.screenToLocal(ev.getScreenX(), ev.getScreenY());
 
                 shape.getScene().setCursor(c);
             } else if (ev.getEventType() == MouseEvent.MOUSE_EXITED) {
@@ -603,7 +614,6 @@ public class FramePane extends Control {
 
             } else if (ev.getEventType() == MouseEvent.DRAG_DETECTED) {
                 WindowNodeFraming wnf = DockRegistry.getInstance().lookup(WindowNodeFraming.class);
-                //framePane.hide();
                 Node node = framePane.getBoundNode();
                 NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
                 if (nf != null) {

@@ -77,7 +77,10 @@ public class TrashTrayLayoutContext extends LayoutContext {
 
         commitDock(obj);
     }
-
+    @Override
+    public void commitDock(Object obj) {
+        super.commitDock(obj);
+    }
     @Override
     public void remove(Object obj) {
         ((TrashTray) getLayoutNode()).remove(obj);

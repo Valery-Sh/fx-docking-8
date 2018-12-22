@@ -34,9 +34,9 @@ import javafx.scene.Node;
  *
  * @author Valery Shyshkin
  */
-public class Constraint {
+public class Constraints {
 
-    public static final String PROPERTY_NAME = "static-constraint";
+    public static final String PROPERTY_NAME = "static-constraints";
     private final ObservableMap<String, Property> namedValues = FXCollections.observableHashMap();
     private final ObservableMap<String, String> keyMap = FXCollections.observableHashMap();
     
@@ -50,7 +50,7 @@ public class Constraint {
         this.propertiesChanged(change);
     };
     
-    public Constraint(Node node) {
+    public Constraints(Node node) {
         this.node = node;
         init();
     }
@@ -315,9 +315,9 @@ public class Constraint {
         }
     }
 
-    public static class GridPaneConstraint extends Constraint {
+    public static class GridPaneConstraints extends Constraints {
 
-        public GridPaneConstraint(Node node) {
+        public GridPaneConstraints(Node node) {
             super(node);
             /**
              * A list of properties as they are may be saved in the GridPane's

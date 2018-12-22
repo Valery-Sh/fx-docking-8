@@ -291,7 +291,32 @@
     -fx-stroke-width: 1;
     -fx-fill: white;
 }
+.divider-line-horizontal {
+     -fx-pref-height: 3;
+     -fx-min-height: 3;
+     -fx-max-height: 3;
+}
+.divider-line-horizontal > .line {
+    -fx-stroke-type: centered; 
+    -fx-stroke: blue; 
+    -fx-stroke-width: 1; 
+    -fx-stroke-dash-array: 5 2;
+    -fx-stroke-line-cap: butt;
+}
 
+.divider-line-vertical {
+     -fx-pref-width: 3;
+     -fx-min-width: 3;
+     -fx-max-width: 3;
+}
+.divider-line-vertical > .line {
+    -fx-stroke-type: centered; 
+    -fx-stroke: blue; 
+    -fx-stroke-width: 1; 
+    -fx-stroke-dash-array: 5 2;
+    -fx-stroke-line-cap: butt;
+    
+}
 .frame-control {
     /*    -fx-pref-width: 100;
         -fx-pref-height: 50;
@@ -307,7 +332,27 @@
 .frame-control .not-resizable {
     -fx-stroke-type: outside; 
     -fx-stroke: rgb(255, 201, 14); 
-    -fx-stroke-width: 6; 
+    -fx-stroke-width: 6;  
     -fx-fill: transparent; 
     -fx-opacity: 0.8
+}
+
+.grid-pane-frame .top-grid .labelex:selected {
+    -fx-background-color: rgb(255, 148, 40);
+}
+.grid-pane-frame .top-grid .labelex {
+    -fx-border-width: 1; 
+    -fx-border-color: black; 
+    -fx-border-radius: 3 3 0 0; 
+    -fx-background-color: lightgrey;
+}
+
+.grid-pane-frame .left-grid .labelex:selected {
+    -fx-background-color: rgb(255, 148, 40);
+}
+.grid-pane-frame .left-grid .labelex {
+    -fx-border-width: 1; 
+    -fx-border-color: black; 
+    -fx-border-radius: 3 3 0 0; 
+    -fx-background-color: lightgrey;
 }

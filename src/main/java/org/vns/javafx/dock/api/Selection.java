@@ -17,6 +17,7 @@ package org.vns.javafx.dock.api;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
@@ -30,6 +31,32 @@ public abstract class Selection {
 
     private final ObjectProperty selected = new SimpleObjectProperty();
 
+    public Selection() {
+        init();
+    }
+
+    private void init() {
+        selected.addListener(this::selectedChanged);
+    }
+
+    protected void selectedChanged(ObservableValue ov, Object oldValue, Object newValue) {
+        NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
+        if (newValue == null) {
+            if (nf != null) {
+                nf.hide();
+            }
+            return;
+        }
+
+        if (nf != null) {
+            nf.hide();
+        }
+        if (newValue instanceof Node) {
+            nf.show((Node) newValue);
+        }
+        notifySelected(newValue);
+    }
+
     public abstract void notifySelected(Object value);
 
     public ObjectProperty selectedProperty() {
@@ -37,16 +64,20 @@ public abstract class Selection {
     }
 
     public void setSelected(Object toSelect) {
+        Object old = getSelected();
         this.selected.set(toSelect);
-    }
-
-    protected boolean doSelect(Object toSelect) {
-        boolean retval = false;
-        return retval;
+        if ( old == getSelected() ) {
+            selectedChanged(null, old, getSelected());
+        }
     }
 
     public Object getSelected() {
         return selected.get();
+    }
+
+    /*    protected boolean doSelect(Object toSelect) {
+        boolean retval = false;
+        return retval;
     }
 
     public void removeSelected() {
@@ -58,10 +89,9 @@ public abstract class Selection {
             setSelected(null);
         }
     }
-
+     */
     public static void addListeners(Node node) {
-        //Selection sel = DockRegistry.lookup(Selection.class);
-        SelectionListener l = DockRegistry.lookup(SelectionListener.class);
+        MouseSelectionListener l = DockRegistry.lookup(MouseSelectionListener.class);
         if (l != null) {
             node.addEventHandler(MouseEvent.MOUSE_PRESSED, l);
             node.addEventHandler(MouseEvent.MOUSE_RELEASED, l);
@@ -69,29 +99,26 @@ public abstract class Selection {
     }
 
     public static void removeListeners(Node node) {
-        //Selection sel = DockRegistry.lookup(Selection.class);
-        SelectionListener l = DockRegistry.lookup(SelectionListener.class);
+        MouseSelectionListener l = DockRegistry.lookup(MouseSelectionListener.class);
         if (l != null) {
             node.removeEventHandler(MouseEvent.MOUSE_PRESSED, l);
-            //node.removeEventFilter(MouseEvent.MOUSE_PRESSED, l);
             node.removeEventHandler(MouseEvent.MOUSE_RELEASED, l);
-            //node.removeEventFilter(MouseEvent.MOUSE_RELEASED, l);
         }
 
     }
 
-    public static interface SelectionListener extends EventHandler<MouseEvent> {
+    public static interface MouseSelectionListener extends EventHandler<MouseEvent> {
 
         Object getSource();
 
         void setSource(Object source);
 
         void handle(MouseEvent event, Node node);
-        void mousePressed(MouseEvent ev);
-        void mouseReleased(MouseEvent ev);
+        //void mousePressed(MouseEvent ev);
+        //void mouseReleased(MouseEvent ev);
     }
 
-    public static class SelectionHandler implements SelectionListener {
+    public static class SelectionHandler implements MouseSelectionListener {
 
         private Object source;
 
@@ -120,41 +147,49 @@ public abstract class Selection {
         }
 
         @Override
-        public void mousePressed(MouseEvent ev) {
-            NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
-            if (nf != null && (ev.getSource() instanceof Node)) {
-                nf.show((Node) ev.getSource());
-            }
-            ev.consume();
-
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent ev) {
-            if ((ev.getSource() == getSource() || getSource() == null) && Dockable.of(ev.getSource()) != null) {
-
-                //Selection sel = DockRegistry.lookup(Selection.class);
-                ev.consume();
-            }
-        }
-
-        @Override
         public void handle(MouseEvent ev, Node node) {
             if (ev.getEventType() == MouseEvent.MOUSE_PRESSED) {
-                
                 mousePressed(ev, node);
             }
             if (ev.getEventType() == MouseEvent.MOUSE_RELEASED) {
                 mouseReleased(ev, node);
             }
+        }
+
+        protected void mousePressed(MouseEvent ev) {
+            if (ev.getSource() instanceof Node) {
+                Selection sel = DockRegistry.lookup(Selection.class);
+                sel.setSelected(ev.getSource());
+            }
+/*            if (true) {
+                return;
+            }
+
+            NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
+            if (nf != null && (ev.getSource() instanceof Node)) {
+                nf.show((Node) ev.getSource());
+            }
+*/
+            ev.consume();
 
         }
 
+        protected void mouseReleased(MouseEvent ev) {
+            if ((ev.getSource() == getSource() || getSource() == null) && Dockable.of(ev.getSource()) != null) {
+                ev.consume();
+            }
+        }
+
         protected void mousePressed(MouseEvent ev, Node node) {
+            Selection sel = DockRegistry.lookup(Selection.class);
+            sel.setSelected(node);
+/*          if (true) {
+                return;
+            }
             NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
             nf.show(node);
+*/
             ev.consume();
-
         }
 
         protected void mouseReleased(MouseEvent ev, Node node) {

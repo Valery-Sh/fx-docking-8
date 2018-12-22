@@ -166,7 +166,7 @@ public class DockPaneContext extends LayoutContext {
     }
 
     @Override
-    public void commitDock(Object obj) {
+    protected void commitDock(Object obj) {
         if (DockRegistry.isDockable(obj)) {
             DockableContext dockableContext = Dockable.of(obj).getContext();
             if (dockableContext.getLayoutContext() == null || dockableContext.getLayoutContext() != this) {

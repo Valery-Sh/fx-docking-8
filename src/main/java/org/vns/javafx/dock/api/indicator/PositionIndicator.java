@@ -118,8 +118,12 @@ public abstract class PositionIndicator {
         pane.getChildren().add(iv);
         Bounds ivBounds = iv.localToScreen(iv.getBoundsInLocal());
         
-        double dw = ivBounds.getWidth()- nodeBounds.getWidth();
-        double dh = ivBounds.getHeight()- nodeBounds.getHeight();
+        double dw = 0;
+        double dh = 0;
+        if ( ivBounds != null ) {
+            dw = ivBounds.getWidth()- nodeBounds.getWidth();
+            dh = ivBounds.getHeight()- nodeBounds.getHeight();
+        }
         
         iv.setLayoutX(ins.getLeft() + dw);
         iv.setLayoutY(ins.getTop() + dh);

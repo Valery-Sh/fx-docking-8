@@ -49,6 +49,5 @@ public class NodeResizer extends AbstractResizer {
             node.setPrefHeight(hDelta + node.getPrefHeight());
             mouseYProperty().set(curY);
          }
-
     }    
 }
