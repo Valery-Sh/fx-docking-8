@@ -42,7 +42,7 @@ import org.vns.javafx.dock.api.dragging.view.Dividers;
  *
  * @author Valery
  */
-public class GridPaneConstraintsDividers implements Dividers {
+public class GridPaneConstraintsDividers1 implements Dividers {
 
     private Service<ObjectProperty<Bounds>> service;
 
@@ -84,11 +84,11 @@ public class GridPaneConstraintsDividers implements Dividers {
         show();
     };
 
-    public GridPaneConstraintsDividers(GridPane gridPane) {
+    public GridPaneConstraintsDividers1(GridPane gridPane) {
         this(gridPane, true);
     }
 
-    public GridPaneConstraintsDividers(GridPane gridPane, boolean resizable) {
+    public GridPaneConstraintsDividers1(GridPane gridPane, boolean resizable) {
         this.gridPane = gridPane;
         this.resizable = resizable;
         init();
@@ -130,7 +130,6 @@ public class GridPaneConstraintsDividers implements Dividers {
     private void init() {
         lineGroup = new Group();
         lineGroup.setManaged(false);
-        lineGroup.getStyleClass().add(DockUtil.FOREIGN);
         gridPane.getRowConstraints().addListener(rowConstraintsListener);
         gridPane.getColumnConstraints().addListener(columnConstraintsListener);
         if (!resizable) {
@@ -173,8 +172,8 @@ public class GridPaneConstraintsDividers implements Dividers {
         gridPane.getColumnConstraints().forEach(c -> {
             constraintsShow(c);
         });
-        gridPane.getChildren().add(lineGroup);
-        //DockUtil.getChildren(gridPane.getScene().getRoot()).add(lineGroup);
+
+        DockUtil.getChildren(gridPane.getScene().getRoot()).add(lineGroup);
         showing = true;
     }
 
@@ -238,11 +237,9 @@ public class GridPaneConstraintsDividers implements Dividers {
 
         Bounds cellBounds = JdkUtil.getGridCellBounds(gridPane, 0, 0);
         
-        //double x = cellBounds.getMinX() + gridBounds.getMinX();
-        //double y = cellBounds.getMinY() + gridBounds.getMinY();
-        double x = cellBounds.getMinX();
-        double y = cellBounds.getMinY();
-        
+        double x = cellBounds.getMinX() + gridBounds.getMinX();
+        double y = cellBounds.getMinY() + gridBounds.getMinY();
+
         final Bounds lastCellBounds;
         try {
             if (columnDividers.isEmpty()) {
@@ -262,8 +259,7 @@ public class GridPaneConstraintsDividers implements Dividers {
 
                 line.setLayoutX(x);
                 line.setPrefWidth(w);
-                //2.01line.setLayoutY(gridBounds.getMinY() + cellBounds.getMinY() + cellBounds.getHeight() - line.getOffset());
-                line.setLayoutY(cellBounds.getMinY() + cellBounds.getHeight() - line.getOffset());
+                line.setLayoutY(gridBounds.getMinY() + cellBounds.getMinY() + cellBounds.getHeight() - line.getOffset());
             }
             for (int j = 0; j < columnDividers.size(); j++) {
                 cellBounds = JdkUtil.getGridCellBounds(gridPane, j, 0);
@@ -271,7 +267,7 @@ public class GridPaneConstraintsDividers implements Dividers {
 
                 line.setLayoutY(y);
                 line.setPrefHeight(h);
-                line.setLayoutX(cellBounds.getMinX() + cellBounds.getWidth() - line.getOffset());
+                line.setLayoutX(gridBounds.getMinX() + cellBounds.getMinX() + cellBounds.getWidth() - line.getOffset());
             }
         } catch (Exception ex) {
         }
@@ -287,10 +283,8 @@ public class GridPaneConstraintsDividers implements Dividers {
         double h = 0;
 
         Bounds cellBounds = JdkUtil.getGridCellBounds(gridPane, 0, 0);
-//        double x = cellBounds.getMinX() + gridBounds.getMinX();
-//        double y = cellBounds.getMinY() + gridBounds.getMinY();
-        double x = cellBounds.getMinX();
-        double y = cellBounds.getMinY();
+        double x = cellBounds.getMinX() + gridBounds.getMinX();
+        double y = cellBounds.getMinY() + gridBounds.getMinY();
 
         final Bounds lastCellBounds;
 
@@ -353,8 +347,7 @@ public class GridPaneConstraintsDividers implements Dividers {
         lineGroup.getChildren().removeAll(columnDividers);
         rowDividers.clear();
         columnDividers.clear();
-        gridPane.getChildren().remove(lineGroup);
-        //DockUtil.getChildren(gridPane.getScene().getRoot()).remove(lineGroup);
+        DockUtil.getChildren(gridPane.getScene().getRoot()).remove(lineGroup);
 
     }
 
@@ -370,14 +363,14 @@ public class GridPaneConstraintsDividers implements Dividers {
         private double savePrefValue;
         private double savePercentValue;
 
-        private final GridPaneConstraintsDividers dividers;
+        private final GridPaneConstraintsDividers1 dividers;
 
-        public GridLineResizer(GridPaneConstraintsDividers dividers, DividerLine dividerLine) {
+        public GridLineResizer(GridPaneConstraintsDividers1 dividers, DividerLine dividerLine) {
             super(dividerLine);
             this.dividers = dividers;
         }
 
-        public GridPaneConstraintsDividers getDividers() {
+        public GridPaneConstraintsDividers1 getDividers() {
             return dividers;
         }
 
@@ -475,6 +468,40 @@ public class GridPaneConstraintsDividers implements Dividers {
             return retval;
         }
 
+        /*        private Bounds getCellBounds() {
+            int idx;
+            Bounds cellBounds;
+            if (getDividerLine().getOrientation() == Orientation.HORIZONTAL) {
+                RowConstraints c = (RowConstraints) dividers.getConstraints(getDividerLine());
+                idx = dividers.getGridPane().getRowConstraints().indexOf(c);
+                cellBounds = JdkUtil.getGridCellBounds(dividers.getGridPane(), 0, idx);
+            } else {
+                ColumnConstraints c = (ColumnConstraints) dividers.getConstraints(getDividerLine());
+                idx = dividers.getGridPane().getColumnConstraints().indexOf(c);
+                cellBounds = JdkUtil.getGridCellBounds(dividers.getGridPane(), idx, 0);
+            }
+            return cellBounds;
+        }
+
+        private double getCellSize() {
+            double size = 0;
+            int idx;
+            if (getDividerLine().getOrientation() == Orientation.HORIZONTAL) {
+                RowConstraints c = (RowConstraints) dividers.getConstraints(getDividerLine());
+                idx = dividers.getGridPane().getRowConstraints().indexOf(c);
+                Bounds cellBounds = JdkUtil.getGridCellBounds(dividers.getGridPane(), 0, idx);
+                size = cellBounds.getHeight();
+
+            } else {
+                ColumnConstraints c = (ColumnConstraints) dividers.getConstraints(getDividerLine());
+                idx = dividers.getGridPane().getColumnConstraints().indexOf(c);
+                Bounds cellBounds = JdkUtil.getGridCellBounds(dividers.getGridPane(), idx, 0);
+                size = cellBounds.getWidth();
+            }
+
+            return size;
+        }
+         */
         @Override
         public boolean isAcceptableY(double delta) {
             if (getDividerLine().getOrientation() == Orientation.VERTICAL) {

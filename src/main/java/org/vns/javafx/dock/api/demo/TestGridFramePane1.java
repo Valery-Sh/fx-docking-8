@@ -5,15 +5,16 @@ import static javafx.application.Application.launch;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.dragging.view.GridPaneFrame;
-import org.vns.javafx.dock.api.indicator.GridPaneConstraintsDividers;
 
 /**
  *
@@ -31,16 +32,47 @@ public class TestGridFramePane1 extends Application {
         StackPane stackPane = new StackPane();
         
         Button showHideButton = new Button("Show or Hide");
-        VBox vbox = new VBox(showHideButton,stackPane);
+        Button addColumnButton = new Button("Add Column");
+        Button delColumnButton = new Button("Del Column");
+        HBox hbox = new HBox(showHideButton, addColumnButton,delColumnButton); 
+        VBox vbox = new VBox(hbox,stackPane);
         GridPane gridPane = new GridPane();
+        //gridPane.setGridLinesVisible(true);
         GridPaneFrame frame = new GridPaneFrame(gridPane);
-        
+        addColumnButton.setOnAction(e -> {
+            System.err.println("frame.sel column = " + frame.getSelectedColumn());
+            System.err.println("frame.sel column = " + frame.getSelectedConstraints());
+            if ( frame.getSelectedConstraints() != null ) {
+                System.err.println("gridPane.getColConstr " + gridPane.getColumnConstraints().indexOf(frame.getSelectedConstraints()));
+            }
+            //ColumnConstraints cc = new ColumnConstraints(20,20,20);
+            //gridPane.getColumnConstraints().add(0,cc);
+        });
+        delColumnButton.setOnAction(e -> {
+            gridPane.getColumnConstraints().remove(0);
+        });        
         showHideButton.setOnAction(e -> {
             if ( frame.isVisible() ) {
-                frame.hide();
+                System.err.println("gridPane.size = " + gridPane.getChildren().size());
+                //gridPane.getChildren().get(0).toFront();
+                //frame.hide();
+                gridPane.setGridLinesVisible(true);
             } else {
                 frame.show();
+                //gridPane.setGridLinesVisible(true);
             }
+            
+            System.err.println("topGrid.parent = " + frame.getParent());
+            
+/*            System.err.println("topGrid.isVis = " + frame.getTopGrid().isVisible());
+            System.err.println("topGrid.width = " + frame.getTopGrid().getWidth());
+            System.err.println("topGrid.height = " + frame.getTopGrid().getHeight());
+            System.err.println("topGrid.layoutBounds = " + frame.getTopGrid().getLayoutBounds());
+            System.err.println("topGrid.BoundsInLocal = " + frame.getTopGrid().getBoundsInLocal());
+            frame.getTopGrid().setStyle("-fx-background-color: aqua");
+            frame.getTopGrid().setPrefHeight(20);
+            frame.getTopGrid().setPrefWidth(240);
+*/            
         });
         RowConstraints rc0 = new RowConstraints();
         RowConstraints rc1 = new RowConstraints();
@@ -60,6 +92,7 @@ public class TestGridFramePane1 extends Application {
             }
         }
         
+        gridPane.add(new Label("lb0_5"), 0, 5);
         gridPane.setStyle("-fx-border-width: 30;  -fx-border-color: red");
         
         stackPane.getChildren().add(gridPane);
@@ -93,13 +126,11 @@ public class TestGridFramePane1 extends Application {
         Dockable.initDefaultStylesheet(null);
         
         //GridPaneFrame frame = new GridPaneFrame(gridPane);
-        frame.setManaged(false);
+        //frame.setManaged(false);
         //frame.setLayoutX(0);
         //frame.setLayoutY(0);
         //frame.show();
         vbox.getChildren().add(frame);
-        
-
     }
 
     /**

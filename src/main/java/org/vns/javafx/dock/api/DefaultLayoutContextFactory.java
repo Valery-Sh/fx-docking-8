@@ -21,13 +21,20 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.beans.DefaultProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.geometry.Point3D;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
@@ -40,20 +47,27 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.ConstraintsBase;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.vns.javafx.JdkUtil;
 import org.vns.javafx.dock.DockUtil;
 import org.vns.javafx.dock.api.Constraints.GridPaneConstraints;
 import static org.vns.javafx.dock.api.LayoutContext.getValue;
+import org.vns.javafx.dock.api.dragging.view.GridPaneFrame;
+import org.vns.javafx.dock.api.dragging.view.ObjectFraming;
+import org.vns.javafx.dock.api.dragging.view.ObjectFramingProvider;
 import org.vns.javafx.dock.api.indicator.IndicatorPopup;
 import org.vns.javafx.dock.api.indicator.IndicatorPopup.KeysDown;
 import org.vns.javafx.dock.api.indicator.PositionIndicator;
@@ -100,10 +114,8 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
         } else if (targetNode instanceof AnchorPane) {
             retval = new ListBasedTargetContext(targetNode);
         } else if (targetNode instanceof GridPane) {
-
-            retval = getPaneContext((Pane) targetNode);
+            retval = getGridPaneContext((GridPane) targetNode);
             retval.getLookup().putUnique(ConstraintsFactory.class, new GridPaneConstraintsFactory());
-
         } else if (targetNode instanceof Pane) {
             retval = getPaneContext((Pane) targetNode);
         } else if (targetNode instanceof Accordion) {
@@ -128,6 +140,20 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
 
     protected LayoutContext getStackPaneContext(StackPane pane) {
         LayoutContext lc = new StackPaneContext(pane);
+        pane.getChildren().forEach(obj -> {
+            DockableContext dc = null;
+            if (Dockable.of(obj) != null) {
+                dc = Dockable.of(obj).getContext();
+            } else {
+                dc = DockRegistry.makeDockable(obj).getContext();
+            }
+            dc.setLayoutContext(lc);
+        });
+        return lc;
+    }
+
+    protected LayoutContext getGridPaneContext(GridPane pane) {
+        LayoutContext lc = new GridPaneContext(pane);
         pane.getChildren().forEach(obj -> {
             DockableContext dc = null;
             if (Dockable.of(obj) != null) {
@@ -331,7 +357,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             Bounds bnd = targetNode.localToScene(targetNode.getBoundsInLocal());
             if (!isControlDown()) {
                 bnd = DockUtil.sceneIntersection(targetNode);
-            } 
+            }
             updateSnapshot(isControlDown());
 
             BorderPane indicator = new BorderPane(centerNode, topNode, rightNode, bottomNode, leftNode) {
@@ -498,7 +524,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
          *
          * @return th elis of dockables
          */
-        public List<Dockable> getDockables() {
+        /*        public List<Dockable> getDockables() {
             BorderPane bp = (BorderPane) getLayoutNode();
             List<Dockable> list = FXCollections.observableArrayList();
             bp.getChildren().forEach(node -> {
@@ -508,7 +534,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             });
             return list;
         }
-
+         */
     }
 
     public static class PanePositionIndicator extends PositionIndicator {
@@ -550,14 +576,14 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             getDockPlace().setVisible(visible);
         }
 
-        private void adjustPlace(Node node) {
+        /*        private void adjustPlace(Node node) {
             Rectangle r = (Rectangle) getDockPlace();
             r.setHeight(((Region) node).getHeight());
             r.setWidth(((Region) node).getWidth());
             r.setX(((Region) node).getLayoutX());
             r.setY(((Region) node).getLayoutY());
         }
-
+         */
         private void adjustPlace(Pane pane, double x, double y) {
             Rectangle r = (Rectangle) getDockPlace();
             Point2D pt = pane.screenToLocal(x, y);
@@ -906,12 +932,606 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
         }
     }
 
+    public static class GridPaneContext extends LayoutContext {
+
+        public GridPaneContext(Node pane) {
+            super(pane);
+            init();
+        }
+
+        private void init() {
+            ((GridPane) getLayoutNode()).getChildren().addListener(new NodeListChangeListener(this));
+        }
+
+        @Override
+        protected void initLookup(ContextLookup lookup) {
+            lookup.putUnique(PositionIndicator.class, new GridPositionIndicator(this));
+            lookup.putUnique(ObjectFramingProvider.class, new GridObjectFramingProvider((GridPane) getLayoutNode()));
+        }
+
+        @Override
+        public void dock(Point2D mousePos, Dockable dockable) {
+            Object o = getValue(dockable);
+            if (o == null || Dockable.of(o) == null) {
+                return;
+            }
+
+            Dockable d = Dockable.of(o);
+
+            dockable.getContext().getLayoutContext().undock(dockable);
+
+            Node node = d.getNode();
+            Window stage = null;
+            if (node.getScene() != null && node.getScene().getWindow() != null) { //&& (node.getScene().getWindow() instanceof Stage)) {
+                stage = node.getScene().getWindow();
+            }
+
+            if (doDock(mousePos, d.getNode()) && stage != null) {
+                //d.getContext().setFloating(false);
+                if ((stage instanceof Stage)) {
+                    ((Stage) stage).close();
+                } else {
+                    stage.hide();
+                }
+                d.getContext().setLayoutContext(this);
+            }
+        }
+
+        public static int getComputedColumn(GridPaneContext context, int row, double screenX) {
+            int retval = -1;
+            Pane ip = context.getPositionIndicator().getIndicatorPane();
+            GridPane gp = (GridPane) ip.lookup("#grid-pane-indicator");
+
+            if (row >= 0) {
+                int[] dim = JdkUtil.getGridDimensions(gp);
+                if (dim[0] > 0) {
+                    Bounds b = JdkUtil.getGridCellBounds(gp, dim[0] - 1, row);
+                    Bounds sb = gp.localToScreen(b);
+                    Bounds gpb = gp.localToScreen(gp.getBoundsInLocal());
+                    if (screenX > sb.getMinX() + sb.getWidth() && screenX < gpb.getMinX() + gpb.getWidth()) {
+                        retval = dim[0];
+                    }
+                }
+            }
+            return retval;
+        }
+
+        public static int getComputedRow(GridPaneContext context, int col, double screenY) {
+            int retval = -1;
+            Pane ip = context.getPositionIndicator().getIndicatorPane();
+            GridPane gp = (GridPane) ip.lookup("#grid-pane-indicator");
+
+            if (col >= 0) {
+                int[] dim = JdkUtil.getGridDimensions(gp);
+                if (dim[1] > 0) {
+                    Bounds b = JdkUtil.getGridCellBounds(gp, col, dim[1] - 1);
+                    Bounds sb = gp.localToScreen(b);
+                    Bounds gpb = gp.localToScreen(gp.getBoundsInLocal());
+                    if (screenY > sb.getMinY() + sb.getHeight() && screenY < gpb.getMinY() + gpb.getHeight()) {
+                        retval = dim[1];
+                    }
+                }
+            }
+            return retval;
+        }
+
+        protected static int getRowIndex(GridPane grid, double screenX, double screenY) {
+            int retval = -1;
+            int[] dim = JdkUtil.getGridDimensions(grid);
+            for (int i = 0; i < dim[1]; i++) {
+                Bounds cellBnd = JdkUtil.getGridCellBounds(grid, 0, i);
+                if ( cellBnd == null ) {
+                    continue;
+                }
+                Bounds gridBnd = grid.localToScreen(grid.getBoundsInLocal());
+                if (screenY >= gridBnd.getMinY() + cellBnd.getMinY() && screenY <= gridBnd.getMinY() + cellBnd.getMinY() + cellBnd.getHeight()) {
+                    retval = i;
+                    break;
+                }
+            }
+            return retval;
+        }
+
+        protected static int getColumnIndex(GridPane grid, double screenX, double screenY) {
+            int retval = -1;
+            int[] dim = JdkUtil.getGridDimensions(grid);
+            for (int i = 0; i < dim[0]; i++) {
+                Bounds cellBnd = JdkUtil.getGridCellBounds(grid, i, 0);
+                if ( cellBnd == null ) {
+                    continue;
+                }
+                Bounds gridBnd = grid.localToScreen(grid.getBoundsInLocal());
+                if (screenX >= gridBnd.getMinX() + cellBnd.getMinX() && screenX <= gridBnd.getMinX() + cellBnd.getMinX() + cellBnd.getWidth()) {
+                    retval = i;
+                    break;
+                }
+            }
+            return retval;
+        }
+
+        protected boolean doDock(Point2D mousePos, Node node) {
+            boolean retval = true;
+            GridPane target = (GridPane) getLayoutNode();
+            GridPane bp = (GridPane) getPositionIndicator().getIndicatorPane().lookup("#grid-pane-indicator");
+            int row = getRowIndex(bp, mousePos.getX(), mousePos.getY());
+            int col = getColumnIndex(bp, mousePos.getX(), mousePos.getY());
+            if (row >= 0 && col >= 0) {
+                target.add(node, col, row);
+            } else if (row >= 0) {
+                col = getComputedColumn(this, row, mousePos.getX());
+                if (col >= 0) {
+                    target.add(node, col, row);
+                }
+            } else if (col >= 0) {
+                row = getComputedRow(this, col, mousePos.getY());
+                if (row >= 0) {
+                    target.add(node, col, row);
+                }
+            } else {
+                retval = false;
+            }
+            return retval;
+        }
+
+        @Override
+        public void remove(Object obj) {
+            if (!(obj instanceof Node)) {
+                return;
+            }
+            Node dockNode = (Node) obj;
+            ((GridPane) getLayoutNode()).getChildren().remove(dockNode);
+        }
+
+        @Override
+        public boolean contains(Object obj) {
+            return ((GridPane) getLayoutNode()).getChildren().contains(obj);
+        }
+
+        /**
+         * For test purpose
+         *
+         * @return th elis of dockables
+         */
+        /*        public List<Dockable> getDockables() {
+            BorderPane bp = (BorderPane) getLayoutNode();
+            List<Dockable> list = FXCollections.observableArrayList();
+            bp.getChildren().forEach(node -> {
+                if (DockRegistry.isDockable(node)) {
+                    list.add(Dockable.of(node));
+                }
+            });
+            return list;
+        }
+         */
+    }
+
+    public static class GridPositionIndicator extends PositionIndicator {
+
+        public GridPositionIndicator(LayoutContext targetContext) {
+            super(targetContext);
+        }
+
+        @Override
+        protected Pane createIndicatorPane() {
+
+            Pane indicator = new Pane() {
+                @Override
+                public String getUserAgentStylesheet() {
+                    return Dockable.class.getResource("resources/default.css").toExternalForm();
+                }
+            };
+            indicator.setId("gridpane-ind-pane");
+            indicator.getStyleClass().add("grid-pane-indicator-pane");
+            GridPane grid = new GridPane() {
+                @Override
+                public String getUserAgentStylesheet() {
+                    return Dockable.class.getResource("resources/default.css").toExternalForm();
+                }
+            };
+
+            grid.setId("grid-pane-indicator");
+            grid.getStyleClass().add("grid-pane-indicator");
+            grid.setPrefWidth(40);
+            grid.setPrefHeight(60);
+            indicator.getChildren().add(grid);
+            return indicator;
+        }
+
+        protected boolean isControlDown() {
+            if (getIndicatorPopup() == null) {
+                return false;
+            }
+            return getIndicatorPopup().getKeysDown() == IndicatorPopup.KeysDown.CTLR_DOWN;
+        }
+
+        @Override
+        protected void updateIndicatorPane() {
+
+            Pane targetNode = (Pane) getLayoutContext().getLayoutNode();
+
+            Bounds bnd = targetNode.localToScene(targetNode.getBoundsInLocal());
+            if (!isControlDown()) {
+                bnd = DockUtil.sceneIntersection(targetNode);
+            }
+            if (bnd == null) {
+                return;
+            }
+            updateSnapshot(isControlDown());
+
+            GridPane indicator = (GridPane) getIndicatorPane().lookup("#grid-pane-indicator");
+            double dw = targetNode.getInsets().getLeft() + targetNode.getInsets().getRight();
+            double dh = targetNode.getInsets().getTop() + targetNode.getInsets().getBottom();
+
+            indicator.setPrefWidth(bnd.getWidth() - dw);
+            indicator.setPrefHeight(bnd.getHeight() - dh);
+            indicator.setMinWidth(bnd.getWidth() - dw);
+            indicator.setMinHeight(bnd.getHeight() - dh);
+            indicator.setMaxWidth(bnd.getWidth() - dw);
+            indicator.setMaxHeight(bnd.getHeight() - dh);
+
+            indicator.setGridLinesVisible(true);
+
+            Bounds indPaneBnd = getIndicatorPane().localToScreen(getIndicatorPane().getBoundsInLocal());
+            double dx = 0;
+            double dy = 0;
+            Insets ins = targetNode.getInsets();
+            if (targetNode.getScene() != null && targetNode.getScene().getWindow() != null && indPaneBnd != null) {
+                if (isControlDown()) {
+                    dx = ins.getLeft();
+                    dy = ins.getTop();
+                } else {
+                    dx = targetNode.getScene().getWindow().getX() + targetNode.getScene().getX() + bnd.getMinX() - indPaneBnd.getMinX() + ins.getLeft();
+                    dy = targetNode.getScene().getWindow().getY() + targetNode.getScene().getY() + bnd.getMinY() - indPaneBnd.getMinY() + ins.getTop();
+                }
+            }
+
+            indicator.setLayoutX(dx);
+            indicator.setLayoutY(dy);
+        }
+
+        @Override
+        public void showDockPlace(double x, double y) {
+
+            boolean visible = true;
+
+            GridPane gp = (GridPane) getIndicatorPane().lookup("#grid-pane-indicator");
+
+            adjustConstraints(gp);
+
+            int row = GridPaneContext.getRowIndex(gp, x, y);
+            int col = GridPaneContext.getColumnIndex(gp, x, y);
+            if (row >= 0 && col >= 0) {
+                adjustPlace(gp, col, row);
+            } else if (row >= 0) {
+                int[] dim = JdkUtil.getGridDimensions(gp);
+                if (dim[0] > 0) {
+                    Bounds b = JdkUtil.getGridCellBounds(gp, dim[0] - 1, row);
+                    if ( b == null ) {
+                        return;
+                    }
+                    Bounds sb = gp.localToScreen(b);
+                    Bounds gpb = gp.localToScreen(gp.getBoundsInLocal());
+                    if (x > sb.getMinX() + sb.getWidth() && x < gpb.getMinX() + gpb.getWidth()) {
+                        Bounds cell = new BoundingBox(b.getMinX() + b.getWidth(), b.getMinY(),
+                                gpb.getMinX() + gpb.getWidth() - sb.getMinX() - sb.getWidth(), sb.getHeight());
+                        adjustPlace(gp, cell);
+                    }
+                }
+            } else if (col >= 0) {
+                int[] dim = JdkUtil.getGridDimensions(gp);
+                if (dim[1] > 0) {
+                    Bounds b = JdkUtil.getGridCellBounds(gp, col, dim[1] - 1);
+                    if ( b == null ) {
+                        return;
+                    }
+                    Bounds sb = gp.localToScreen(b);
+                    Bounds gpb = gp.localToScreen(gp.getBoundsInLocal());
+                    if (y > sb.getMinY() + sb.getHeight() && y < gpb.getMinY() + gpb.getHeight()) {
+                        Bounds cell = new BoundingBox(b.getMinX(), b.getMinY() + b.getHeight(),
+                                sb.getWidth(), gpb.getMinY() + gpb.getHeight() - sb.getMinY() - sb.getHeight());
+                        adjustPlace(gp, cell);
+                    }
+                }
+
+            } else {
+                visible = false;
+            }
+            getDockPlace().setVisible(visible);
+        }
+
+        private void adjustConstraints(GridPane grid) {
+
+            GridPane targetNode = (GridPane) getLayoutContext().getLayoutNode();
+            Bounds bnd = targetNode.localToScene(targetNode.getBoundsInLocal());
+
+            double dw = targetNode.getInsets().getLeft() + targetNode.getInsets().getRight();
+            double dh = targetNode.getInsets().getTop() + targetNode.getInsets().getBottom();
+
+            int[] dim = JdkUtil.getGridDimensions(targetNode);
+            System.err.println("adjustConstraints dim[0] = " + dim[0] + "; dim[1] = " + dim[1]);
+            if (dim[0] < 0) {
+                grid.getColumnConstraints().clear();
+            }
+            if (dim[1] < 0) {
+                grid.getRowConstraints().clear();
+            }
+            if (dim[0] < 0) {
+                ColumnConstraints cc = new ColumnConstraints(bnd.getWidth() - dw, bnd.getWidth() - dw, bnd.getWidth() - dw);
+                grid.getColumnConstraints().add(cc);
+            } else {
+                grid.getColumnConstraints().clear();
+                for (int i = 0; i < dim[0]; i++) {
+                    grid.getColumnConstraints().add(getColumnConstraintsByIndex(i));
+                }
+            }
+
+            if (dim[1] < 0) {
+                RowConstraints rc = new RowConstraints(bnd.getHeight() - dh, bnd.getHeight() - dh, bnd.getHeight() - dh);
+                grid.getRowConstraints().add(rc);
+            } else {
+                grid.getRowConstraints().clear();
+                for (int i = 0; i < dim[1]; i++) {
+                    grid.getRowConstraints().add(getRowConstraintsByIndex(i));
+                }
+            }
+        }
+
+        private ColumnConstraints getCopy(ColumnConstraints c) {
+            ColumnConstraints retval = new ColumnConstraints(c.getMinWidth(), c.getPrefWidth(), c.getMaxWidth(), c.getHgrow(), c.getHalignment(), c.isFillWidth());
+            retval.setPercentWidth(c.getPercentWidth());
+            return retval;
+        }
+
+        private RowConstraints getCopy(RowConstraints c) {
+            RowConstraints retval = new RowConstraints(c.getMinHeight(), c.getPrefHeight(), c.getMaxHeight(), c.getVgrow(), c.getValignment(), c.isFillHeight());
+            retval.setPercentHeight(c.getPercentHeight());
+            return retval;
+        }
+
+        private ColumnConstraints getColumnConstraintsByIndex(int idx) {
+            GridPane grid = (GridPane) getLayoutContext().getLayoutNode();
+            ColumnConstraints retval = null;
+            if (idx >= 0 && idx < grid.getColumnConstraints().size()) {
+                ColumnConstraints c = getCopy(grid.getColumnConstraints().get(idx));
+                if ( grid.getRowConstraints().size() > 0 ) {
+                    
+                    Bounds b = JdkUtil.getGridCellBounds(grid, idx, 0);      
+                    Bounds sb = grid.localToScene(b);
+                    c.setMinWidth(sb.getWidth());
+                    c.setPrefWidth(sb.getWidth());
+                    c.setMaxWidth(sb.getWidth());
+                    c.setPercentWidth(-1);
+                }
+                return c;
+            }
+
+            int[] dim = JdkUtil.getGridDimensions(grid);
+            if (dim[1] > 0) {
+                Bounds b = JdkUtil.getGridCellBounds(grid, idx, 0);
+                if ( b != null ) {
+                    b = grid.localToScene(b);
+                    retval = new ColumnConstraints(b.getWidth(), b.getWidth(), b.getWidth());
+                }
+            } else {
+                Bounds b = grid.localToScene(new BoundingBox(0,0, 50, 50));
+                retval = new ColumnConstraints(b.getWidth(), b.getWidth(), b.getWidth());
+            }
+            return retval;
+        }
+
+        private RowConstraints getRowConstraintsByIndex(int idx) {
+            GridPane grid = (GridPane) getLayoutContext().getLayoutNode();
+            RowConstraints retval = null;
+            if (idx >= 0 && idx < grid.getRowConstraints().size()) {
+                RowConstraints c = getCopy(grid.getRowConstraints().get(idx));
+                if ( grid.getColumnConstraints().size() > 0 ) {
+                    Bounds b = JdkUtil.getGridCellBounds(grid, 0, idx);    
+                    Bounds sb = grid.localToScene(b);
+
+                    c.setMinHeight(sb.getHeight());
+                    c.setPrefHeight(sb.getHeight());
+                    c.setMaxHeight(sb.getHeight());
+                    c.setPercentHeight(-1);
+                }
+                return c;
+
+            }
+
+            int[] dim = JdkUtil.getGridDimensions(grid);
+            if (dim[0] > 0) {
+                Bounds b = JdkUtil.getGridCellBounds(grid, 0, idx);
+                if ( b != null ) {
+                    b = grid.localToScene(b);
+                    retval = new RowConstraints(b.getHeight(), b.getHeight(), b.getHeight());
+                }
+            } else {
+                Bounds b = grid.localToScene(new BoundingBox(0,0, 25, 25));
+                retval = new RowConstraints(b.getHeight(), b.getHeight(), b.getHeight());
+                
+            }
+            return retval;
+        }
+
+        private void adjustPlace(GridPane grid, int column, int row) {
+            Bounds b = JdkUtil.getGridCellBounds(grid, column, row);
+
+            Rectangle r = (Rectangle) getDockPlace();
+            r.setHeight(b.getHeight());
+            r.setWidth(b.getWidth());
+            r.setX(grid.getLayoutX() + b.getMinX());
+            r.setY(grid.getLayoutY() + b.getMinY());
+
+        }
+
+        private void adjustPlace(GridPane grid, Bounds place) {
+            Rectangle r = (Rectangle) getDockPlace();
+            r.setHeight(place.getHeight());
+            r.setWidth(place.getWidth());
+            r.setX(grid.getLayoutX() + place.getMinX());
+            r.setY(grid.getLayoutY() + place.getMinY());
+        }
+
+    }//gridpane positionIndicator
+
     public static class GridPaneConstraintsFactory extends ConstraintsFactory {
 
         @Override
         public Constraints getConstraints(Node node) {
             return new GridPaneConstraints(node);
         }
+    }
+
+    public static class GridObjectFramingProvider implements ObjectFramingProvider {
+
+        private final GridPane gridPane;
+        private final ObservableMap<String, ConstraintsFraming> framings = FXCollections.observableHashMap();
+        private ConstraintsFraming parentFraming;
+        
+        public GridObjectFramingProvider(GridPane gridPane) {
+            this.gridPane = gridPane;
+        }
+
+        @Override
+        public ObjectFraming getInstance(Node childNode) {
+            if ( parentFraming == null ) {
+                parentFraming = new ConstraintsFraming(gridPane, childNode);
+            }
+            return parentFraming;
+        }        
+        @Override
+        public ObjectFraming getInstance(String propertyName) {
+            if (!"rowConstraints".equals(propertyName) && !"columnConstraints".equals(propertyName)) {
+                return null;
+            }
+            if (framings.containsKey("rowConstraints")) {
+                return framings.get("rowConstraints");
+            }
+            if (framings.containsKey("columnConstraints")) {
+                return framings.get("columnConstraints");
+            }
+            ConstraintsFraming cf = new ConstraintsFraming(gridPane);
+            framings.put("rowConstraints", cf);
+            return cf;
+        }
+
+    }
+
+    public static class ConstraintsFraming implements ObjectFraming {
+
+        private final ObjectProperty<ConstraintsBase> selected = new SimpleObjectProperty<>();
+        //private String propertyName;
+
+        private GridPaneFrame frame;
+        private final GridPane gridPane;
+        private ObjectProperty<Node> childNode = new SimpleObjectProperty<>();
+        
+        private ChangeListener<? super ConstraintsBase> selectedConstraintsListener = (v, ov, nv) -> {
+            Selection sel = DockRegistry.lookup(Selection.class);
+            if (sel != null) {
+                sel.notifySelected(nv);
+            }
+        };
+
+        public ConstraintsFraming(GridPane gridPane) {
+            this(gridPane,null);
+        }
+        public ConstraintsFraming(GridPane gridPane, Node childNode) {
+            this.gridPane = gridPane;
+            this.childNode.set(childNode);
+            
+        }     
+
+        public ObjectProperty<Node> childNodeProperty() {
+            return childNode;
+        }
+        
+        public Node getChildNode() {
+            return childNode.get();
+        }
+
+        public void setChildNode(Node childNode) {
+            this.childNode.set(childNode);
+        }
+        
+        @Override
+        public void showParent(Object... parms) {
+            if (frame != null) {
+                frame.hide();
+                gridPane.getChildren().remove(frame);
+                //02.01DockUtil.getChildren(gridPane.getScene().getRoot()).remove(frame);
+            }
+            if (parms != null && parms.length > 0) {
+                setSelected((ConstraintsBase) parms[0]);
+            } else {
+                setSelected(null);
+            }
+            frame = new GridPaneFrame(gridPane,getChildNode());
+            frame.selectedConstraintsProperty().addListener(selectedConstraintsListener);
+            gridPane.getChildren().add(frame);
+            //02.01DockUtil.getChildren(gridPane.getScene().getRoot()).add(frame);
+            frame.show();
+/*            if (getSelected() == null) {
+                return;
+            }
+            if (getSelected() instanceof RowConstraints) {
+                frame.selectRow(gridPane.getRowConstraints().indexOf(getSelected()));
+            } else {
+                frame.selectColumn(gridPane.getColumnConstraints().indexOf(getSelected()));
+            }
+  */          
+        }     
+        
+        @Override
+        public void show(String propertyName, Object... parms) {
+            //this.propertyName = propertyName;
+            if (frame != null) {
+                frame.hide();
+                gridPane.getChildren().remove(frame);
+                //02.01DockUtil.getChildren(gridPane.getScene().getRoot()).remove(frame);
+            }
+            if (parms != null && parms.length > 0) {
+                setSelected((ConstraintsBase) parms[0]);
+            } else {
+                setSelected(null);
+            }
+            frame = new GridPaneFrame(gridPane);
+            frame.selectedConstraintsProperty().addListener(selectedConstraintsListener);
+            gridPane.getChildren().add(frame);
+            //02.01DockUtil.getChildren(gridPane.getScene().getRoot()).add(frame);
+            frame.show();
+            if (getSelected() == null) {
+                return;
+            }
+            if (getSelected() instanceof RowConstraints) {
+                frame.selectRow(gridPane.getRowConstraints().indexOf(getSelected()));
+            } else {
+                frame.selectColumn(gridPane.getColumnConstraints().indexOf(getSelected()));
+            }
+
+        }
+
+        @Override
+        public void hide() {
+            if (frame != null) {
+                frame.hide();
+                gridPane.getChildren().remove(frame);
+                //02.01DockUtil.getChildren(gridPane.getScene().getRoot()).remove(frame);
+            }
+
+        }
+
+        public ObjectProperty<ConstraintsBase> selectedProperty() {
+            return selected;
+        }
+
+        public ConstraintsBase getSelected() {
+            return selected.get();
+        }
+
+        public void setSelected(ConstraintsBase selected) {
+            this.selected.set(selected);
+        }
+
     }
 
 }//LayoutContextFactory

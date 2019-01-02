@@ -15,13 +15,13 @@
  */
 package org.vns.javafx.dock.api.dragging.view;
 
+import javafx.scene.Node;
+
 /**
  *
  * @author Valery
  */
-public interface Dividers {
-    void show();
-    void hide();
-    void setResizable(boolean resizable);
-    boolean isShowing();
+public interface ObjectFramingProvider {
+    ObjectFraming getInstance(String propertyName);
+    ObjectFraming getInstance(Node gridChild);
 }

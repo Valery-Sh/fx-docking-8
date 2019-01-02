@@ -22,6 +22,8 @@ import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.designer.TreeItemEx.ItemType;
+import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.dragging.view.FramePane;
 import org.vns.javafx.dock.api.dragging.view.NodeFraming;
 
@@ -44,16 +46,19 @@ public class TreeItemListObjectChangeListener implements ListChangeListener {
         while (change.next()) {
 
             if (change.wasRemoved()) {
-                
+
                 List list = change.getRemoved();
-/*                if (!list.isEmpty()) {
+                /*                if (!list.isEmpty()) {
                     SaveRestore sr = DockRegistry.lookup(SaveRestore.class);
                     if (sr != null) {
                         //savasr.save(list.get(list.size() - 1), change.getTo());
                     }
                 }
-*/
+                 */
                 for (Object elem : list) {
+                    if ( DockUtil.isForeign(elem) ) {
+                        continue;
+                    }
                     TreeItemEx toRemove = null;
                     for (TreeItem it : treeItem.getChildren()) {
                         if (((TreeItemEx) it).getItemType() == ItemType.LIST) {
@@ -71,10 +76,10 @@ public class TreeItemListObjectChangeListener implements ListChangeListener {
                             break;
                         }
                     }
-                    if ( (elem instanceof Node) && ! SceneView.isFrame(elem) ) {
-                        FramePane fp = SceneView.getResizeFrame();
-                        if ( fp != null ) {
-                            fp.hide();
+                    if ((elem instanceof Node) && !SceneView.isFrame(elem)) {
+                        Selection sel = DockRegistry.lookup(Selection.class);
+                        if (sel != null) {
+                            sel.setSelected(null);
                         }
                     }
                     treeItem.getChildren().remove(toRemove);
@@ -82,26 +87,34 @@ public class TreeItemListObjectChangeListener implements ListChangeListener {
                 }
 
             }
-            
+
             if (change.wasAdded()) {
                 List list = change.getAddedSubList();
-                List itemList = new ArrayList();
+                List<TreeItemEx> itemList = new ArrayList();
                 list.forEach(elem -> {
                     TreeItemEx it = new TreeItemBuilder().build(elem);
-                    if ( it != null ) {
+                    if (it != null) {
                         it.setExpanded(false);
                         itemList.add(it);
                     }
                 });
                 int idx = change.getFrom();
-                Object obj = change.getList().get(idx);
-                while( SceneView.isFrame(obj)) {
-                    obj = change.getList().get(--idx);
+                for ( int i=0; i < change.getFrom(); i++ ) {
+                    if ( DockUtil.isForeign(change.getList().get(i)) ) {
+                        idx--;
+                    }
                 }
-                treeItem.getChildren().addAll(idx, itemList);
+                for ( TreeItemEx it  : itemList) {
+                    if ( it.getValue() != null && DockUtil.isForeign(it.getValue())) {
+                        continue;
+                    }
+                    treeItem.getChildren().add(idx, it);
+                    idx++;
+                }
+                //treeItem.getChildren().addAll(idx, itemList);
 
                 NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
-                if (nf != null && (list.get(list.size() - 1)) instanceof Node)  {
+                if (nf != null && (list.get(list.size() - 1)) instanceof Node) {
                     //
                     // We apply Platform.runLater because a list do not 
                     // has to be a children but for instance for SplitPane it
@@ -113,7 +126,7 @@ public class TreeItemListObjectChangeListener implements ListChangeListener {
                         //System.err.println("TreeItemListObjectChangeListener before show");
                         //nf.show((Node) list.get(list.size() - 1));
                     }
-        
+
                 }
             }
         }//while

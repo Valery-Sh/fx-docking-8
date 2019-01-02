@@ -35,7 +35,11 @@ public class DockUtil {
         if ( ! (obj instanceof Styleable) ) {
             return false;
         }
-        return ((Styleable)obj).getStyleClass().contains(FOREIGN);
+        boolean retval = ((Styleable)obj).getStyleClass().contains(FOREIGN);
+        if ( ! retval && (obj instanceof Node) && ((Node)obj).getParent() != null && ((Node)obj).getParent().getStyleClass().contains(FOREIGN)) {
+            retval = true;
+        }
+        return retval;
     }
     public static void setForeign(Styleable... nodes) {
         for ( Styleable node : nodes) {
@@ -119,7 +123,7 @@ public class DockUtil {
         return TopNodeHelper.getTop(root.getScene().getWindow(), screenX, screenY, predicate);
     }
 
-    private static Node findNode(Parent root, Node toSearch) {
+/*    private static Node findNode(Parent root, Node toSearch) {
         if (toSearch == null) {
             return null;
         }
@@ -137,7 +141,7 @@ public class DockUtil {
         return retval;
 
     }
-
+*/
     public static void print(Parent root) {
         print(root, 1, " ", p -> {
             return ((p instanceof Control) || (p instanceof Pane))
@@ -256,7 +260,7 @@ public class DockUtil {
         return retval;
     }
 
-    private static Node findNode(Pane pane, double x, double y) {
+/*    private static Node findNode(Pane pane, double x, double y) {
         Node retval = null;
         for (Node node : pane.getChildren()) {
             if (contains(node, x, y)) {
@@ -266,7 +270,7 @@ public class DockUtil {
         }
         return retval;
     }
-
+*/
     /**
      * Returns {@code true} if the given point (specified in the screen
      * coordinate space) is contained within the given window. The method
@@ -283,7 +287,7 @@ public class DockUtil {
                 && screenY >= win.getY() && screenY <= win.getY() + win.getHeight()));
     }
 
-    private static Node findNode(List<Node> list, double x, double y) {
+/*    private static Node findNode(List<Node> list, double x, double y) {
         Node retval = null;
         for (Node node : list) {
             if (!(node instanceof Region)) {
@@ -296,7 +300,7 @@ public class DockUtil {
         }
         return retval;
     }
-
+*/
     public static void print(Parent root, int level, String indent, Predicate<Node> predicate) {
         StringBuilder sb = new StringBuilder();
         print(sb, root, level, indent, predicate);

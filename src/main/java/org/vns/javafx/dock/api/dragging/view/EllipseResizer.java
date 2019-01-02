@@ -38,21 +38,17 @@ public class EllipseResizer extends AbstractResizer {
     @Override
     protected void setXLayout(double wDelta, double xDelta, double curX) {
         Ellipse node = (Ellipse) getNode();
-//        if ((node.getRadius() > node.minWidth(-1) || xDelta <= 0)) {
         node.setRadiusX(wDelta / 2 + node.getRadiusX());
+        node.autosize();
         mouseXProperty().set(curX);
-//        }
-
-    }
+   }
 
     @Override
     protected void setYLayout(double hDelta, double yDelta, double curY) {
 
         Ellipse node = (Ellipse) getNode();
-//         if ((node.getRadius() > node.minHeight(-1) || yDelta <= 0)) {
         node.setRadiusY(hDelta / 2 + node.getRadiusY());
+        node.autosize();        
         mouseYProperty().set(curY);
-//         }
-
     }
 }

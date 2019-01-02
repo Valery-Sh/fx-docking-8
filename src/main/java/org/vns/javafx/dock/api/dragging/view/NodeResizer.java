@@ -38,6 +38,7 @@ public class NodeResizer extends AbstractResizer {
         Region node = (Region) getNode();
         if ((node.getWidth() > node.minWidth(-1) || xDelta <= 0)) {
             node.setPrefWidth(wDelta + node.getPrefWidth());
+            node.autosize();
             mouseXProperty().set(curX);
         }
 
@@ -47,6 +48,7 @@ public class NodeResizer extends AbstractResizer {
          Region node = (Region) getNode();
          if ((node.getHeight() > node.minHeight(-1) || yDelta <= 0)) {
             node.setPrefHeight(hDelta + node.getPrefHeight());
+            node.autosize();
             mouseYProperty().set(curY);
          }
     }    

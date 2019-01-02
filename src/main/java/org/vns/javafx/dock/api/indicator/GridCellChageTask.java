@@ -62,12 +62,15 @@ public class GridCellChageTask extends Task<ObjectProperty<Bounds>> {
                     //res = b;
                     changed = true;
                 }
+                //System.err.println("TASK 1");
                 if (changed) {
-                    continue;
+                    //continue;
                 }
+                //System.err.println("TASK 2");
                 for (int i = 0; i < dividers.getRowDividers().size(); i++) {
 
                     Bounds cellBounds = JdkUtil.getGridCellBounds(dividers.getGridPane(), 0, i);
+                    //System.err.println("TASK bounds = " + cellBounds);
                     //Bounds b = new BoundingBox(cellBounds.getMinX(), cellBounds.getMinY(), cellBounds.getWidth(), cellBounds.getHeight());
 
 //                if (res ==null  || res != null && (b.getMinY() != res.getMinY() || b.getMaxY() != res.getMaxY())) {

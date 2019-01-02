@@ -18,7 +18,6 @@ package org.vns.javafx.dock.api.dragging.view;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
@@ -86,7 +85,7 @@ public class DividerLine extends Control implements EventHandler<MouseEvent> {
         }
         setVisible(false);
         setManaged(false);
-        
+
     }
 
     public void resetOnHide() {
@@ -103,10 +102,19 @@ public class DividerLine extends Control implements EventHandler<MouseEvent> {
         this.listenMouseEvents = listenMouseEvents;
     }
 
+    /**
+     *
+     * @return screen position of the mouse cursor
+     */
     public Point2D getStartMousePos() {
         return startMousePos;
     }
 
+    /**
+     * Sets the specified screen position.
+     * 
+     * @param startMousePos screen position of the mouse cursor
+     */
     public void setStartMousePos(Point2D startMousePos) {
         this.startMousePos = startMousePos;
     }
@@ -148,12 +156,12 @@ public class DividerLine extends Control implements EventHandler<MouseEvent> {
 
     public double getOffset() {
         return 1.5;
-/*        Rectangle r = (Rectangle) lookup("." + DIVIDER_RECT);
+        /*        Rectangle r = (Rectangle) lookup("." + DIVIDER_RECT);
         if (r == null) {
             return 1.5;
         }
         return getOrientation() == Orientation.HORIZONTAL ? r.getHeight() / 2 : r.getWidth() / 2;
-*/
+         */
     }
 
     public void hide() {
@@ -177,8 +185,14 @@ public class DividerLine extends Control implements EventHandler<MouseEvent> {
 
     }
 
-    public static boolean isDividerLine(Shape shape) {
-        if (shape.getParent() instanceof DividerLine) {
+    public static boolean isDividerLine(Node node) {
+        if (!(node instanceof Shape)) {
+            return false;
+        }
+        if (node instanceof DividerLine) {
+            return true;
+        }
+        if (node.getParent() instanceof DividerLine) {
             return true;
         } else {
             return false;
@@ -212,9 +226,9 @@ public class DividerLine extends Control implements EventHandler<MouseEvent> {
             if (ev.isControlDown()) {
                 resizer.resetToDefault();
             } else {
-               ((GridLineResizer)resizer).updateOnRelease();
+                ((GridLineResizer) resizer).updateOnRelease();
             }
-            
+
             addEventFilter(MouseEvent.MOUSE_EXITED, this);
         }
     }
@@ -284,7 +298,7 @@ public class DividerLine extends Control implements EventHandler<MouseEvent> {
             line.setManaged(false);
             rect.setManaged(true);
 
-            rect.setStyle("-fx-fill: aqua");
+            //rect.setStyle("-fx-fill: aqua");
             rect.setFill(Color.TRANSPARENT);
 
             layout();

@@ -16,7 +16,6 @@
 package org.vns.javafx.dock.api.dragging.view;
 
 import javafx.scene.Node;
-import javafx.scene.layout.Region;
 import javafx.scene.shape.Circle;
 import javafx.stage.Window;
 //import static org.vns.javafx.dock.api.dragging.view.NodeResizer.windowBounds;
@@ -40,10 +39,9 @@ public class CircleResizer extends AbstractResizer {
     @Override
     protected void setXLayout(double wDelta, double xDelta, double curX) {
         Circle node = (Circle) getNode();
-//        if ((node.getRadius() > node.minWidth(-1) || xDelta <= 0)) {
         node.setRadius(wDelta / 2 + node.getRadius());
+        node.autosize();
         mouseXProperty().set(curX);
-//        }
 
     }
 
@@ -51,10 +49,9 @@ public class CircleResizer extends AbstractResizer {
     protected void setYLayout(double hDelta, double yDelta, double curY) {
 
         Circle node = (Circle) getNode();
-//         if ((node.getRadius() > node.minHeight(-1) || yDelta <= 0)) {
         node.setRadius(hDelta / 2 + node.getRadius());
+        node.autosize();        
+        
         mouseYProperty().set(curY);
-//         }
-
     }
 }

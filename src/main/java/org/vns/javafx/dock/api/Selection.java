@@ -21,7 +21,12 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
+import org.vns.javafx.designer.EditorUtil;
+import org.vns.javafx.designer.TreeItemEx;
+import org.vns.javafx.designer.TreeItemEx.ItemType;
 import org.vns.javafx.dock.api.dragging.view.NodeFraming;
+import org.vns.javafx.dock.api.dragging.view.ObjectFraming;
+import org.vns.javafx.dock.api.dragging.view.ObjectFramingProvider;
 
 /**
  *
@@ -30,6 +35,7 @@ import org.vns.javafx.dock.api.dragging.view.NodeFraming;
 public abstract class Selection {
 
     private final ObjectProperty selected = new SimpleObjectProperty();
+    private ObjectFraming objectFraming;
 
     public Selection() {
         init();
@@ -40,6 +46,9 @@ public abstract class Selection {
     }
 
     protected void selectedChanged(ObservableValue ov, Object oldValue, Object newValue) {
+        if (objectFraming != null) {
+            objectFraming.hide();
+        }
         NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
         if (newValue == null) {
             if (nf != null) {
@@ -53,10 +62,22 @@ public abstract class Selection {
         }
         if (newValue instanceof Node) {
             nf.show((Node) newValue);
+        } else {
+            showObjectFraming(newValue);
         }
         notifySelected(newValue);
     }
 
+    protected abstract void showObjectFraming(Object value);
+
+    protected ObjectFraming getObjectFraming() {
+        return objectFraming;
+    }
+
+    protected void setObjectFraming(ObjectFraming objectFraming) {
+        this.objectFraming = objectFraming;
+    }
+    
     public abstract void notifySelected(Object value);
 
     public ObjectProperty selectedProperty() {
@@ -64,11 +85,11 @@ public abstract class Selection {
     }
 
     public void setSelected(Object toSelect) {
-        Object old = getSelected();
+        //Object old = getSelected();
         this.selected.set(toSelect);
-        if ( old == getSelected() ) {
-            selectedChanged(null, old, getSelected());
-        }
+        //if ( old == getSelected() ) {
+        //selectedChanged(null, old, getSelected());
+        //}
     }
 
     public Object getSelected() {
@@ -161,15 +182,7 @@ public abstract class Selection {
                 Selection sel = DockRegistry.lookup(Selection.class);
                 sel.setSelected(ev.getSource());
             }
-/*            if (true) {
-                return;
-            }
-
-            NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
-            if (nf != null && (ev.getSource() instanceof Node)) {
-                nf.show((Node) ev.getSource());
-            }
-*/
+     
             ev.consume();
 
         }
@@ -183,12 +196,12 @@ public abstract class Selection {
         protected void mousePressed(MouseEvent ev, Node node) {
             Selection sel = DockRegistry.lookup(Selection.class);
             sel.setSelected(node);
-/*          if (true) {
+            /*          if (true) {
                 return;
             }
             NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
             nf.show(node);
-*/
+             */
             ev.consume();
         }
 

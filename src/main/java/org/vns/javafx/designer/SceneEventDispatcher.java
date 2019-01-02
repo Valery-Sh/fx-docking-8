@@ -24,6 +24,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import org.vns.javafx.dock.DockUtil;
 import org.vns.javafx.dock.api.DockRegistry;
@@ -84,10 +85,12 @@ public class SceneEventDispatcher implements PalettePane.PaletteEventDispatcher 
     @Override
     public Event dispatchEvent(Event event, EventDispatchChain tail) {
         //if ( EventType. )
-        if (!(event instanceof MouseEvent)) {
-            //System.err.println("dispatchEvent event type " + event.getEventType());
+        if ( event instanceof ContextMenuEvent ) {
+            return initial.dispatchEvent(event, tail);
+        }
+        
+        if ( !(event instanceof MouseEvent)) {
             return null;
-            //return initial.dispatchEvent(event, tail);
         }
 
         MouseEvent mouseEvent = (MouseEvent) event;
@@ -102,9 +105,19 @@ public class SceneEventDispatcher implements PalettePane.PaletteEventDispatcher 
         //
         // not primary button
         //
-        if (SceneView.isFrameShape(event.getTarget()) || SceneView.isFrameLine(event.getTarget()) || DockUtil.isForeign(event.getTarget())) {
+        if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED) {
+              //System.err.println("eventTarget = " + event.getTarget());
+  //          System.err.println("MOUSE PRESSED " + mouseEvent.isPrimaryButtonDown());            
+        }
+        
+        //if ( mouseEvent.isPrimaryButtonDown() && (SceneView.isFrameShape(event.getTarget()) || SceneView.isFrameLine(event.getTarget()) || DockUtil.isForeign(event.getTarget())) ) {
+        boolean foreign = (SceneView.isFrameShape(event.getTarget()) || SceneView.isFrameLine(event.getTarget()) || DockUtil.isForeign(event.getTarget()));
+        
+        if ( foreign ) {        
+//            System.err.println("IS FOREIGN");            
             return initial.dispatchEvent(event, tail);
         }
+        
         if (!(mouseEvent.getTarget() instanceof Node)) {
             return null;
         }
@@ -119,7 +132,7 @@ public class SceneEventDispatcher implements PalettePane.PaletteEventDispatcher 
         }
         if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED) {
               //System.err.println("eventTarget = " + event.getTarget());
-
+//            System.err.println("MOUSE PRESSED " + mouseEvent.isPrimaryButtonDown());            
         }
 //        if ( SceneView.isFrameShape(event.getTarget()) ) {
 //            return initial.dispatchEvent(event, tail);
@@ -190,10 +203,10 @@ public class SceneEventDispatcher implements PalettePane.PaletteEventDispatcher 
 //        System.err.println("Scene pressed ev.target = " + event.getTarget());
 //        System.err.println("SCENE PRESSED isPrimary = " + ((MouseEvent)event).isPrimaryButtonDown());
 //        System.err.println("Scene pressed node = " + node);
-/*        System.err.println("Scene pressed target = " + target);
-        System.err.println("Scene pressed ev.source = " + event.getSource());
-        System.err.println("Scene pressed ev.target = " + event.getTarget());
-         */
+//        System.err.println("Scene pressed target = " + target);
+//        System.err.println("Scene pressed ev.source = " + event.getSource());
+//        System.err.println("Scene pressed ev.target = " + event.getTarget());
+
 //        System.err.println("DRAGGED event WINDOW " + ((Node) event.getTarget()).getScene().getWindow());
 //        if (target != null) {
 //            System.err.println("DRAGGED  WINDOW " + target.getScene().getWindow());
@@ -213,7 +226,7 @@ public class SceneEventDispatcher implements PalettePane.PaletteEventDispatcher 
 //            System.err.println("PRESSED selectionListener = " + l);
             //l.handle((MouseEvent) event, (Node) event.getTarget());
             MouseEvent copy = (MouseEvent) event.copyFor(node, node);
-            System.err.println("pressed Selection.SelectionListener " + Selection.MouseSelectionListener.class);
+//            System.err.println("pressed Selection.SelectionListener " + Selection.MouseSelectionListener.class);
             l.handle(copy, node);
             //l.mousePressed(copy);
         }

@@ -103,6 +103,7 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
 
     public void setDefaultStyle() {
         setStyle("-fx-background-color: yellow; -fx-opacity: 0.5; -fx-border-width: 1; -fx-border-color: black; -fx-border-style: dashed");
+        //setStyle("-fx-background-color: yellow; -fx-border-width: 1; -fx-border-color: black; -fx-border-style: dashed");        
     }
 
     protected void setWindow(Window window) {
@@ -222,7 +223,7 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
         getNode().boundsInParentProperty().addListener(boundsInParentListener);
 
         //
-        //  show to widthProperty and heightProperty
+        //  adjust to widthProperty and heightProperty
         //
         nodeWindow = node.getScene().getWindow();
         setWindowSize(getNode().getLayoutBounds(), borderWidth, borderHeight);
@@ -292,6 +293,7 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
                 break;
             }
         }
+        System.err.println("resizer = " + resizer);
         doShow(newOwner);
     }
 

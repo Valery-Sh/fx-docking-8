@@ -156,6 +156,42 @@ public class EditorUtil {
         );
     }
 
+    public static TreeItemEx findTreeItemByObject(Object value) {
+        TreeItemEx item = null;
+        SceneView sgv = DesignerLookup.lookup(SceneView.class);
+        if (sgv != null) {
+            if (sgv.getTreeView().getRoot().getValue() == value) {
+                item = (TreeItemEx) sgv.getTreeView().getRoot();
+            } else {
+                item = EditorUtil.findTreeItemByObject(sgv.getTreeView(), value);
+            }
+        }
+        return item;
+    }
+    public static Parent findParentByObject(Object value) {
+        Parent retval = null;
+        TreeItem item = null;
+        SceneView sgv = DesignerLookup.lookup(SceneView.class);
+        if (sgv != null) {
+            if (sgv.getTreeView().getRoot().getValue() == value) {
+                item = (TreeItemEx) sgv.getTreeView().getRoot();
+            } else {
+                item = EditorUtil.findTreeItemByObject(sgv.getTreeView(), value);
+            }
+            item = item.getParent();
+
+            while( item != null ) {
+                if ( (item.getValue() instanceof Parent)) {
+                    retval = (Parent) item.getValue();
+                    break;
+                }
+                item = item.getParent();
+            }
+        }
+        
+        return retval;
+    }
+
     public static TreeItemEx findTreeItemByObject(TreeView treeView, Object sourceGesture) {
         if (treeView.getRoot() != null && treeView.getRoot().getValue() == sourceGesture) {
             return (TreeItemEx) treeView.getRoot();
@@ -216,7 +252,7 @@ public class EditorUtil {
         return retval;
     }
 
-/*    public static TreeViewEx getTargetTreeView(double x, double y) {
+    /*    public static TreeViewEx getTargetTreeView(double x, double y) {
         TreeViewEx retval = null;
         List<Stage> allStages = StageHelper.getStages();
         if (allStages.isEmpty()) {
@@ -241,7 +277,7 @@ public class EditorUtil {
 
         return retval;
     }
-*/
+     */
     public static String changeNodeStyle(String oldStyle, String newStyle) {
         String retval = "";
         if (oldStyle == null || oldStyle.trim().isEmpty() || newStyle == null || newStyle.trim().isEmpty()) {
@@ -276,7 +312,7 @@ public class EditorUtil {
         return retval;
     }
 
-/*    public static List<Node> getChildren(Node child) {
+    /*    public static List<Node> getChildren(Node child) {
         Parent p = child.getParent();
         if (child.getParent() == null) {
             return null;
@@ -293,16 +329,15 @@ public class EditorUtil {
         }
         return list;
     }
-*/    
-    public static List<Node> getChildren(Parent p) {
-        
+     */
+    public static ObservableList<Node> getChildren(Parent p) {
 
         ObservableList list = null;
-        
-        if ( p instanceof Pane ) {
-            list = ((Pane)p).getChildren();
-        }        
-        if ( list != null ) {
+
+        if (p instanceof Pane) {
+            list = ((Pane) p).getChildren();
+        }
+        if (list != null) {
             return list;
         }
         Class<?> c = p.getClass();
@@ -312,57 +347,57 @@ public class EditorUtil {
             method.setAccessible(true);
             list = (ObservableList) method.invoke(p);
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-            
+
         }
         return list;
     }
-    
 
     public static boolean addToParent(Parent parent, Node toAdd) {
         boolean retval = false;
         List children = getChildren(parent);
-        if ( children != null ) {
+        if (children != null) {
             retval = true;
             children.add(toAdd);
         }
         return retval;
     }
+
     public static boolean removeFromParent(Parent parent, Node toRemove) {
         boolean retval = false;
 
         List children = getChildren(parent);
-        if ( children != null ) {
+        if (children != null) {
             retval = true;
             children.remove(toRemove);
         }
         return retval;
-    }        
-    
+    }
+
     public static Parent getTopParentOf(Node node) {
         Parent retval = null;
         Parent p = node.getParent();
-        while ( p != null ) {
+        while (p != null) {
             retval = p;
             p = p.getParent();
         }
-        if ( retval == null && (node instanceof Parent)) {
+        if (retval == null && (node instanceof Parent)) {
             retval = (Parent) node;
         }
         return retval;
     }
-    
+
     public static void toBack(FramePane frame, Node node) {
-        if ( node == null || node.getParent() == null ) {
+        if (node == null || node.getParent() == null) {
             return;
         }
         List list = getChildren(node.getParent());
-        if ( list == null ) {
+        if (list == null) {
             return;
         }
         int idx = list.indexOf(node);
         int idx1 = list.indexOf(frame);
-        if ( idx < 0 || idx < idx1) {
-            list.add(idx,frame);
+        if (idx < 0 || idx < idx1) {
+            list.add(idx, frame);
         }
     }
 }

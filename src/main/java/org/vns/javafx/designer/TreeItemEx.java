@@ -178,17 +178,13 @@ public class TreeItemEx extends TreeItem<Object> {
         }
         
         NodeDescriptor nd = NodeDescriptorRegistry.getInstance().getDescriptor(getValue().getClass());
-        System.err.println("TreeItemEx property name = " + getPropertyName());
-        if ( getValue().getClass().getSimpleName().equals("RowConstraints")) {
-            System.err.println("TreeItemEx row constraint");
-        }
         Object changeListener;
         if (this.getItemType() == ItemType.LIST) {
             changeListener = new TreeItemListObjectChangeListener(this, getPropertyName());
             ObservableList ol = (ObservableList) getValue();
             ol.addListener((ListChangeListener) changeListener);
             listChangeListeners.put(ol, (ListChangeListener) changeListener);
-            changeListeners2.put(getPropertyName(), changeListener);
+            //changeListeners2.put(getPropertyName(), changeListener);
             return;
         }
 
@@ -196,7 +192,6 @@ public class TreeItemEx extends TreeItem<Object> {
 
             NodeProperty p = nd.getProperties().get(i);
             Object v = new BeanAdapter(getValue()).get(p.getName());
-            System.err.println("   --- propName = " + p.getName());
             if (v != null && (v instanceof List)) {
                 if ((p instanceof NodeList) && ((NodeList) p).isAlwaysVisible()) {
                     continue;
@@ -206,7 +201,7 @@ public class TreeItemEx extends TreeItem<Object> {
                 Object propValue = new BeanAdapter(getValue()).get(p.getName());
                 Method addListenerMethod = ReflectHelper.MethodUtil.getMethod(ObservableList.class, "addListener", new Class[]{ListChangeListener.class});
                 ReflectHelper.MethodUtil.invoke(addListenerMethod, propValue, new Object[]{changeListener});
-                changeListeners2.put(p.getName(), changeListener);
+                //changeListeners2.put(p.getName(), changeListener);
                 listChangeListeners.put((ObservableList) propValue, (ListChangeListener) changeListener);
             } else {
                 changeListener = new TreeItemObjectChangeListener(this, p.getName());
@@ -215,7 +210,7 @@ public class TreeItemEx extends TreeItem<Object> {
                 Method addListenerMethod = ReflectHelper.MethodUtil.getMethod(ObservableValue.class, "addListener", new Class[]{ChangeListener.class});
                 ReflectHelper.MethodUtil.invoke(addListenerMethod, propValue, new Object[]{changeListener});
                 propChangeListeners.put((ObservableValue) propValue, (ChangeListener) changeListener);
-                changeListeners2.put(p.getName(), changeListener);
+                //changeListeners2.put(p.getName(), changeListener);
             }
         }
 
@@ -253,14 +248,12 @@ public class TreeItemEx extends TreeItem<Object> {
             Selection.removeListeners((Node) getValue());
         }
 
-        NodeDescriptor nd = NodeDescriptorRegistry.getInstance().getDescriptor(getValue().getClass());
+        //NodeDescriptor nd = NodeDescriptorRegistry.getInstance().getDescriptor(getValue().getClass());
         
         removeListeners();
         
-        if ( true ) {
-            //return;
-        }
-        for (int i = 0; i < nd.getProperties().size(); i++) {
+
+/*        for (int i = 0; i < nd.getProperties().size(); i++) {
             Object changeListener; // = changeListeners.get(propertyName);
             NodeProperty p = nd.getProperties().get(i);
             if (List.class.isAssignableFrom(getValue().getClass())) {
@@ -289,5 +282,7 @@ public class TreeItemEx extends TreeItem<Object> {
                 }
             }
         }
+*/
     }
+
 }

@@ -16,20 +16,18 @@
 package org.vns.javafx.dock.api.dragging.view;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ListChangeListener.Change;
 import javafx.css.PseudoClass;
 import javafx.geometry.Bounds;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
+import javafx.geometry.VPos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -38,8 +36,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.ConstraintsBase;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import org.vns.javafx.JdkUtil;
 import static org.vns.javafx.dock.DockUtil.FOREIGN;
@@ -50,11 +48,11 @@ import org.vns.javafx.dock.api.indicator.GridPaneConstraintsDividers;
  *
  * @author Valery
  */
-public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.GridCellBoundsObservable {
+public class GridPaneFrame1 extends Group implements GridPaneConstraintsDividers.GridCellBoundsObservable {
 
+//    public static final double GAP = 2;
+    
     private GridPane contentGrid;
-    private Node childNode;
-
     private GridPane topGrid;
     private GridPane leftGrid;
     private GridPaneConstraintsDividers dividers;// = new GridPaneConstraintsDividers(gridPane);
@@ -65,9 +63,7 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
     private Tooltip leftGridContextTooltip;
     protected boolean update;
 
-    private final ObjectProperty<ConstraintsBase> selectedConstraints = new SimpleObjectProperty();
-
-    private final ListChangeListener<ColumnConstraints> columnConstraintsListener = (change) -> {
+    private ListChangeListener<ColumnConstraints> columnConstraintsListener = (change) -> {
 
         while (change.next()) {
             if (change.wasPermutated()) {
@@ -99,26 +95,29 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
 
     };
 
-    public GridPaneFrame(GridPane contentGrid) {
-        this(contentGrid, null);
-    }
-
-    public GridPaneFrame(GridPane contentGrid, Node childNode) {
+    public GridPaneFrame1(GridPane contentGrid) {
         this.contentGrid = contentGrid;
-        this.childNode = childNode;
         init();
     }
 
     private void init() {
         setVisible(false);
         setManaged(false);
+        /*        visibleProperty().addListener((v, ov, nv) -> {
+            if (nv) {
+                //show();
+            } else {
+                //hide();
+            }
+        });
+         */
         getStyleClass().addAll("grid-pane-frame", FOREIGN);
 
         topGrid = new GridPane() {
             @Override
             protected void layoutChildren() {
                 super.layoutChildren();
-                GridPaneFrame.this.layoutChildren();
+                GridPaneFrame1.this.layoutChildren();
             }
 
             @Override
@@ -134,7 +133,7 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
             @Override
             protected void layoutChildren() {
                 super.layoutChildren();
-                GridPaneFrame.this.layoutChildren();
+                GridPaneFrame1.this.layoutChildren();
             }
 
             @Override
@@ -142,11 +141,12 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
                 return Dockable.class.getResource("resources/default.css").toExternalForm();
             }
         };
-
+        
         leftGrid.getStyleClass().addAll("left-grid", FOREIGN);
 
         getChildren().addAll(topGrid, leftGrid);
 
+        //adjust();
         dividers = new GridPaneConstraintsDividers(contentGrid);
         dividers.getGridCellBoundsObservables().add(this);
 
@@ -162,22 +162,7 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
         });
         leftGridContextMenu = new ContextMenu(item1);
         leftGridContextTooltip = new Tooltip("Right click to show a context menu");
-    }
 
-    public boolean isParentFrame() {
-        return childNode != null;
-    }
-
-    public ObjectProperty<ConstraintsBase> selectedConstraintsProperty() {
-        return selectedConstraints;
-    }
-
-    public ConstraintsBase getSelectedConstraints() {
-        return selectedConstraints.get();
-    }
-
-    public void setSelectedConstraints(ConstraintsBase selectedConstraints) {
-        this.selectedConstraints.set(selectedConstraints);
     }
 
     public void show() {
@@ -185,11 +170,11 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
             return;
         }
         setVisible(true);
-        //adjust();
+        adjust();
 
         contentGrid.getColumnConstraints().addListener(columnConstraintsListener);
         contentGrid.getRowConstraints().addListener(rowConstraintsListener);
-        adjust();
+
         dividers.show();
     }
 
@@ -208,7 +193,7 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
 
     private void handleColumnRemoved(Change<? extends ColumnConstraints> change, boolean removeNodes) {
         update = true;
-        setSelectedConstraints(null);
+//        System.err.println("handleColumnRemoved update true");
         int offset = change.getTo() - change.getFrom() + 1;
 
         List<Node> nodes = new ArrayList<>();
@@ -224,20 +209,20 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
             if (!(node instanceof LabelEx)) {
                 continue;
             }
-            Integer idx = GridPane.getColumnIndex(node);
-            if (idx !=null &&  idx > change.getTo()) {
+            int idx = GridPane.getColumnIndex(node);
+            if (idx > change.getTo()) {
                 GridPane.setColumnIndex(node, idx - offset);
             }
         }
-        if (!topGrid.getColumnConstraints().isEmpty() && topGrid.getColumnConstraints().size() >= change.getFrom() + 1 && topGrid.getColumnConstraints().size() <= change.getTo() + 1) {
-            topGrid.getColumnConstraints().remove(change.getFrom(), change.getTo() + 1);
-        }
+        topGrid.getColumnConstraints().remove(change.getFrom(), change.getTo() + 1);
+
         for (Node node : contentGrid.getChildren()) {
             if (!node.isManaged()) {
                 continue;
             }
-            Integer idx = GridPane.getColumnIndex(node);
-            if (idx != null && idx > change.getTo()) {
+//            System.err.println("handleColumnRemoved 3.1 node = " + node);
+            int idx = GridPane.getColumnIndex(node);
+            if (idx > change.getTo()) {
                 GridPane.setColumnIndex(node, idx - offset);
             }
         }
@@ -250,21 +235,23 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
         }
         updateOnEmptyColumns();
 
+//        System.err.println("handleColumnRemoved update false");
+//        System.err.println("=============");
         update = false;
     }
 
     private void handleColumnAdded(Change<? extends ColumnConstraints> change) {
         update = true;
+//        System.err.println("handleColumnAdded update true");
 
         int offset = change.getTo() - change.getFrom();
         for (int i = 0; i < topGrid.getChildren().size(); i++) {
             Node node = topGrid.getChildren().get(i);
-            
             if (!(node instanceof LabelEx)) {
                 continue;
             }
-            Integer idx = GridPane.getColumnIndex(node);
-            if (idx != null && idx >= change.getFrom()) {
+            int idx = GridPane.getColumnIndex(node);
+            if (idx >= change.getFrom()) {
                 GridPane.setColumnIndex(node, idx + offset);
             }
         }
@@ -274,14 +261,16 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
             double minWidth = added.getPercentWidth() >= 0 ? added.getMinWidth() : (added.getMinWidth() < 0 ? 20 : added.getMinWidth());
             double prefWidth = added.getPercentWidth() >= 0 ? added.getPrefWidth() : (added.getPrefWidth() < 0 ? 20 : added.getPrefWidth());
             double maxWidth = added.getPercentWidth() >= 0 ? added.getMaxWidth() : (added.getMaxWidth() < 0 ? 20 : added.getMaxWidth());
-            addColumnConstraints(i, minWidth, prefWidth, maxWidth, 20);
+            addColumnConstraints(i, minWidth , prefWidth , maxWidth, 20);
         }
+//        System.err.println("topGrid.getChildren().size() = " + topGrid.getColumnConstraints().size());
+//        System.err.println("topGrid.getColunn(3) = " + topGrid.getColumnConstraints().get(3));
         for (Node node : contentGrid.getChildren()) {
             if (!node.isManaged()) {
                 continue;
             }
-            Integer idx = GridPane.getColumnIndex(node);
-            if (idx != null && idx >= change.getFrom() && idx < contentGrid.getColumnConstraints().size() - offset) {
+            int idx = GridPane.getColumnIndex(node);
+            if (idx >= change.getFrom() && idx < contentGrid.getColumnConstraints().size() - offset) {
                 GridPane.setColumnIndex(node, idx + offset);
             }
         }
@@ -291,6 +280,8 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
                 lb.setText("" + GridPane.getColumnIndex(lb));
             }
         }
+//        System.err.println("handleColumnAdded update false");
+//        System.err.println("====================================");
         update = false;
     }
 
@@ -300,12 +291,15 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
 
     private void handleRowRemoved(Change<? extends RowConstraints> change, boolean removeNodes) {
         update = true;
-        setSelectedConstraints(null);
+//        System.err.println("handleRowRemoved update true");        
         int offset = change.getTo() - change.getFrom() + 1;
 
+//        System.err.println("handleRowRemoved leftGrid.size = " + leftGrid.getChildren().size());
         List<Node> nodes = new ArrayList<>();
         leftGrid.getChildren().forEach(node -> {
-            if (node.isManaged() && GridPane.getRowIndex(node) != null && GridPane.getRowIndex(node) >= change.getFrom() + 1 && GridPane.getRowIndex(node) <= change.getTo() + 1) {
+//            System.err.println("GridPane.getRowIndex(node) = " + GridPane.getRowIndex(node));
+//            System.err.println("    ---  getTo() = " + change.getTo());
+            if (node.isManaged() && GridPane.getRowIndex(node) != null && GridPane.getRowIndex(node) >= change.getFrom() && GridPane.getRowIndex(node) <= change.getTo()) {
                 nodes.add(node);
             }
         });
@@ -316,22 +310,20 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
             if (!(node instanceof LabelEx)) {
                 continue;
             }
-            Integer idx = GridPane.getRowIndex(node);
-            if (idx != null && idx > change.getTo()) {
+            int idx = GridPane.getRowIndex(node);
+            if (idx > change.getTo()) {
                 GridPane.setRowIndex(node, idx - offset);
             }
         }
 
-        if (!leftGrid.getRowConstraints().isEmpty() && leftGrid.getRowConstraints().size() >= change.getFrom() && leftGrid.getRowConstraints().size() <= change.getTo() + 1) {
-            leftGrid.getRowConstraints().remove(change.getFrom(), change.getTo() + 1);
-        }
+        leftGrid.getRowConstraints().remove(change.getFrom(), change.getTo() + 1);
 
         for (Node node : contentGrid.getChildren()) {
             if (!node.isManaged()) {
                 continue;
             }
-            Integer idx = GridPane.getRowIndex(node);
-            if (idx != null && idx > change.getTo()) {
+            int idx = GridPane.getRowIndex(node);
+            if (idx > change.getTo()) {
                 GridPane.setRowIndex(node, idx - offset);
             }
         }
@@ -341,20 +333,25 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
                 lb.setText("" + GridPane.getRowIndex(lb));
             }
         }
+//        if (contentGrid.getRowConstraints().size() == 0) {
         updateOnEmptyRows();
+//        }
+//        System.err.println("contentGrid.size = " + contentGrid.getChildren().size());
+//        System.err.println("handleRowRemoved update false");        
         update = false;
     }
 
     private void handleRowAdded(Change<? extends RowConstraints> change) {
         update = true;
+//        System.err.println("handleRowAdded update true");        
         int offset = change.getTo() - change.getFrom();
         for (Node node : leftGrid.getChildren()) {
 
             if (!(node instanceof LabelEx)) {
                 continue;
             }
-            Integer idx = GridPane.getRowIndex(node);
-            if (idx != null && idx >= change.getFrom()) {
+            int idx = GridPane.getRowIndex(node);
+            if (idx >= change.getFrom()) {
                 GridPane.setRowIndex(node, idx + offset);
             }
         }
@@ -371,8 +368,8 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
             if (!node.isManaged()) {
                 continue;
             }
-            Integer idx = GridPane.getRowIndex(node);
-            if (idx != null && idx >= change.getFrom() && idx < contentGrid.getRowConstraints().size() - offset) {
+            int idx = GridPane.getRowIndex(node);
+            if (idx >= change.getFrom() && idx < contentGrid.getRowConstraints().size() - offset) {
                 GridPane.setRowIndex(node, idx + offset);
             }
         }
@@ -382,6 +379,7 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
                 lb.setText("" + GridPane.getRowIndex(lb));
             }
         }
+//        System.err.println("handleRowAdded update false");                
         update = false;
     }
 
@@ -412,8 +410,8 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
     }
 
     public void selectRow(Node node) {
-        Integer idx = GridPane.getRowIndex(node);
-        if (idx == null || idx < 0) {
+        int idx = GridPane.getRowIndex(node);
+        if (idx < 0) {
             return;
         }
         if (idx < contentGrid.getRowConstraints().size()) {
@@ -422,8 +420,8 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
     }
 
     public void selectColumn(Node node) {
-        Integer idx = GridPane.getColumnIndex(node);
-        if (idx == null && idx < 0) {
+        int idx = GridPane.getColumnIndex(node);
+        if (idx < 0) {
             return;
         }
         if (idx < contentGrid.getColumnConstraints().size()) {
@@ -466,13 +464,13 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
     protected LabelEx getSelected(Side side) {
         LabelEx retval = null;
         if (side == Side.TOP) {
-            Integer idx = getSelectedColumn();
-            if (idx != null && idx >= 0) {
+            int idx = getSelectedColumn();
+            if (idx >= 0) {
                 retval = (LabelEx) topGrid.getChildren().get(idx);
             }
         } else if (side == Side.LEFT) {
-            Integer idx = getSelectedRow();
-            if (idx != null && idx >= 0) {
+            int idx = getSelectedRow();
+            if (idx >= 0) {
                 retval = (LabelEx) leftGrid.getChildren().get(idx);
             }
         }
@@ -740,8 +738,9 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
     }
 
     protected void updateOnEmptyColumns() {
+//        System.err.println("updateOnEmptyColumns 1 ");
         if (contentGrid.getColumnConstraints().isEmpty()) {
-            setSelectedConstraints(null);
+//            System.err.println("updateOnEmptyColumns 2");
             Label lb = new Label("");
             lb.getStyleClass().add("empty");
             topGrid.getChildren().clear();
@@ -768,13 +767,15 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
             Label lb = (Label) topGrid.lookup(".empty");
             if (lb != null) {
                 topGrid.getChildren().remove(lb);
+//                System.err.println("topGrid remove empty lb");
+                //adjust();
+                //resizeRelocate(null);
             }
         }
     }
 
     protected void updateOnEmptyRows() {
         if (contentGrid.getRowConstraints().isEmpty()) {
-            setSelectedConstraints(null);
             Label lb = new Label("");
             lb.getStyleClass().add("empty");
             leftGrid.getChildren().clear();
@@ -801,124 +802,138 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
             Label lb = (Label) leftGrid.lookup(".empty");
             if (lb != null) {
                 leftGrid.getChildren().remove(lb);
+//                System.err.println("leftGrid remove empty lb");
             }
         }
     }
 
     protected void adjust() {
+        //System.err.println("ADJUST 1");
         topGrid.getRowConstraints().clear();
         topGrid.getColumnConstraints().clear();
         topGrid.getChildren().clear();
         RowConstraints rc = new RowConstraints();
         topGrid.getRowConstraints().add(rc);
-        Map<Node, Object> map = new HashMap<>();
-        contentGrid.getChildren().forEach(node -> {
-            Integer idx = GridPane.getColumnIndex(node);
-            if (idx != null && idx >= 0 && idx < contentGrid.getColumnConstraints().size()) {
-                map.put(node, contentGrid.getColumnConstraints().get(idx));
-            } else if (idx != null && idx >= contentGrid.getColumnConstraints().size()  ) {
-                map.put(node, idx);
-            }
-        });
-        List<ColumnConstraints> colList = new ArrayList<>(contentGrid.getColumnConstraints());
-        contentGrid.getColumnConstraints().clear();
-        for (int i = 0; i < colList.size(); i++) {
-            contentGrid.getColumnConstraints().add(colList.get(i));
-        }
-        map.forEach((node, constr) -> {
-            if ( constr instanceof ColumnConstraints ) {
-                GridPane.setColumnIndex(node, contentGrid.getColumnConstraints().indexOf(constr));
-            } else if ( constr != null && (Integer)constr >= 0 )  {
-                GridPane.setColumnIndex(node, (Integer)constr);
-            }
-        });
-
-        /*        for (int i = 0; i < contentGrid.getColumnConstraints().size(); i++) {
-            System.err.println("adjust i = "  + i);
+        //System.err.println("ADJUST 2");
+        for (int i = 0; i < contentGrid.getColumnConstraints().size(); i++) {
+            //System.err.println("1) adjust columns before getCellBounds");
             Bounds b = JdkUtil.getGridCellBounds(contentGrid, i, 0);
+            //System.err.println("2) adjust columns after getCellBounds b = " + b);
             rc.setVgrow(Priority.ALWAYS);
             rc.setFillHeight(true);
             rc.setValignment(VPos.BASELINE);
-            //System.err.println("adjust ");
-            if ( b== null ) {
-                addColumnConstraints(i, 50, 50, 50, 50);
-            } else {
-                addColumnConstraints(i, b.getWidth(), b.getWidth(), b.getWidth(), b.getHeight());
+
+            addColumnConstraints(i, b.getWidth(), b.getWidth(), b.getWidth(), b.getHeight());
+
+            /*            ColumnConstraints c = new ColumnConstraints(b.getWidth(), b.getWidth(), b.getWidth());
+            topGrid.getColumnConstraints().add(c);
+
+            Label lb = new LabelEx("" + i);
+            if (!lb.getStyleClass().contains("labelex")) {
+                lb.getStyleClass().add("labelex");
             }
+            if (!lb.getStyleClass().contains(FOREIGN)) {
+                lb.getStyleClass().add(FOREIGN);
+            }
+
+            createContextMenu(new Constraints(Side.TOP, topGrid), new Constraints(Side.TOP, contentGrid), lb);
+
+            lb.setMaxWidth(1000);
+            lb.setMaxHeight(1000);
+            lb.setPrefHeight(b.getHeight());
+            lb.setAlignment(Pos.CENTER);
+            //lb.setStyle("-fx-border-width: 1; -fx-border-color: black; -fx-border-radius: 3 3 0 0; -fx-background-color: lightgrey");
+            topGrid.add(lb, i, 0);
+             */
         }
-         */
+
         ColumnConstraints c = new ColumnConstraints();
         leftGrid.getRowConstraints().clear();
         leftGrid.getColumnConstraints().clear();
         leftGrid.getChildren().clear();
 
         leftGrid.getColumnConstraints().add(c);
-        map.clear();
-        contentGrid.getChildren().forEach(node -> {
-            Integer idx = GridPane.getRowIndex(node);
-            if (idx != null && idx >= 0 && idx < contentGrid.getRowConstraints().size()) {
-                map.put(node, contentGrid.getRowConstraints().get(idx));
-            } else if (idx != null && idx >= contentGrid.getRowConstraints().size()  ) {
-                map.put(node, idx);
-            }
-        });
-        List<RowConstraints> rowList = new ArrayList<>(contentGrid.getRowConstraints());
-        contentGrid.getRowConstraints().clear();
+        //c.setHgrow(Priority.ALWAYS);
+        //c.setFillWidth(true);
 
-        for (int i = 0; i < rowList.size(); i++) {
-            contentGrid.getRowConstraints().add(rowList.get(i));
-        }
-        map.forEach((node, constr) -> {
-            if ( constr instanceof RowConstraints ) {
-                GridPane.setRowIndex(node, contentGrid.getRowConstraints().indexOf(constr));
-            } else if ( constr != null && (Integer)constr >= 0 )  {
-                GridPane.setRowIndex(node, (Integer)constr);
-            }
-        });        
-        updateOnEmptyColumns();
-        updateOnEmptyRows();
-        
-        /*        for (int i = 0; i < contentGrid.getRowConstraints().size(); i++) {
+        for (int i = 0; i < contentGrid.getRowConstraints().size(); i++) {
             Bounds b = JdkUtil.getGridCellBounds(contentGrid, 0, i);
+            //System.err.println("2) adjust columns after getCellBounds b = " + b);
             c.setHgrow(Priority.ALWAYS);
             c.setFillWidth(true);
             c.setHalignment(HPos.CENTER);
-            if ( b == null ) {
-                addRowConstraints(i, 20, 20, 20, 20);
-            } else {
-                addRowConstraints(i, b.getHeight(), b.getHeight(), b.getHeight(), 20);
+            addRowConstraints(i, b.getHeight(), b.getHeight(), b.getHeight(), 20);
+
+            /*            addColumnConstraints(i, b.getWidth(), b.getWidth(), b.getWidth(), b.getHeight());
+
+            //System.err.println("adjust rows before getCellBounds" );            
+            Bounds b = JdkUtil.getGridCellBounds(contentGrid, 0, i);
+            //System.err.println("adjust rows after getCellBounds b = " + b);            
+            rc = new RowConstraints(b.getHeight(), b.getHeight(), b.getHeight());
+            Label lb = new LabelEx("" + i);
+            if (!lb.getStyleClass().contains("labelex")) {
+                lb.getStyleClass().add("labelex");
+
             }
+            if (!lb.getStyleClass().contains(FOREIGN)) {
+                lb.getStyleClass().add(FOREIGN);
+            }
+
+            createRowContextMenu(lb);
+
+            lb.setMinHeight(0);
+            lb.setMaxWidth(1000);
+            lb.setMaxHeight(1000);
+            lb.setPrefHeight(b.getHeight());
+
+            lb.setAlignment(Pos.CENTER);
+            //lb.setStyle("-fx-border-width: 1; -fx-border-color: black; -fx-border-radius: 3 0 0 3; -fx-background-color: lightgrey");
+            leftGrid.add(lb, 0, i);
+            leftGrid.getRowConstraints().add(rc);
+             */
         }
-         */
+
     }
 
     private void addColumnConstraints(int idx, double minWidth, double prefWidth, double maxWidth, double rowHeight) {
+//        System.err.println("minW =" + minWidth + "; prefW = " + prefWidth + "; maxW = " + maxWidth + "; rh = " + rowHeight);
         ColumnConstraints c = new ColumnConstraints(minWidth, prefWidth, maxWidth);
         topGrid.getColumnConstraints().add(idx, c);
 
-        Label lb = new LabelEx("" + idx, this);
+        Label lb = new LabelEx("" + idx);
         if (!lb.getStyleClass().contains("labelex")) {
             lb.getStyleClass().add("labelex");
         }
         if (!lb.getStyleClass().contains(FOREIGN)) {
             lb.getStyleClass().add(FOREIGN);
         }
+
+        //createContextMenu(new Constraints(Side.TOP, topGrid), new Constraints(Side.TOP, contentGrid), lb);
         createColumnContextMenu(lb);
 
         lb.setMaxWidth(1000);
         lb.setMaxHeight(1000);
         lb.setPrefHeight(rowHeight);
+        //lb.setMinWidth(prefWidth);
+/*        if ( prefWidth < 0 ) {
+            lb.setMinWidth(5);
+        } else {
+            lb.setMinWidth(prefWidth);
+        }
+         */
 
         lb.setAlignment(Pos.CENTER);
+        //b.setStyle("-fx-border-width: 2; -fx-border-color: aqua; -fx-border-radius: 3 3 0 0; -fx-background-color: lightgrey");
         topGrid.add(lb, idx, 0);
         updateOnEmptyColumns();
     }
 
     private void addRowConstraints(int idx, double minHeight, double prefHeight, double maxHeight, double rowWidth) {
+        //System.err.println("minW =" + minHeight + "; prefW = " + prefHeight + "; maxW = " + maxHeight + "; rh = " + rowWidth);
         RowConstraints c = new RowConstraints(minHeight, prefHeight, maxHeight);
         leftGrid.getRowConstraints().add(idx, c);
 
-        Label lb = new LabelEx("" + idx, this);
+        Label lb = new LabelEx("" + idx);
         if (!lb.getStyleClass().contains("labelex")) {
             lb.getStyleClass().add("labelex");
         }
@@ -931,6 +946,7 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
         lb.setMaxWidth(2000);
         lb.setMaxHeight(2000);
         lb.setPrefWidth(rowWidth);
+        //lb.setMinHeight(prefHeight);
 
         lb.setAlignment(Pos.CENTER);
         //b.setStyle("-fx-border-width: 2; -fx-border-color: aqua; -fx-border-radius: 3 3 0 0; -fx-background-color: lightgrey");
@@ -941,35 +957,90 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
     @Override
     protected void layoutChildren() {
         try {
+            //System.err.println("layoutChildren");
             Bounds sceneBounds = contentGrid.localToScene(contentGrid.getBoundsInLocal());
             Insets ins = contentGrid.getInsets();
-            //02.01topGrid.setLayoutX(sceneBounds.getMinX() + ins.getLeft());
-            topGrid.setLayoutX(ins.getLeft());
+            topGrid.setLayoutX(sceneBounds.getMinX() + ins.getLeft());
+            /*            Bounds cellBounds = JdkUtil.getGridCellBounds(topGrid, 0, 0);
+            if (cellBounds != null) {
+                double d = cellBounds.getHeight();
+                topGrid.setLayoutY(sceneBounds.getMinY() - d + ins.getTop());
+
+                if (!leftGrid.getColumnConstraints().isEmpty()) {
+                    //System.err.println("layoutchildren d = " + d);
+                    ColumnConstraints c = leftGrid.getColumnConstraints().get(0);
+                    c.setMinWidth(d);
+                    c.setMaxWidth(d);
+                    c.setPrefWidth(d);
+                }
+                leftGrid.setLayoutX(sceneBounds.getMinX() + ins.getLeft() - d);
+                leftGrid.setLayoutY(sceneBounds.getMinY() + ins.getTop());
+             */
             double d = 20;
 
-            //02.01topGrid.setLayoutY(sceneBounds.getMinY() - d + ins.getTop());
-            topGrid.setLayoutY( - d + ins.getTop());
+            topGrid.setLayoutY(sceneBounds.getMinY() - d + ins.getTop());
             if (!topGrid.getRowConstraints().isEmpty()) {
+                //System.err.println("layoutchildren d = " + d);
                 RowConstraints c = topGrid.getRowConstraints().get(0);
                 c.setMinHeight(d);
                 c.setMaxHeight(d);
                 c.setPrefHeight(d);
             }
             if (!leftGrid.getColumnConstraints().isEmpty()) {
+                //System.err.println("layoutchildren d = " + d);
                 ColumnConstraints c = leftGrid.getColumnConstraints().get(0);
                 c.setMinWidth(d);
                 c.setMaxWidth(d);
                 c.setPrefWidth(d);
             }
-            //02.01leftGrid.setLayoutX(sceneBounds.getMinX() + ins.getLeft() - d);
-            //02.01leftGrid.setLayoutY(sceneBounds.getMinY() + ins.getTop());
-            leftGrid.setLayoutX(ins.getLeft() - d);
-            leftGrid.setLayoutY(ins.getTop());            
+            leftGrid.setLayoutX(sceneBounds.getMinX() + ins.getLeft() - d);
+            leftGrid.setLayoutY(sceneBounds.getMinY() + ins.getTop());
         } catch (Exception ex) {
 //            System.err.println("layoutChildren EXCEPTION ex = " + ex.getMessage());
         }
     }
 
+/*    public void resize(Side side) {
+        if (!update) {
+            return;
+        }
+        try {
+            for (int i = 0; i < contentGrid.getColumnConstraints().size(); i++) {
+
+                ColumnConstraints c = topGrid.getColumnConstraints().get(i);
+                double w = 20;
+                c.setMinWidth(w);
+                c.setMaxWidth(w);
+                c.setPrefWidth(w);
+                ColumnConstraints cc = contentGrid.getColumnConstraints().get(i);
+                cc.setMinWidth(w);
+                cc.setMaxWidth(w);
+                cc.setPrefWidth(w);
+
+            }
+            if (side == Side.TOP) {
+                for (int i = 0; i < contentGrid.getRowConstraints().size(); i++) {
+
+                    RowConstraints rc = leftGrid.getRowConstraints().get(i);
+                    double w = contentGrid.getRowConstraints().get(i).getPrefHeight();
+                    System.err.println("H = " + w);
+                    System.err.println("rc H = " + rc.getPrefHeight());
+                    rc.setMinHeight(w);
+                    rc.setMaxHeight(w);
+                    rc.setPrefHeight(w);
+
+                    RowConstraints cc = contentGrid.getRowConstraints().get(i);
+//                    cc.setMinHeight(w);
+//                    cc.setMaxHeight(w);
+//                    cc.setPrefHeight(w);
+
+                }
+            }
+            layoutChildren();
+        } catch (Exception ex) {
+        }
+    }
+*/
     @Override
     public void resizeRelocate(Bounds bounds) {
         if (update) {
@@ -981,24 +1052,37 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
                 Bounds b = JdkUtil.getGridCellBounds(contentGrid, i, 0);
                 ColumnConstraints c = topGrid.getColumnConstraints().get(i);
                 double w = 20;
-                if (b != null) {
+                if ( b != null ) {
                     w = b.getWidth();
                 }
-
+                /*                if (b.getWidth() <= 5) {
+                    c.setMinWidth(5);
+                    c.setMaxWidth(5);
+                    c.setPrefWidth(5);
+                } else {
+                 */
                 c.setMinWidth(b.getWidth());
                 c.setMaxWidth(b.getWidth());
                 c.setPrefWidth(b.getWidth());
+//                }
             }
             for (int i = 0; i < contentGrid.getRowConstraints().size(); i++) {
                 Bounds b = JdkUtil.getGridCellBounds(contentGrid, 0, i);
                 RowConstraints rc = leftGrid.getRowConstraints().get(i);
+                /*                if (b.getHeight() <= 5) {
+                    rc.setMinHeight(5);
+                    rc.setMaxHeight(5);
+                    rc.setPrefHeight(5);
+                } else {
+                 */
                 double h = 20;
-                if (b != null) {
+                if ( b != null ) {
                     h = b.getHeight();
-                }
+                }                
                 rc.setMinHeight(h);
                 rc.setMaxHeight(h);
                 rc.setPrefHeight(h);
+//                }
             }
 
             layoutChildren();
@@ -1008,51 +1092,121 @@ public class GridPaneFrame extends Group implements GridPaneConstraintsDividers.
         }
     }
 
+    /*    public static class Constraints {
+
+        private final Side side;
+        private final GridPane grid;
+
+        public Constraints(Side side, GridPane grid) {
+            this.side = side;
+            this.grid = grid;
+        }
+
+        public int getIndex(Node node) {
+            int retval = -1;
+            if (!node.isManaged()) {
+                return -1;
+            }
+            if (side == Side.TOP || side == Side.BOTTOM) {
+                //System.err.println("node = " + node);
+                retval = GridPane.getColumnIndex(node);
+            } else {
+                retval = GridPane.getRowIndex(node);
+            }
+            return retval;
+        }
+
+        public void setIndex(Node node, int idx) {
+            if (side == Side.TOP || side == Side.BOTTOM) {
+                GridPane.setColumnIndex(node, idx);
+            } else {
+                GridPane.setRowIndex(node, idx);
+            }
+        }
+
+        public void remove(int idx) {
+            if (side == Side.TOP || side == Side.BOTTOM) {
+                grid.getColumnConstraints().remove(idx);
+            } else {
+                grid.getRowConstraints().remove(idx);
+            }
+
+        }
+
+        public void add(Node node, int idx) {
+            if (side == Side.TOP || side == Side.BOTTOM) {
+                grid.add(node, idx, 0);
+            } else {
+                grid.add(node, 0, idx);
+            }
+
+        }
+
+        public void addNew(int idx) {
+            if (side == Side.TOP || side == Side.BOTTOM) {
+                ColumnConstraints ci = new ColumnConstraints(20, 20, 20);
+                grid.getColumnConstraints().add(idx, ci);
+            } else {
+                RowConstraints ci = new RowConstraints(20, 20, 20);
+                grid.getRowConstraints().add(idx, ci);
+            }
+        }
+
+        public void removeChild(Node node) {
+            grid.getChildren().remove(node);
+        }
+
+        public GridPane getGrid() {
+            return grid;
+        }
+
+        public boolean isEmpty() {
+            if (side == Side.TOP || side == Side.BOTTOM) {
+                return grid.getColumnConstraints().isEmpty();
+            } else {
+                return grid.getRowConstraints().isEmpty();
+            }
+        }
+
+        public void select(int idx) {
+            if (side == Side.TOP || side == Side.BOTTOM) {
+                ((GridPaneFrame) grid.getParent()).selectColumn(idx);
+            } else {
+                ((GridPaneFrame) grid.getParent()).selectRow(idx);
+            }
+
+        }
+
+    }
+     */
     static class LabelEx extends Label {
 
         private static final PseudoClass SELECTED_PSEUDO_CLASS = PseudoClass.getPseudoClass("selected");
 
-        private GridPaneFrame frame;
-
         private BooleanProperty selected = new SimpleBooleanProperty(false);
 
-        /*        public LabelEx() {
-            init();
-        }
-         */
-        public LabelEx(String text, GridPaneFrame frame) {
-            super(text);
-            this.frame = frame;
+        public LabelEx() {
             init();
         }
 
-        /*
+        public LabelEx(String text) {
+            super(text);
+            init();
+        }
+
         public LabelEx(String text, Node graphic) {
             super(text, graphic);
             init();
         }
-         */
-        private void init() {
-            getStyleClass().addAll("labelex", FOREIGN);
 
+        private void init() {
+            getStyleClass().add("labelex");
             selected.addListener((v, ov, nv) -> {
                 pseudoClassStateChanged(SELECTED_PSEUDO_CLASS, nv);
-
-                frame.setSelectedConstraints(null);
-                int idx = frame.getSelectedColumn();
-                if (idx >= 0) {
-                    frame.setSelectedConstraints(frame.contentGrid.getColumnConstraints().get(idx));
-                }
-                idx = frame.getSelectedRow();
-                if (idx >= 0) {
-                    frame.setSelectedConstraints(frame.contentGrid.getRowConstraints().get(idx));
-                }
-
             });
             setOnMouseClicked(e -> {
-                ((GridPaneFrame) getParent().getParent()).setSelected(this);
+                ((GridPaneFrame1) getParent().getParent()).setSelected(this);
             });
-
         }
 
         public void setSelected(boolean selected) {

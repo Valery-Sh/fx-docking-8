@@ -42,6 +42,7 @@ public class TextResizer extends AbstractResizer {
         Text node = (Text) getNode();
         if ((node.getWrappingWidth() >= node.minWidth(-1) || xDelta <= 0)) {
             node.setWrappingWidth(wDelta + node.getWrappingWidth());
+            node.autosize();            
             mouseXProperty().set(curX);
         }
 

@@ -39,7 +39,6 @@ import static org.vns.javafx.designer.TreeItemEx.ItemType.CONTENT;
 import static org.vns.javafx.designer.TreeItemEx.ItemType.DEFAULTLIST;
 import static org.vns.javafx.designer.TreeItemEx.ItemType.LIST;
 import static org.vns.javafx.designer.TreeItemEx.ItemType.MIXED;
-import org.vns.javafx.dock.DockUtil;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.bean.BeanAdapter;
@@ -66,7 +65,7 @@ import org.vns.javafx.dock.api.bean.ReflectHelper;
  *
  * @author Valery Shyshkin
  */
-public class TreeItemBuilder {
+public class TreeItemBuilder1 {
 
     public static final String ACCEPT_TYPES_KEY = "tree-item-builder-accept-types";
     public static final String CELL_UUID = "uuid-29a4b479-0282-41f1-8ac8-21b4923235be";
@@ -74,17 +73,15 @@ public class TreeItemBuilder {
 
     private final boolean designer;
     private Object objToBuild;
-
-    public TreeItemBuilder(boolean designer) {
+    
+    public TreeItemBuilder1(boolean designer) {
         this.designer = designer;
     }
-
-    public TreeItemBuilder(Object object) {
+    public TreeItemBuilder1(Object object) {
         this(true);
         objToBuild = object;
     }
-
-    public TreeItemBuilder() {
+    public TreeItemBuilder1() {
         this(true);
     }
 
@@ -112,6 +109,9 @@ public class TreeItemBuilder {
         if (SceneView.isFrame(obj)) {
             return null;
         }
+        if ( obj instanceof ConstraintsBase ) {
+            System.err.println("CCCC");
+        }
         setContexts(obj);
         PalettePane.addDesignerStyles(obj);
         TreeItemEx retval;
@@ -128,9 +128,6 @@ public class TreeItemBuilder {
         if (p != null && (p instanceof NodeList)) {
             ObservableList ol = (ObservableList) obj;
             for (int i = 0; i < ol.size(); i++) {
-                if (DockUtil.isForeign(ol.get(i))) {
-                    continue;
-                }
                 TreeItemEx it = build(ol.get(i));
                 retval.getChildren().add(it);
                 PalettePane.addDesignerStyles(ol.get(i));
@@ -156,9 +153,6 @@ public class TreeItemBuilder {
                     //
                     ObservableList ol = (ObservableList) cpObj;
                     for (int i = 0; i < ol.size(); i++) {
-                        if (DockUtil.isForeign(ol.get(i))) {
-                            continue;
-                        }
                         TreeItemEx it = build(ol.get(i));
                         retval.getChildren().add(it);
                         PalettePane.addDesignerStyles(ol.get(i));
@@ -250,7 +244,7 @@ public class TreeItemBuilder {
         try {
             retval.registerChangeHandlers();
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
-            Logger.getLogger(TreeItemBuilder.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TreeItemBuilder1.class.getName()).log(Level.SEVERE, null, ex);
         }
         return retval;
     }
@@ -289,7 +283,7 @@ public class TreeItemBuilder {
         try {
             retval.registerChangeHandlers();
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
-            Logger.getLogger(TreeItemBuilder.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TreeItemBuilder1.class.getName()).log(Level.SEVERE, null, ex);
         }
         return retval;
     }
@@ -309,7 +303,7 @@ public class TreeItemBuilder {
 
             retval.registerChangeHandlers();
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
-            Logger.getLogger(TreeItemBuilder.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TreeItemBuilder1.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return retval;
@@ -660,11 +654,13 @@ public class TreeItemBuilder {
         // position can change, since the method updateOnMove deletes the item which
         // corresponds to the dragged value
         //
+        
         if (target == place && place.getDragDropQualifier() == LAST && target.getValue() != null && target.getItemType() == MIXED) {
             accept(treeView, target, value);
             return;
         }
         int insertIndex = getInsertIndex(treeView, target, place);
+        
 
         if (target != null && (target.getItemType() == LIST || target.getItemType() == DEFAULTLIST)) {
             TreeItemEx it = EditorUtil.findTreeItemByObject(treeView, value);
@@ -679,35 +675,35 @@ public class TreeItemBuilder {
         update(treeView, target, insertIndex, value);
 
     }
-
     /**
-     * Executes when the target item equals to place and the itemType property
-     * value of the target item equals to ItemType.MIXED.
-     *
+     * Executes when the target item equals to place and the itemType property value
+     * of the target item equals to ItemType.MIXED.
+     * 
      * @param treeView an instance of TreeViewEx
-     * @param target the target item with itemType ItemType.MIXED
+     * @param target the target item with itemType ItemType.MIXED 
      * @param value the dragged value
      */
     public void accept(TreeViewEx treeView, TreeItemEx target, Object value) {
         //TreeItemEx defaultItem = 
         NodeDescriptor nd = NodeDescriptor.get(target.getValue().getClass());
-
-        if (nd == null) {
+        
+        if ( nd == null ) {
             return;
         }
         NodeProperty defaultProperty = null;
-        String propName = getDefaultPropertyNameFor(target, value);
-        if (propName == null) {
+        String propName = getDefaultPropertyNameFor(target, value);        
+        if ( propName == null ) {
             return;
         }
-        for (NodeProperty p : nd.getProperties()) {
-            if (propName.equals(p.getName())) {
+        for ( NodeProperty p : nd.getProperties()) {
+            if ( propName.equals(p.getName() )) {
                 defaultProperty = p;
                 break;
             }
         }
         TreeItemEx item = (TreeItemEx) target.getChildren().get(nd.getProperties().indexOf(defaultProperty));
-
+        
+        
         int insertIndex = item.getChildren().size();
         if (item != null && (item.getItemType() == LIST || item.getItemType() == DEFAULTLIST)) {
             TreeItemEx it = EditorUtil.findTreeItemByObject(treeView, value);
@@ -720,9 +716,9 @@ public class TreeItemBuilder {
         }
 
         update(treeView, item, insertIndex, value);
-
+        
     }
-
+    
     protected void update(TreeViewEx treeView, TreeItemEx target, int insertIndex, Object sourceObject) {
 
         switch (target.getItemType()) {
@@ -772,7 +768,7 @@ public class TreeItemBuilder {
      * used to insert a new TreeItem
      */
     protected int getInsertIndex(TreeViewEx treeView, TreeItemEx target, TreeItemEx place) {
-
+       
         int idx = -1;
 
         if (target == place) {

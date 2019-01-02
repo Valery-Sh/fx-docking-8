@@ -61,9 +61,27 @@ public class SceneViewSkin extends SkinBase<SceneView> {
     private ScrollAnimation scrollAnimation;
     private DragIndicator dragIndicator;
     private final Pane treeViewPane; // = new StackPane();
-    private ChangeListener rootSceneSizeListener = (v, ov, nv) -> {
-        FramePane.hideAll(getSkinnable().getRoot().getScene().getWindow());
 
+    //
+    // ? May be to be removed
+    //
+    private ChangeListener rootSceneSizeListener = (v, ov, nv) -> {
+        
+            //FramePane.hideAll(getSkinnable().getRoot().getScene().getWindow());
+            //DockRegistry.lookup(Selection.class).setSelected(null);
+            //FramePane.adjust(getSkinnable().getRoot().getScene().getWindow());
+/*        Platform.runLater(() -> {
+//            EditorUtil.findTreeItemByObject(getSkinnable().getTreeView(), ov);
+//            Selection sel = DockRegistry.lookup(Selection.class);
+            Object selected = null;
+            if ( sel != null ) {
+                selected = sel.getSelected();
+                sel.setSelected(null);
+                sel.setSelected(selected);
+            }
+
+        });
+*/        
     };
 
     public SceneViewSkin(SceneView control) {
@@ -131,6 +149,12 @@ public class SceneViewSkin extends SkinBase<SceneView> {
 
     private void sceneMousePressed(MouseEvent ev) {
         TreeItemEx item = getSkinnable().getTreeItem(ev.getScreenX(), ev.getScreenY());
+        if ( item != null ) {
+            System.err.println("itemType = " + item.getItemType());
+            System.err.println("item.getValue = " + item.getValue());
+            System.err.println("----------------------------------");
+        }
+        
         if (ev.isSecondaryButtonDown()) {
             secondaryMousePressed(ev, item);
             return;
@@ -143,9 +167,10 @@ public class SceneViewSkin extends SkinBase<SceneView> {
             Selection sel = DockRegistry.lookup(Selection.class);
             sel.setSelected(null);
             //22.12nf.hide();
-        } else if (item.getValue() instanceof Node) {
+        } else { //if (item.getValue() instanceof Node) {
             Selection sel = DockRegistry.lookup(Selection.class);
-            sel.setSelected((Node)item.getValue());
+            //sel.setSelected((Node) item.getValue());
+            sel.setSelected(item.getValue());
             //22.12nf.show((Node) item.getValue());
         }
 
@@ -311,7 +336,6 @@ public class SceneViewSkin extends SkinBase<SceneView> {
             SceneView.removeFramePanes(oldValue.getScene().getRoot());
         }
 
-        //9.12SceneView.removeFramePanes(oldValue);
         if (newValue == null) {
             getSkinnable().getTreeView().setRoot(null);
             return;
@@ -376,7 +400,7 @@ public class SceneViewSkin extends SkinBase<SceneView> {
             getSkinnable().getRoot().getScene().widthProperty().addListener(rootSceneSizeListener);
         }
 
-        Parent parent = null;
+        Parent parent;// = null;
         if (node instanceof Parent) {
             parent = (Parent) node;
         } else if (node.getParent() != null) {

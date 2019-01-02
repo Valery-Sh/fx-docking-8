@@ -15,25 +15,13 @@
  */
 package org.vns.javafx.dock.api.dragging.view;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.geometry.Insets;
-import javafx.geometry.Point2D;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.control.PopupControl;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import javafx.stage.Window;
-//import static org.vns.javafx.dock.api.dragging.view.NodeResizer.windowBounds;
 
 /**
  *

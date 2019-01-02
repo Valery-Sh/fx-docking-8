@@ -531,11 +531,22 @@ public class PalettePane extends Control {
         lb.applyCss();
 
         lb = new Label("RowConstraints");
-        pc.addItem(lb, RowConstraints.class);
+        pc.addItem(lb, RowConstraints.class, (v) -> {
+            RowConstraints c = (RowConstraints) v;
+            c.setMinHeight(20);
+            c.setMaxHeight(20);
+            c.setPrefHeight(20);            
+        });
+        
         lb.getStyleClass().add("tree-item-node-rowconstraints");
         lb.applyCss();
         lb = new Label("ColumnConstraints");
-        pc.addItem(lb, ColumnConstraints.class);
+        pc.addItem(lb, ColumnConstraints.class, (v) -> {
+            ColumnConstraints c = (ColumnConstraints) v;
+            c.setMinWidth(20);
+            c.setMaxWidth(20);
+            c.setPrefWidth(20);            
+        });
         lb.getStyleClass().add("tree-item-node-columnconstraints");
         lb.applyCss();
 
@@ -1220,11 +1231,11 @@ public class PalettePane extends Control {
                     ped.start((Node) value);
                 }
 
-                String tx = "";
+/*                String tx = "";
                 if (value instanceof Labeled) {
                     tx = ((Labeled) value).getText();
                 }
-
+*/
                 Label label = item.getLabel();
 
                 WritableImage image;

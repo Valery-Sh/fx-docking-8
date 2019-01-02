@@ -21,7 +21,6 @@ import java.net.URL;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.collections.ListChangeListener.Change;
-import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.Node;
@@ -29,13 +28,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.PopupControl;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -56,16 +55,15 @@ import org.vns.javafx.designer.PalettePane;
 import org.vns.javafx.designer.DesignerLookup;
 import org.vns.javafx.designer.SceneView;
 import org.vns.javafx.designer.TrashTray;
+import org.vns.javafx.dock.DockUtil;
 import org.vns.javafx.dock.api.DockLayout;
-import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.dragging.DragManager;
-import org.vns.javafx.dock.api.dragging.view.FramePane;
 
 /**
  *
  * @author Valery
  */
-public class DemoDesigner1 extends Application {
+public class DemoDesigner2 extends Application {
     Label lb2_1 = new Label("Label (2,1)");
     @Override
     public void start(Stage stage) throws Exception {
@@ -94,17 +92,19 @@ public class DemoDesigner1 extends Application {
         HBox formPane = new HBox();
         formPane.setStyle("-fx-background-color: yellow");
         Button formButton1 = new Button("Btn1");
-        formButton1.setOnAction(e -> {
-            Selection sel = DockRegistry.lookup(Selection.class);
-            System.err.println("sel.selected = " + sel.getSelected());
-        });
         formPane.getChildren().addAll(formButton,formButton1);//, resetButton);
         formDockNode.setContent(formPane);
         DefaultLayoutContextFactory ctxFactory = new DefaultLayoutContextFactory();
         LayoutContext ctx = ctxFactory.getContext(formPane);
         System.err.println("ctx=" + ctx);
         DockRegistry.makeDockLayout(formPane, ctx);
-        BorderPane root1 = new BorderPane();
+        VBox root1 = new VBox();
+        Button fbtn1 = new Button("FOREIGN 1");
+        fbtn1.getStyleClass().add(DockUtil.FOREIGN);
+        root1.getChildren().add(fbtn1);
+        
+        root1.setScaleX(0.8);
+        root1.setScaleY(0.5);
         Button eb = new Button("Ext Button");
         //eb.setScaleX(0.5);
         //eb.setTranslateY(20);
@@ -153,29 +153,65 @@ public class DemoDesigner1 extends Application {
 
         Ellipse ellipse = new Ellipse(20,20);
         Text text = new Text("text");
-        MyHBox centerPane = new MyHBox(eb,tx, cb,dn, text, circle, rect, ellipse);
+        //MyHBox centerPane = new MyHBox(eb,tx, cb,dn, text, circle, rect, ellipse);
+        //HBox centerPane = new HBox(circle, rect);
+        HBox centerPane = new HBox(new Button("Btn MyHBox"));
         centerPane.setStyle("-fx-border-width: 3; -fx-border-color: blue");
         //eb.setFocusTraversable(false);
         root1.setFocusTraversable(false);
         centerPane.setId("CCCCCCCCCCCCCCCCCCC");
         GridPane gridPane1 = new GridPane();
-        gridPane1.setStyle("-fx-border-width: 3; -fx-border-color: blue");
-        gridPane1.setPrefWidth(40); 
-        gridPane1.setPrefHeight(40); 
+        //gridPane1.setGridLinesVisible(true);
+        System.err.println("size = " + gridPane1.getChildren().size());
         
-        root1.setTop(centerPane);
-        root1.setCenter(topPane);
+        
+        gridPane1.setStyle("-fx-border-width: 3; -fx-border-color: blue");
+        gridPane1.setPrefWidth(50); 
+        gridPane1.setPrefHeight(50); 
+        gridPane1.setMinHeight(50);         
+        //gridPane1.setMaxHeight(50);         
+        RowConstraints rc0 = new RowConstraints(25,25,25);
+        rc0.setVgrow(Priority.NEVER);
+        RowConstraints rc1 = new RowConstraints(45,45,45);
+        rc1.setVgrow(Priority.NEVER);
+        //gridPane1.getRowConstraints().addAll(rc0,rc1);
+        gridPane1.getRowConstraints().addAll(rc0);
+        gridPane1.getColumnConstraints().add(new ColumnConstraints(25,25,25));        
+        gridPane1.getColumnConstraints().add(new ColumnConstraints(35,35,35));        
+        root1.getChildren().addAll(new Label("My Label 1"),topPane,centerPane,gridPane1);
         
         //root1.setTop(topPane);
         //root1.setCenter(centerPane);
-        root1.setLeft(new Label("My Label 1"));
+        //root1.setLeft(new Label("My Label 1"));
         
-        root1.setRight(gridPane1);
+        //root1.setRight(gridPane1);
         Button spButton = new Button(" StackPane Button");
         spButton.setId("stackPaneButton");
         StackPane stackPane1 = new StackPane(spButton);
          stackPane1.setId("stackPane1");
         stackPane1.setStyle("-fx-background-color: red; -fx-padding: 20 20 20 20");
+        
+        formButton1.setOnAction(e -> {
+            System.err.println("gridPane1.getPrefHeight()  = " + gridPane1.getPrefHeight() );
+            centerPane.setPrefHeight(centerPane.getPrefHeight() + 10);
+            
+            //Selection sel = DockRegistry.lookup(Selection.class);
+            //System.err.println("sel.selected = " + sel.getSelected());
+/*            Label lb = (Label) gridPane1.lookup("#grid-lb");
+            if ( lb == null ) {
+                lb = new Label("lb of Grid");
+                lb.setId("grid-lb");
+                gridPane1.getChildren().add(lb);
+                GridPane.setRowIndex(lb, 0);
+                GridPane.setColumnIndex(lb, 3);
+            } else {
+                System.err.println("col index = " + GridPane.getColumnIndex(lb));
+                Bounds b1 = JdkUtil.getGridCellBounds(gridPane1, 0, 0);
+                System.err.println("bounds = " + b1);
+            }
+  */          
+        });
+        
         //root1.setRight(stackPane1);
         
         //new TreeItemBuilder().build(null);
@@ -196,7 +232,7 @@ public class DemoDesigner1 extends Application {
         StackPane sp = new StackPane(root1);
         sp.setId("root-stackpane");
         Scene scene1 = new Scene(sp);
-        scene1.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+/*        scene1.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
             //System.err.println("filter scene1 mouse pressed source = " + e.getSource() + "; target = " + e.getTarget());
             //e.consume();
         });
@@ -211,18 +247,18 @@ public class DemoDesigner1 extends Application {
         });
         cb.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
             System.err.println("handler cb mouse pressed source = " + e.getSource() + "; target = " + e.getTarget());
-            e.consume();
+            //e.consume();
         });   
         cb.addEventHandler(MouseEvent.MOUSE_MOVED, e -> {
             System.err.println("handler cb mouse moved source = " + e.getSource() + "; target = " + e.getTarget());
-            e.consume();
+            //e.consume();
         });   
         
         cb.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> {
             System.err.println("handler cb mouse ENTERED source = " + e.getSource() + "; target = " + e.getTarget());
             e.consume();
         });   
-        
+  */      
         root1.setStyle("-fx-padding: 5 5 5 5");
         //root1.setTranslateX(70);
 
@@ -264,9 +300,9 @@ public class DemoDesigner1 extends Application {
             System.err.println("gridPane1.getRowConstraits = " + gridPane1);
             System.err.println("gridPane1.getRowConstraits.size = " + gridPane1.getRowConstraints().size());
             if ( gridPane1.getRowConstraints().size() == 0 ) {
-                RowConstraints rc0 = new RowConstraints(30);
-                RowConstraints rc1 = new RowConstraints(40);
-                gridPane1.getRowConstraints().addAll(rc0,rc1);
+                //RowConstraints rc0 = new RowConstraints(30);
+                //RowConstraints rc1 = new RowConstraints(40);
+                //gridPane1.getRowConstraints().addAll(rc0,rc1);
                 
                 Label lb0_1 = new Label("label(0,1)");
                 gridPane1.getChildren().addAll(lb2_1,lb0_1);

@@ -16,8 +16,6 @@
 package org.vns.javafx.dock.api.dragging.view;
 
 import javafx.scene.Node;
-import javafx.scene.layout.Region;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Window;
 //import static org.vns.javafx.dock.api.dragging.view.NodeResizer.windowBounds;
@@ -42,24 +40,17 @@ public class RectangleResizer extends AbstractResizer {
     @Override
     protected void setXLayout(double wDelta, double xDelta, double curX) {
         Rectangle node = (Rectangle) getNode();
-//        if ((node.getRadius() > node.minWidth(-1) || xDelta <= 0)) {
         node.setWidth(wDelta + node.getWidth());
+        node.autosize();        
         mouseXProperty().set(curX);
-//        }
-
     }
 
     @Override
     protected void setYLayout(double hDelta, double yDelta, double curY) {
 
         Rectangle node = (Rectangle) getNode();
-//        System.err.println("setYLayout radius = " + node.getRadius());
-//        System.err.println("   --- minHeight = " + node.minHeight(-1));
-//        System.err.println("   --- hDelta    = " + hDelta);
-//         if ((node.getRadius() > node.minHeight(-1) || yDelta <= 0)) {
         node.setHeight(hDelta / 2 + node.getHeight());
+        node.autosize();        
         mouseYProperty().set(curY);
-//         }
-
     }
 }

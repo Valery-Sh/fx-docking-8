@@ -16,10 +16,12 @@
 package org.vns.javafx.dock.api.dragging.view;
 
 import java.util.Set;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.EventHandler;
@@ -43,6 +45,7 @@ import javafx.stage.Window;
 import org.vns.javafx.designer.EditorUtil;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
+import org.vns.javafx.dock.api.Selection;
 import static org.vns.javafx.dock.api.dragging.view.FramePane.Direction.*;
 
 /**
@@ -59,9 +62,9 @@ public class FramePane extends Control {
     public static final String SHAPE_ID = "RESIZE-SHAPE-" + ID;
 
     private final ObservableMap<Direction, ResizeShape> sideShapes = FXCollections.observableHashMap();
-    
-    private final ObservableList<ResizeShape> cellHorLines = FXCollections.observableArrayList();
-    private final ObservableList<ResizeShape> cellVertLines = FXCollections.observableArrayList();
+
+    //private final ObservableList<ResizeShape> cellHorLines = FXCollections.observableArrayList();
+    //private final ObservableList<ResizeShape> cellVertLines = FXCollections.observableArrayList();
 
     private Class<?> shapeClass;
     private final ObjectProperty<Node> boundNode = new SimpleObjectProperty<>();
@@ -129,6 +132,19 @@ public class FramePane extends Control {
             v.setVisible(true);
             v.toFront();
         });
+/*        getParent().getChildrenUnmodifiable().addListener(new ListChangeListener<Node>() {
+            @Override
+            public void onChanged(ListChangeListener.Change<? extends Node> c) {
+                System.err.println("PARENT CHANGED");
+            }
+        });
+        EditorUtil.getChildren(getParent()).addListener(new ListChangeListener<Node>() {
+            @Override
+            public void onChanged(ListChangeListener.Change<? extends Node> c) {
+                System.err.println("PARENT CHANGED CH");
+            }
+        });
+*/
     }
 
     public Parent getRoot() {
@@ -150,6 +166,22 @@ public class FramePane extends Control {
         }
     }
 
+    /*    public static void adjust(Window win) {
+        Set<Node> set = win.getScene().getRoot().lookupAll("#" + NODE_ID);
+        for (Node node : set) {
+            if ( node instanceof FramePane) {
+                ((FramePane)node).layoutChildren();
+            }
+        }
+        set = win.getScene().getRoot().lookupAll("#" + PARENT_ID);
+        for (Node node : set) {
+            if ( node instanceof FramePane) {
+                ((FramePane)node).layoutChildren();
+            }
+        }
+    
+    }
+     */
     public Point2D getStartMousePos() {
         return startMousePos;
     }
@@ -306,6 +338,7 @@ public class FramePane extends Control {
             Bounds nodeBounds = getBoundNode().localToScene(getBoundNode().getBoundsInLocal());
             skinBase.layoutChildren(0, 0, nodeBounds.getWidth(), nodeBounds.getHeight());
         }
+
     }
 
     public static class FramePaneSkin extends SkinBase<FramePane> {
@@ -334,7 +367,8 @@ public class FramePane extends Control {
 
         public FramePaneSkin(FramePane control) {
             super(control);
-            this.ctrl = control;
+            ctrl = control;
+            //ctrl.setId(NODE_ID);
             rect = new Rectangle();
             rect.setId("rectangle");
             rect.getStyleClass().add(CSS_CLASS);
@@ -433,6 +467,12 @@ public class FramePane extends Control {
                     if (!ctrl.getSideShapes().isEmpty()) {
                         removeShapeMouseEventHandlers();
                     }
+                    Selection sel = DockRegistry.lookup(Selection.class);
+                    if (sel != null) {
+                    //    sel.setSelected(null);
+                    } else {
+                    //    ctrl.hide();
+                    }
                     ctrl.hide();
                 }
                 if (nv != null) {
@@ -440,10 +480,10 @@ public class FramePane extends Control {
                         addShapeMouseEventHandlers();
                     }
                     nv.boundsInParentProperty().addListener(boundsInParentListener);
+
                     nv.layoutXProperty().addListener(layoutXYListener);
                     nv.layoutYProperty().addListener(layoutXYListener);
 
-                    //nv.layoutBoundsProperty().addListener(boundsInParentListener);
                     nv.localToSceneTransformProperty().addListener(localToSceneTransformListener);
                     if (nv instanceof Region) {
                         ((Region) nv).backgroundProperty().addListener(backgroundListener);
@@ -452,8 +492,22 @@ public class FramePane extends Control {
                     removeShapeMouseEventHandlers();
                 }
                 if (nv == null) {
+                    Selection sel = DockRegistry.lookup(Selection.class);
+                    if (sel != null) {
+                    //    sel.setSelected(null);
+                    } else {
+                    //    ctrl.hide();
+                    }
+                    
                     ctrl.hide();
                 } else {
+                    Selection sel = DockRegistry.lookup(Selection.class);
+                    if (sel != null) {
+                    //    sel.setSelected(nv);
+                    } else {
+                    //    ctrl.show();
+                    }
+                    
                     ctrl.show();
                     if (ctrl.getBoundNode().getScene() != null && ctrl.getBoundNode().getScene().getWindow() != null) {
                         adjustBoundsToNode();
@@ -481,7 +535,46 @@ public class FramePane extends Control {
                 return;
             }
             if (ctrl.getBoundNode() != null) {
-             
+
+                Bounds nodeBounds = ctrl.getBoundNode().localToScene(ctrl.getBoundNode().getBoundsInLocal());
+                Bounds rootBounds = ctrl.getParent().localToScene(ctrl.getParent().getBoundsInLocal());
+                Bounds ctrlBounds;// = ctrl.localToScene(ctrl.getBoundsInLocal());
+                ctrl.relocate(nodeBounds.getMinX() - rootBounds.getMinX(), nodeBounds.getMinY() - rootBounds.getMinY());
+                //
+                // Now we must take into account the fact that the frame rect 
+                // may have stroke
+                //
+                if (ctrl.isEnableResize()) {
+                    ctrlBounds = ctrl.localToScene(ctrl.getBoundsInLocal());
+                    double xd = nodeBounds.getMinX() - ctrlBounds.getMinX();
+                    double yd = nodeBounds.getMinY() - ctrlBounds.getMinY();
+                    if (xd != 0 || yd != 0) {
+                        ctrl.relocate(nodeBounds.getMinX() - rootBounds.getMinX() + xd, nodeBounds.getMinY() - rootBounds.getMinY() + yd);
+                    }
+                } else {
+                    ctrl.relocate(nodeBounds.getMinX(), nodeBounds.getMinY());
+                }
+
+            }
+            Bounds sceneB = ctrl.getBoundNode().localToScene(ctrl.getBoundNode().getBoundsInLocal());
+            //Bounds sceneB1 = ctrl.getBoundNode().localToScene(ctrl.getBoundNode().getLayoutBounds());
+            double insw = insets != null ? insets.getLeft() + insets.getRight() : 0;
+            double insh = insets != null ? insets.getTop() + insets.getBottom() : 0;
+            rect.setWidth(sceneB.getWidth() + insw);
+            rect.setHeight(sceneB.getHeight() + insh);
+            ctrl.toFront();
+            rect.toFront();
+        }
+        protected void adjustBoundsToNode_OLD(Insets insets) {
+            rect.setX(0);
+            rect.setY(0);
+            rect.setX(0);
+            rect.setY(0);
+            if (ctrl.getBoundNode() == null) {
+                return;
+            }
+            if (ctrl.getBoundNode() != null) {
+
                 Bounds nodeBounds = ctrl.getBoundNode().localToScene(ctrl.getBoundNode().getBoundsInLocal());
                 Bounds rootBounds = ctrl.getParent().localToScene(ctrl.getParent().getBoundsInLocal());
                 //Bounds rootBounds = ctrl.getScene().getRoot().localToScene(ctrl.getScene().getRoot().getBoundsInLocal());
@@ -497,18 +590,27 @@ public class FramePane extends Control {
                     double xd = nodeBounds.getMinX() - ctrlBounds.getMinX();
                     double yd = nodeBounds.getMinY() - ctrlBounds.getMinY();
                     if (xd != 0 || yd != 0) {
-                         ctrl.relocate(nodeBounds.getMinX() - rootBounds.getMinX() + xd, nodeBounds.getMinY() - rootBounds.getMinY() + yd);
+                        ctrl.relocate(nodeBounds.getMinX() - rootBounds.getMinX() + xd, nodeBounds.getMinY() - rootBounds.getMinY() + yd);
                     }
                 } else {
                     ctrl.relocate(nodeBounds.getMinX(), nodeBounds.getMinY());
                 }
-                
+
             }
+            Bounds sceneB1 = ctrl.getBoundNode().localToScene(ctrl.getBoundNode().getBoundsInLocal());
+            System.err.println("sceneB1 = " + sceneB1);
             Bounds sceneB = ctrl.getBoundNode().localToScene(ctrl.getBoundNode().getLayoutBounds());
+            System.err.println("sceneB1 = " + sceneB);
+            System.err.println("insets parm = " + insets);
+            if ( ctrl.getBoundNode() instanceof Region ) {
+                System.err.println("ctrl.getBoundNode().insets = " + ((Region)ctrl.getBoundNode()).getInsets());
+            }
             double insw = insets != null ? insets.getLeft() + insets.getRight() : 0;
             double insh = insets != null ? insets.getTop() + insets.getBottom() : 0;
             rect.setWidth(sceneB.getWidth() + insw);
             rect.setHeight(sceneB.getHeight() + insh);
+            ctrl.toFront();
+            rect.toFront();
         }
 
         protected void addShapeMouseEventHandlers() {
@@ -572,18 +674,10 @@ public class FramePane extends Control {
 
         @Override
         protected void layoutChildren(double x, double y, double w, double h) {
-            //ctrl.resizeRelocate(x, y, w, h);
             if (ctrl.getBoundNode() != null) {
-                //pane.resizeRelocate(0, 0, w, h);
-                //pane.setLayoutX(0);
-                //pane.setLayoutY(0);
-
                 rect.setX(0);
                 rect.setY(0);
-
-                //adjustBoundsToNode();
             } else {
-                //pane.resizeRelocate(x, y, w, h);
                 pane.setLayoutX(0);
                 pane.setLayoutY(0);
                 rect.setX(0);

@@ -15,11 +15,10 @@
  */
 package org.vns.javafx.designer;
 
-import org.vns.javafx.dock.api.Selection;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
-import org.vns.javafx.dock.api.DockRegistry;
-import org.vns.javafx.dock.api.dragging.view.NodeFraming;
+import org.vns.javafx.dock.api.DockLayout;
+import org.vns.javafx.dock.api.Selection;
+import org.vns.javafx.dock.api.dragging.view.ObjectFramingProvider;
 
 /**
  *
@@ -68,6 +67,60 @@ public class DesignerSelection extends Selection {
         notifySelected(newValue);
     }
 */
+    protected void showObjectFraming(Object value) {
+        System.err.println("DESIGNER SELECTION value = " + value);
+        TreeItemEx item = EditorUtil.findTreeItemByObject(value);
+        if (item.getItemType() == TreeItemEx.ItemType.LIST) {
+            TreeItemEx parentItem = (TreeItemEx) item.getParent();
+            if (parentItem.getValue() != null && (parentItem.getValue() instanceof Node)) {
+                Node node = (Node) parentItem.getValue();
+                if (DockLayout.test(node)) {
+                    ObjectFramingProvider p = DockLayout.of(node).getLayoutContext().getLookup().lookup(ObjectFramingProvider.class);
+                    if (p != null) {
+                        setObjectFraming(p.getInstance(item.getPropertyName()));
+                        if (getObjectFraming() != null) {
+                            getObjectFraming().show(item.getPropertyName());
+                        }
+                    }
+                }
+            }
+        } else if (item.getItemType() == TreeItemEx.ItemType.ELEMENT) {
+            TreeItemEx parentItem = (TreeItemEx) item.getParent();
+            if (parentItem.getItemType() == TreeItemEx.ItemType.LIST) {
+                String propertyName = parentItem.getPropertyName();
+                parentItem = (TreeItemEx) parentItem.getParent();
+                if (parentItem != null && parentItem.getValue() != null && (parentItem.getValue() instanceof Node)) {
+                    Node node = (Node) parentItem.getValue();
+                    if (DockLayout.test(node)) {
+                        ObjectFramingProvider p = DockLayout.of(node).getLayoutContext().getLookup().lookup(ObjectFramingProvider.class);
+                        if (p != null) {
+                            setObjectFraming(p.getInstance(propertyName));
+                            if (getObjectFraming() != null) {
+                                getObjectFraming().show(item.getPropertyName(), value);
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (item.getItemType() == TreeItemEx.ItemType.CONTENT) {
+            String propertyName = item.getPropertyName();
+            TreeItemEx parentItem = (TreeItemEx) item.getParent();
+            if (parentItem != null && parentItem.getValue() != null && (parentItem.getValue() instanceof Node)) {
+                Node node = (Node) parentItem.getValue();
+                if (DockLayout.test(node)) {
+                    ObjectFramingProvider p = DockLayout.of(node).getLayoutContext().getLookup().lookup(ObjectFramingProvider.class);
+                    if (p != null) {
+                        setObjectFraming(p.getInstance(propertyName));
+                        if (getObjectFraming() != null) {
+                            getObjectFraming().show(propertyName, value);
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+    
     @Override
     public void notifySelected(Object value) {
         SceneView sgv = DesignerLookup.lookup(SceneView.class);

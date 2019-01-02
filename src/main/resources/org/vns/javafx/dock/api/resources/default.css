@@ -21,6 +21,18 @@
     -fx-background-color: -fx-outer-border; 
     -fx-text-fill: black
 }
+
+.grid-pane-indicator-pane {
+    -fx-border-color: rgb(255, 201, 14);
+    -fx-border-width: 4;
+}
+.grid-pane-indicator{
+/*    -fx-border-color: black; 
+    -fx-border-width:1.5; 
+*/
+    -fx-opacity: 0.3; 
+    -fx-background-color: -fx-outer-border; 
+}
 .docktitlebar-insert-pinbutton {
     -fx-graphic: url(pin-black-8x8.png);
 }
@@ -296,9 +308,10 @@
      -fx-min-height: 3;
      -fx-max-height: 3;
 }
+
 .divider-line-horizontal > .line {
     -fx-stroke-type: centered; 
-    -fx-stroke: blue; 
+    -fx-stroke: black; 
     -fx-stroke-width: 1; 
     -fx-stroke-dash-array: 5 2;
     -fx-stroke-line-cap: butt;
@@ -311,11 +324,10 @@
 }
 .divider-line-vertical > .line {
     -fx-stroke-type: centered; 
-    -fx-stroke: blue; 
+    -fx-stroke: black; 
     -fx-stroke-width: 1; 
     -fx-stroke-dash-array: 5 2;
     -fx-stroke-line-cap: butt;
-    
 }
 .frame-control {
     /*    -fx-pref-width: 100;
@@ -341,6 +353,17 @@
     -fx-background-color: rgb(255, 148, 40);
 }
 .grid-pane-frame .top-grid .labelex {
+    -fx-border-insets: 0 0 0 0;
+    -fx-border-width: 1; 
+    -fx-border-color: black; 
+    -fx-border-radius: 3 3 0 0; 
+    -fx-background-color: lightgrey;
+}
+/*.grid-pane-frame .top-grid {
+    -fx-background-color: transparent;
+}
+*/
+.grid-pane-frame .top-grid .empty {
     -fx-border-width: 1; 
     -fx-border-color: black; 
     -fx-border-radius: 3 3 0 0; 
@@ -351,8 +374,16 @@
     -fx-background-color: rgb(255, 148, 40);
 }
 .grid-pane-frame .left-grid .labelex {
+    
     -fx-border-width: 1; 
     -fx-border-color: black; 
-    -fx-border-radius: 3 3 0 0; 
+    -fx-border-radius: 3 0 0 3; 
+    -fx-background-color: lightgrey;
+}
+
+.grid-pane-frame .left-grid .empty {
+    -fx-border-width: 1; 
+    -fx-border-color: black; 
+    -fx-border-radius: 3 0 0 3; 
     -fx-background-color: lightgrey;
 }
