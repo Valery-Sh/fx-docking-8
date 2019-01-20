@@ -14,7 +14,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.Dockable;
 
 /**

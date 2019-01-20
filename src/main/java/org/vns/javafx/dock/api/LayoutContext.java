@@ -91,7 +91,7 @@ public abstract class LayoutContext {
     }
 
     protected void inititialize() {
-        DockRegistry.start();
+        //DockRegistry.start();
         initListeners();
     }
 
@@ -131,7 +131,6 @@ public abstract class LayoutContext {
 
     public boolean isAcceptable(Dockable dockable) {
         Object v = getValue(dockable);
-        
         if (Dockable.of(v) == null) {
             return isAcceptable(v);
         }
@@ -251,7 +250,6 @@ public abstract class LayoutContext {
 
         @Override
         public boolean evaluate(LayoutContext layoutContext, DockableContext dockableContext) {
-
             boolean retval = false;
             Set<Scope> lset = FXCollections.observableSet(layoutContext.getScopes());
             Set<Scope> dset = FXCollections.observableSet();

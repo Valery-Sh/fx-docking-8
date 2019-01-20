@@ -45,7 +45,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.vns.javafx.dock.DockSideBar;
-import org.vns.javafx.dock.DockUtil;
 import org.vns.javafx.dock.api.dragging.view.FloatPopupControlView2;
 import org.vns.javafx.dock.api.dragging.view.FloatStageView2;
 import org.vns.javafx.dock.api.dragging.view.FloatView;
@@ -75,7 +74,7 @@ public class DockSideBarContext extends LayoutContext {
 
     @Override
     protected void inititialize() {
-        DockRegistry.start();
+        //DockRegistry.start();
     }
 
     protected Container getItem(Dockable d) {
@@ -217,7 +216,7 @@ public class DockSideBarContext extends LayoutContext {
             Node sb = findNode(toolBar.getItems(), mousePos.getX(), mousePos.getY());
             if (sb != null && (sb instanceof Group)) {
                 idx = toolBar.getItems().indexOf(sb);
-            } else if (sb == null && DockUtil.contains(toolBar, mousePos.getX(), mousePos.getY())) {
+            } else if (sb == null && Util.contains(toolBar, mousePos.getX(), mousePos.getY())) {
                 idx = toolBar.getItems().size();
             } else {
                 return false;
@@ -283,7 +282,7 @@ public class DockSideBarContext extends LayoutContext {
 
             Region r = (Region) ((Group) node).getChildren().get(0);
 
-            if (DockUtil.contains(r, x, y)) {
+            if (Util.contains(r, x, y)) {
                 retval = node;
                 break;
             }
@@ -424,7 +423,7 @@ public class DockSideBarContext extends LayoutContext {
         }
 
         protected void mouseExited(MouseEvent ev) {
-            if ((ev.getSource() instanceof Window) && DockUtil.contains((Window) ev.getSource(), ev.getScreenX(), ev.getScreenY())) {
+            if ((ev.getSource() instanceof Window) && Util.contains((Window) ev.getSource(), ev.getScreenX(), ev.getScreenY())) {
                 ev.consume();
                 return;
             }
@@ -619,7 +618,7 @@ public class DockSideBarContext extends LayoutContext {
             Node sb = ((DockSideBarContext) getLayoutContext()).findNode(getToolBar().getItems(), x, y);
             if (sb != null && (sb instanceof Group)) {
                 idx = getToolBar().getItems().indexOf(sb);
-            } else if (sb == null && DockUtil.contains(getToolBar(), x, y)) {
+            } else if (sb == null && Util.contains(getToolBar(), x, y)) {
                 idx = getToolBar().getItems().size();
             }
             return idx;

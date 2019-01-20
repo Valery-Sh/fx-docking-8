@@ -166,7 +166,7 @@ public class FontPropertyEditor extends ComboButtonPropertyEditor<Font> {
             mi.setOnAction(a -> {
                 System.err.println("family getTextField() = " + family.getTextField());
                 family.getTextField().setText(mi.getText());
-                List<String> styles = Util.getFontStyles(mi.getText(), 10);
+                List<String> styles = EditorUtil.getFontStyles(mi.getText(), 10);
             });
             familyMenu.getItems().add(mi);
         }
@@ -195,7 +195,7 @@ public class FontPropertyEditor extends ComboButtonPropertyEditor<Font> {
         sizeTitle.setText("Size");
         ComboButton.ItemsUpdater<String> updater = list -> {
             cbtn.getComboBox().getItems().clear();
-            List<String> fontStyles = Util.getFontStyles(family.getTextField().getText(), Double.valueOf(size.getTextField().getText()));
+            List<String> fontStyles = EditorUtil.getFontStyles(family.getTextField().getText(), Double.valueOf(size.getTextField().getText()));
             cbtn.getComboBox().getItems().addAll(fontStyles);
         };
         cbtn.setItemsUpdater(updater);
@@ -246,7 +246,7 @@ System.err.println("4. cbtn.getComboBox().parent = " + cbtn.getComboBox().getPar
             String fm = getFamily().getTextField().getText();
             double sz = Double.valueOf(getSize().getTextField().getText());
 
-            if (Util.getFontStyles(fm, sz).contains(item)) {
+            if (EditorUtil.getFontStyles(fm, sz).contains(item)) {
                 retval = true;
             }
             //System.err.println("validator retval = " + retval);

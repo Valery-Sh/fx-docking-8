@@ -30,7 +30,7 @@ import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.DragContainer;
 import org.vns.javafx.dock.api.LayoutContext;
 import org.vns.javafx.dock.api.Selection;
-import org.vns.javafx.dock.api.dragging.view.NodeFraming;
+import org.vns.javafx.dock.api.selection.NodeFraming;
 import org.vns.javafx.dock.api.indicator.IndicatorManager;
 
 /**
@@ -76,7 +76,7 @@ public class SceneGraphViewLayoutContext extends LayoutContext {
 
     @Override
     public void remove(Object obj) {
-        TreeItemEx item = EditorUtil.findTreeItemByObject(getTreeView(), obj);
+        TreeItemEx item = SceneViewUtil.findTreeItemByObject(getTreeView(), obj);
         if (item != null) {
             new TreeItemBuilder().updateOnMove(item);
         }

@@ -39,7 +39,7 @@ import static org.vns.javafx.designer.TreeItemEx.ItemType.CONTENT;
 import static org.vns.javafx.designer.TreeItemEx.ItemType.DEFAULTLIST;
 import static org.vns.javafx.designer.TreeItemEx.ItemType.LIST;
 import static org.vns.javafx.designer.TreeItemEx.ItemType.MIXED;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.bean.BeanAdapter;
@@ -92,7 +92,8 @@ public class TreeItemBuilder {
         if (!designer) {
             return;
         }
-        if (SceneView.isFrame(obj)) {
+//        if (SceneView.isFrame(obj)) {
+        if (Util.isForeign(obj)) {
             return;
         }
         PalettePane palette = DesignerLookup.lookup(PalettePane.class);
@@ -109,7 +110,8 @@ public class TreeItemBuilder {
     }
 
     protected TreeItemEx build(Object obj, NodeElement p) {
-        if (SceneView.isFrame(obj)) {
+        //if (SceneView.isFrame(obj)) {
+        if ( Util.isForeign(obj) ) {
             return null;
         }
         setContexts(obj);
@@ -128,7 +130,7 @@ public class TreeItemBuilder {
         if (p != null && (p instanceof NodeList)) {
             ObservableList ol = (ObservableList) obj;
             for (int i = 0; i < ol.size(); i++) {
-                if (DockUtil.isForeign(ol.get(i))) {
+                if (Util.isForeign(ol.get(i))) {
                     continue;
                 }
                 TreeItemEx it = build(ol.get(i));
@@ -156,7 +158,7 @@ public class TreeItemBuilder {
                     //
                     ObservableList ol = (ObservableList) cpObj;
                     for (int i = 0; i < ol.size(); i++) {
-                        if (DockUtil.isForeign(ol.get(i))) {
+                        if (Util.isForeign(ol.get(i))) {
                             continue;
                         }
                         TreeItemEx it = build(ol.get(i));
@@ -386,7 +388,7 @@ public class TreeItemBuilder {
         if (target.getValue() == dragObject) {
             return false;
         }
-        TreeItemEx dragItem = EditorUtil.findTreeItemByObject(treeView, dragObject);
+        TreeItemEx dragItem = SceneViewUtil.findTreeItemByObject(treeView, dragObject);
         //
         // First check if the layoutNode item corresponds to LIST ItemType
         //
@@ -409,7 +411,7 @@ public class TreeItemBuilder {
 
                     int level = treeView.getTreeItemLevel(target) + 1;
 
-                    TreeItemEx actualPlace = (TreeItemEx) EditorUtil.parentOfLevel(treeView, place, level);
+                    TreeItemEx actualPlace = (TreeItemEx) SceneViewUtil.parentOfLevel(treeView, place, level);
                     if (dragItem == actualPlace || dragItem.previousSibling() == actualPlace) {
                         return false;
                     }
@@ -583,7 +585,7 @@ public class TreeItemBuilder {
     }
 
     protected void removeByItemValue(TreeViewEx treeView, Object value) {
-        TreeItemEx item = EditorUtil.findTreeItemByObject(treeView, value);
+        TreeItemEx item = SceneViewUtil.findTreeItemByObject(treeView, value);
         if (item != null) {
             updateOnMove(item);
         }
@@ -667,7 +669,7 @@ public class TreeItemBuilder {
         int insertIndex = getInsertIndex(treeView, target, place);
 
         if (target != null && (target.getItemType() == LIST || target.getItemType() == DEFAULTLIST)) {
-            TreeItemEx it = EditorUtil.findTreeItemByObject(treeView, value);
+            TreeItemEx it = SceneViewUtil.findTreeItemByObject(treeView, value);
             if (it != null) {
                 int idx = target.getChildren().indexOf(it);
                 if (idx >= 0 && idx < insertIndex) {
@@ -710,7 +712,7 @@ public class TreeItemBuilder {
 
         int insertIndex = item.getChildren().size();
         if (item != null && (item.getItemType() == LIST || item.getItemType() == DEFAULTLIST)) {
-            TreeItemEx it = EditorUtil.findTreeItemByObject(treeView, value);
+            TreeItemEx it = SceneViewUtil.findTreeItemByObject(treeView, value);
             if (it != null) {
                 int idx = item.getChildren().indexOf(it);
                 if (idx >= 0 && idx < insertIndex) {

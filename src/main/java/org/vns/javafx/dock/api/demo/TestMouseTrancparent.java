@@ -34,7 +34,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.stage.Stage;
 import org.vns.javafx.dock.api.Dockable;
-import org.vns.javafx.dock.api.dragging.view.ResizeShape;
+import org.vns.javafx.dock.api.resizer.ResizeShape;
 
 /**
  *

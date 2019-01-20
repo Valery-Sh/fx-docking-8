@@ -28,7 +28,7 @@ import org.vns.javafx.dock.DockNode;
 import org.vns.javafx.dock.DockPane;
 import org.vns.javafx.dock.DockSideBar;
 import org.vns.javafx.dock.DockTabPane;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.DockPaneContext;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.LayoutContext;
@@ -300,13 +300,13 @@ public class TestDockPaneControl extends Application {
         stage2.sizeToScene();
         stage2.setAlwaysOnTop(true);        
  
-        stage2.setMinWidth(rootBorderPane.minWidth(DockUtil.heightOf(btnBP)));
-        stage2.setMinHeight(rootBorderPane.minHeight(DockUtil.widthOf(btnBP)));
+        stage2.setMinWidth(rootBorderPane.minWidth(Util.heightOf(btnBP)));
+        stage2.setMinHeight(rootBorderPane.minHeight(Util.widthOf(btnBP)));
         
         //setMinWidth(borderPane.minWidth(node.getHeight()) + insetsWidth);
         //setMinHeight(borderPane.minHeight(node.getWidth()) + insetsHeight);
-        double prefWidth = rootBorderPane.prefWidth(DockUtil.heightOf(btnBP));
-        double prefHeight = rootBorderPane.prefHeight(DockUtil.widthOf(btnBP));
+        double prefWidth = rootBorderPane.prefWidth(Util.heightOf(btnBP));
+        double prefHeight = rootBorderPane.prefHeight(Util.widthOf(btnBP));
 
         rootBorderPane.setPrefWidth(prefWidth);
         rootBorderPane.setPrefHeight(prefHeight);

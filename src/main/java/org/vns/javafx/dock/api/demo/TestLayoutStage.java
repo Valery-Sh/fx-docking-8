@@ -36,8 +36,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.Stage;
 import org.vns.javafx.dock.api.Dockable;
-import org.vns.javafx.dock.api.dragging.view.StageNodeFraming;
-import org.vns.javafx.dock.api.dragging.view.WindowNodeFraming;
+import org.vns.javafx.dock.api.selection.StageNodeFraming;
+import org.vns.javafx.dock.api.selection.WindowNodeFraming;
 
 /**
  *

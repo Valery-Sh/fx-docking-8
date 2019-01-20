@@ -14,7 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.vns.javafx.dock.api.Dockable;
-import org.vns.javafx.dock.api.dragging.view.GridPaneFrame;
+import org.vns.javafx.dock.api.selection.GridSelectionFrame;
 
 /**
  *
@@ -38,7 +38,7 @@ public class TestGridFramePane1 extends Application {
         VBox vbox = new VBox(hbox,stackPane);
         GridPane gridPane = new GridPane();
         //gridPane.setGridLinesVisible(true);
-        GridPaneFrame frame = new GridPaneFrame(gridPane);
+        GridSelectionFrame frame = new GridSelectionFrame(gridPane);
         addColumnButton.setOnAction(e -> {
             System.err.println("frame.sel column = " + frame.getSelectedColumn());
             System.err.println("frame.sel column = " + frame.getSelectedConstraints());

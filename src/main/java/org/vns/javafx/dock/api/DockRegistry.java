@@ -4,12 +4,10 @@ import org.vns.javafx.ContextLookup;
 import com.sun.javafx.stage.StageHelper;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
@@ -18,6 +16,9 @@ import javafx.stage.PopupWindow;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.vns.javafx.BaseContextLookup;
+import org.vns.javafx.JdkUtil;
+import org.vns.javafx.TopWindowFinder;
+import org.vns.javafx.DefaultTopWindowFinder;
 
 /**
  * The class contains methods to manage all windows
@@ -51,6 +52,11 @@ public class DockRegistry {
     private void init() {
         windows.addListener(this::windowsChanged);
         lookup.putUnique(ScopeEvaluator.class, new LayoutContext.DefaultScopeEvaluator());
+        TopWindowFinder wf = DefaultTopWindowFinder.getInstance();
+        wf.start();
+        lookup.putUnique(TopWindowFinder.class, wf);
+
+        //getTopWindowFinder();
     }
 
     public static <T> T lookup(Class<T> clazz) {
@@ -96,7 +102,7 @@ public class DockRegistry {
         this.beanRemover = beanRemover;
     }
      */
-    public static void register(Window window, boolean excluded) {
+/*    public static void register(Window window, boolean excluded) {
         register(window);
         if (excluded && !getInstance().getExcluded().contains(window)) {
             getInstance().getExcluded().add(window);
@@ -114,10 +120,6 @@ public class DockRegistry {
         }
     }
 
-    /*    public static ObservableMap<Node, Dockable> getDockables() {
-        return getInstance().dockables;
-    }
-     */
     public static void start() {
         if (!getInstance().registerDone) {
             getInstance().registerDone = true;
@@ -131,8 +133,8 @@ public class DockRegistry {
             StageHelper.getStages().addListener(getInstance()::onChangeStages);
         }
     }
-
-    protected void onChangeStages(ListChangeListener.Change<? extends Stage> change) {
+*/
+/*    protected void onChangeStages(ListChangeListener.Change<? extends Stage> change) {
         while (change.next()) {
             if (change.wasPermutated()) {
 
@@ -189,10 +191,11 @@ public class DockRegistry {
             }
         });
     }
-
-    private boolean isChild(Window parent, Window child) {
+*/
+/*    private boolean isChild(Window parent, Window child) {
         boolean retval = false;
         Window win = child;
+        int i = 0;
         while (win != null) {
             if (!(win instanceof PopupWindow) && !(win instanceof Stage)) {
                 break;
@@ -213,45 +216,48 @@ public class DockRegistry {
                 win = ((PopupWindow) win).getOwnerWindow();
             } else if ((win instanceof Stage)) {
                 win = ((Stage) win).getOwner();
+            } else {
+                win = null;
             }
-        }
+        }//while
         return retval;
     }
 
-    public int zorder(Window window) {
-        if (!windows.contains(window)) {
-            register(window);
-        }
-        return windows.indexOf(window);
+    private int zorder(Window window) {
+        return JdkUtil.getWindows().indexOf(window);
     }
+*/
+    public Window getTopWindow(double x, double y, Window... excl) {
+        Window retval = Util.getWindowIfSingle(x, y, excl);
 
-    public Window getTargetWindow(double x, double y, Window excl) {
-        Window retval = null;
-        for (Window w : windows) {
-            Bounds b = new BoundingBox(w.getX(), w.getY(), w.getWidth(), w.getHeight());
-            if (b.contains(x, y)) {
-                retval = w;
-            }
-        }
         return retval;
     }
 
-    public Window getTopWindow(double x, double y, Window excl) {
-        Window retval = null;
-        List<Window> allWindows = getWindows(x, y, excl);
+    public static TopWindowFinder getTopWindowFinder() {
+        TopWindowFinder wf = lookup(TopWindowFinder.class);
+        if (wf == null) {
+            wf = DefaultTopWindowFinder.getInstance();
+            wf.start();
+            getInstance().getLookup().putUnique(TopWindowFinder.class, wf);
+        }
+        return wf;
+    }
+
+/*    public Window getTopWindow__(double x, double y, Window excl) {
+
+        List<Window> allWindows = getWindows__(x, y, excl);
+
         if (allWindows.isEmpty()) {
             return null;
         }
+        //System.err.println("allWindows.get(0).id = " + allWindows.get(0).getScene().getRoot().getId());
+        //System.err.println("allWindows.get(0).ROOT = " + allWindows.get(0).getScene().getRoot());
+        Window retval = null;
         List<Window> targetStages = new ArrayList<>();
         allWindows.forEach(w -> {
-
-            Node topNode = TopNodeHelper.getTop(w, x, y, n -> {
-                //Node topNode = TopNodeHelperOLD.getTopNode(w, x, y, n -> {
+            Node topNode = Util.getTop(w, x, y, n -> {
                 return (n instanceof Node);
             });
-//            System.err.println("----------------------------");
-//            System.err.println("DockRegistry topNodeHelper topNode = " + topNode);
-//            System.err.println("----------------------------");
             if (topNode != null) {
                 targetStages.add(w);
             }
@@ -272,25 +278,62 @@ public class DockRegistry {
             }
         }
         return retval;
+
     }
 
-    public Window getTarget(double x, double y, Window excl) {
+    public Window getTopWindow_OLD(double x, double y, Window excl) {
         Window retval = null;
         List<Window> allWindows = getWindows(x, y, excl);
+
         if (allWindows.isEmpty()) {
             return null;
         }
         List<Window> targetStages = new ArrayList<>();
         allWindows.forEach(w -> {
-//             System.err.println("1) DockRegistry topNodeHelper");
-
-            Node topNode = TopNodeHelper.getTop(w, x, y, n -> {
-                //Node topNode = TopNodeHelperOLD.getTopNode(w, x, y, n -> {
+            Node topNode = Util.getTop(w, x, y, n -> {
+                return (n instanceof Node);
+            });
+            if (topNode != null) {
+                targetStages.add(w);
+            }
+        });
+        for (Window w : targetStages) {
+            retval = w;
+            for (Window w2 : allWindows) {
+                if (w == w2) {
+                    continue;
+                }
+                if (w != DockRegistry.this.getTarget(w, w2)) {
+                    retval = null;
+                    break;
+                }
+            }
+            if (retval != null) {
+                break;
+            }
+        }
+        return retval;
+    }
+*/    
+    public Window getTarget(double x, double y, Window excl) {
+        TopWindowFinder wf = getTopWindowFinder();
+        Window win = wf.getTopWindow(x, y, excl);
+        Node topNode = Util.getTop(win, x, y, n -> {
+            return isDockLayout(n);
+        });
+        return topNode == null ? null : win;
+    }
+/*    public Window getTarget__OLD(double x, double y, Window excl) {
+        Window retval = null;
+        List<Window> allWindows = getWindows__(x, y, excl);
+        if (allWindows.isEmpty()) {
+            return null;
+        }
+        List<Window> targetStages = new ArrayList<>();
+        allWindows.forEach(w -> {
+            Node topNode = Util.getTop(w, x, y, n -> {
                 return isDockLayout(n);
             });
-//            System.err.println("----------------------------");
-//            System.err.println("2) DockRegistry topNodeHelper topNode = " + topNode);
-//            System.err.println("----------------------------");            
             if (topNode != null) {
                 targetStages.add(w);
             }
@@ -312,9 +355,10 @@ public class DockRegistry {
             }
         }
         return retval;
+        
     }
-
-    public Window getTarget(double x, double y, Window excl, Predicate<Node> predicate) {
+*/
+    /*    public Window getTarget(double x, double y, Window excl, Predicate<Node> predicate) {
         Window retval = null;
         List<Window> allStages = getWindows(x, y, excl);
         if (allStages.isEmpty()) {
@@ -322,9 +366,7 @@ public class DockRegistry {
         }
         List<Window> targetStages = new ArrayList<>();
         allStages.forEach(s -> {
-//             System.err.println("DockRegistry topNodeHelper 2");
-            Node topNode = TopNodeHelper.getTop(s, x, y, n -> {
-                //Node topNode = TopNodeHelperOLD.getTopNode(s, x, y, n -> {
+            Node topNode = Util.getTop(s, x, y, n -> {
                 return predicate.test(n);
             });
             if (topNode != null) {
@@ -348,8 +390,8 @@ public class DockRegistry {
         }
         return retval;
     }
-
-    public Window getTarget(Window w1, Window w2) {
+     */
+/*    public Window getTarget(Window w1, Window w2) {
         Window retval = null;
 
         //Window s = w1;
@@ -359,6 +401,7 @@ public class DockRegistry {
         if (w1 instanceof PopupWindow) {
             b1 = true;
         } else if ((w1 instanceof Stage)) {
+
             b1 = ((Stage) w1).isAlwaysOnTop();
         }
         if (w2 instanceof PopupWindow) {
@@ -384,6 +427,21 @@ public class DockRegistry {
         }
         return retval;
     }
+*/
+/*    public static List<Window> getWindows__(double x, double y, Window excl) {
+        //System.err.println("EXCL = " + excl.getScene().getRoot());
+        List<Window> retlist = new ArrayList<>();
+        List<Window> list = JdkUtil.getWindows();
+        list.forEach(s -> {
+            if (!((x < s.getX() || x > s.getX() + s.getWidth()
+                    || y < s.getY() || y > s.getY() + s.getHeight()))) {
+                if (s != excl && !getInstance().getExcluded().contains(s)) {
+                    retlist.add(s);
+                }
+            }
+        });
+        return retlist;
+    }
 
     public static List<Window> getWindows(double x, double y, Window excl) {
         List<Window> retlist = new ArrayList<>();
@@ -408,7 +466,7 @@ public class DockRegistry {
         });
         return retlist;
     }
-
+*/
     /*    protected boolean isNodeDockable(Node node) {
         boolean retval = node instanceof Dockable;
         if (!retval && dockables.get(node) != null) {
@@ -595,7 +653,7 @@ public class DockRegistry {
     }
      */
     public static boolean isDockLayout(Object obj) {
-        if ( obj == null ) {
+        if (obj == null) {
             return false;
         }
         if ((obj instanceof DockLayout)) {
@@ -604,8 +662,8 @@ public class DockRegistry {
                 return false;
             }
             return true;
-        }        
-        
+        }
+
         if (!(obj instanceof Node)) {
             return false;
         }

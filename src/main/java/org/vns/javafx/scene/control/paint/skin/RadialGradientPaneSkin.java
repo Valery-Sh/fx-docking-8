@@ -23,7 +23,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.RadialGradient;
-import org.vns.javafx.scene.control.paint.Util;
+import org.vns.javafx.scene.control.paint.PaintUtil;
 import org.vns.javafx.scene.control.paint.RadialGradientPane;
 
 /**
@@ -50,7 +50,7 @@ public class RadialGradientPaneSkin extends GradientPaneSkin {
         //
         Label title = new Label("radius");
         TextField radiusField = new TextField();
-        Util.createTextFormatter(radiusField, 0, 1, 2);
+        PaintUtil.createTextFormatter(radiusField, 0, 1, 2);
         radiusSlider = new Slider(0, 1, 0.5);
         focusDistanceSlider = new Slider(-1, 1, 0);
         focusAngleSlider = new Slider(-180, 180, 0);
@@ -69,7 +69,7 @@ public class RadialGradientPaneSkin extends GradientPaneSkin {
         //    
         title = new Label("focusDistance");
         TextField focusDistanceField = new TextField();
-        Util.createTextFormatter(focusDistanceField, -1, 1, 2);
+        PaintUtil.createTextFormatter(focusDistanceField, -1, 1, 2);
         propPane.add(title, 0, 3);
         //hb = new HBox(focusDistanceField,focusDistanceSlider);
         //propPane.add(hb, 1, 3);
@@ -80,7 +80,7 @@ public class RadialGradientPaneSkin extends GradientPaneSkin {
         //    
         title = new Label("focusAngle");
         TextField focusAngleField = new TextField();
-        Util.createTextFormatter(focusAngleField, -180, 180, 2);
+        PaintUtil.createTextFormatter(focusAngleField, -180, 180, 2);
         propPane.add(title, 0, 4);
         //AnchorPane anchor  = new AnchorPane(focusAngleField,focusAngleSlider);
         //AnchorPane.setLeftAnchor(focusAngleField, 0d);
@@ -128,9 +128,9 @@ public class RadialGradientPaneSkin extends GradientPaneSkin {
         //
         // Bind TextFields
         //
-        radiusField.textProperty().bindBidirectional(radiusSlider.valueProperty(), Util.doubleStringConverter(2));
-        focusAngleField.textProperty().bindBidirectional(focusAngleSlider.valueProperty(), Util.doubleStringConverter(2));
-        focusDistanceField.textProperty().bindBidirectional(focusDistanceSlider.valueProperty(), Util.doubleStringConverter(2));
+        radiusField.textProperty().bindBidirectional(radiusSlider.valueProperty(), PaintUtil.doubleStringConverter(2));
+        focusAngleField.textProperty().bindBidirectional(focusAngleSlider.valueProperty(), PaintUtil.doubleStringConverter(2));
+        focusDistanceField.textProperty().bindBidirectional(focusDistanceSlider.valueProperty(), PaintUtil.doubleStringConverter(2));
 
         //radiusField.maxWidthProperty().bind(getCycleMethodBox().widthProperty());
         //focusAngleField.maxWidthProperty().bind(getCycleMethodBox().widthProperty());

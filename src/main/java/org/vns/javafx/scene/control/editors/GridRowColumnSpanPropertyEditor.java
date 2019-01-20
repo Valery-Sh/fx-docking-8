@@ -57,7 +57,7 @@ public class GridRowColumnSpanPropertyEditor extends StringPropertyEditor {
             }
         });
         Button btn = new Button();
-        btn.setGraphic(Util.createDownTriangle());
+        btn.setGraphic(EditorUtil.createDownTriangle());
         getButtons().add(btn);
         MenuItem item1 = new MenuItem(REMAINING);
         MenuItem item2 = new MenuItem(NULL);        
@@ -150,7 +150,7 @@ public class GridRowColumnSpanPropertyEditor extends StringPropertyEditor {
                 
                 boolean retval = item.isEmpty();
                 if ( ! retval ) {
-                    retval = Util.startsWith(REMAINING, item);
+                    retval = EditorUtil.startsWith(REMAINING, item);
                 }
                 
                 if (!retval) {

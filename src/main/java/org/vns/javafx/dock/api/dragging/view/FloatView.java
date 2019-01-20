@@ -17,11 +17,10 @@ import org.vns.javafx.dock.api.Dockable;
  * @author Valery
  */
 public interface FloatView {
-
+    public static final String FLOAT_WINDOW_ROOT = "float-window-root";
     public static final String FLOAT_WINDOW = "UUID-11e0c7b3-2873-465a-bfce-d4edce1bed7d";
     public static final String FLOATVIEW = "UUID-d767ecfc-a868-4d95-8847-c331b1989bb1";
-    public static final String FLOATVIEW_UUID = "UUID-11e0c7b3-2873-465a-bfce-d4edce1bed7d";
-    //public static final String DOCKABLE_PROP_KEY = "c826e34e-6ae5-4480-b392-a1866a19f3bd";
+    //public static final String FLOATVIEW_UUID = "UUID-11e0c7b3-2873-465a-bfce-d4edce1bed7d";
 
     public static Cursor[] DEFAULT_CURSORS = new Cursor[]{
         Cursor.S_RESIZE, Cursor.E_RESIZE, Cursor.N_RESIZE, Cursor.W_RESIZE,

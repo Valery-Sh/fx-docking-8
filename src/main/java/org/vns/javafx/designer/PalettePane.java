@@ -1260,7 +1260,7 @@ public class PalettePane extends Control {
         }
 
         @Override
-        public DragManager createDragManager(MouseEvent ev) {
+        public DragManager createDragManager(Event ev) {
             DragManager dm = super.createDragManager(ev);
             dm.setHideOption(DragManager.HideOption.CARRIERED);
             return dm;

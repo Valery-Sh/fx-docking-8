@@ -11,7 +11,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
-import static org.vns.javafx.designer.EditorUtil.screenTreeItemBounds;
+import static org.vns.javafx.designer.SceneViewUtil.screenTreeItemBounds;
 import static org.vns.javafx.designer.SceneView.ANCHOR_OFFSET;
 import static org.vns.javafx.designer.SceneView.FIRST;
 import static org.vns.javafx.designer.SceneView.LAST;
@@ -76,7 +76,7 @@ public class DragIndicator {
 
     protected Bounds getDisclosureBounds(TreeItemEx item) {
 
-        TreeCell c = EditorUtil.getCell(item);
+        TreeCell c = SceneViewUtil.getCell(item);
         //
         // Get StackPane as parent of disclousureArrow
         //
@@ -128,14 +128,14 @@ public class DragIndicator {
         double cellOffset = getItemParentOffset(item);
 
         double y = treeView.localToScreen(treeView.getBoundsInLocal()).getMinY();
-        TreeCell c = EditorUtil.getCell(to);
+        TreeCell c = SceneViewUtil.getCell(to);
         Bounds db = c.localToScreen(b);
         double x = db.getMinX();
 
         if (isVisibleOnTop(from)) {
-            y = EditorUtil.screenTreeItemBounds(from).getMinY();
+            y = SceneViewUtil.screenTreeItemBounds(from).getMinY();
             y += b.getMinY();
-            x = EditorUtil.screenTreeItemBounds(from).getMinX();
+            x = SceneViewUtil.screenTreeItemBounds(from).getMinX();
             x += b.getMinX();
             cellOffset = 0;
         } else {
@@ -315,7 +315,7 @@ public class DragIndicator {
         //if ( true ) return;
         
         hideDrawShapes();
-        Bounds lb = EditorUtil.screenTreeItemBounds(item);
+        Bounds lb = SceneViewUtil.screenTreeItemBounds(item);
         if (lb == null) {
             return;
         }
@@ -332,7 +332,7 @@ public class DragIndicator {
 
     protected void drawLines(TreeItemEx from, TreeItemEx to) {
 
-        Bounds lb = EditorUtil.screenHorVisibleBounds(treeView,to);
+        Bounds lb = SceneViewUtil.screenHorVisibleBounds(treeView,to);
         Bounds rootBounds = screenNonValueLevelBounds((TreeItemEx) treeView.getRoot(), to);
 
         Insets pins = treeView.getInsets();
@@ -397,10 +397,10 @@ public class DragIndicator {
         if (cell == null || !(cell.getScene() != null && cell.getScene().getWindow() != null)) {
             return false;
         }
-        Bounds noInsBounds = EditorUtil.screenInsetsFreeBounds(treeView);
+        Bounds noInsBounds = SceneViewUtil.screenInsetsFreeBounds(treeView);
         Node g  = item.getCellGraphic().getParent();
         Bounds cellBounds = g.localToScreen(g.getBoundsInLocal());
-        return noInsBounds.intersects(EditorUtil.translate(cellBounds, 0, -3));
+        return noInsBounds.intersects(SceneViewUtil.translate(cellBounds, 0, -3));
     }
 
 

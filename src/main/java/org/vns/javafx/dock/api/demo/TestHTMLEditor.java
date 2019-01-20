@@ -26,7 +26,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.Stage;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.Dockable;
 
 /**
@@ -59,8 +59,8 @@ public class TestHTMLEditor extends Application {
         primaryStage.setTitle("JavaFX TestCanvas");
         primaryStage.setScene(scene);
         scene.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-            System.err.println("conteins(spBtn1) = " + DockUtil.contains(spBtn1, e.getScreenX(), e.getScreenY()));
-            System.err.println("conteins(spBtn2) = " + DockUtil.contains(spBtn2, e.getScreenX(), e.getScreenY()));
+            System.err.println("conteins(spBtn1) = " + Util.contains(spBtn1, e.getScreenX(), e.getScreenY()));
+            System.err.println("conteins(spBtn2) = " + Util.contains(spBtn2, e.getScreenX(), e.getScreenY()));
             
         });
         b1.setOnAction(e -> {

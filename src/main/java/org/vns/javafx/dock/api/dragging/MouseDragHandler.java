@@ -15,6 +15,7 @@
  */
 package org.vns.javafx.dock.api.dragging;
 
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
@@ -88,7 +89,7 @@ public abstract class MouseDragHandler implements EventHandler<MouseEvent> {
     }
 
 
-    public DragManager createDragManager(MouseEvent ev) {
+    public DragManager createDragManager(Event ev) {
         dragManager = getContext().getDragManager();
         return dragManager;
     }

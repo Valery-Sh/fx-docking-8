@@ -44,7 +44,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import org.vns.javafx.scene.control.paint.Util;
+import org.vns.javafx.scene.control.paint.PaintUtil;
 import org.vns.javafx.scene.control.paint.ColorPane;
 import org.vns.javafx.scene.control.paint.StopPane;
 
@@ -97,7 +97,7 @@ public class StopPaneSkin  extends SkinBase<StopPane> {
 
             grid.add(anchor, 0, 1);
 
-            selPointer = Util.createUpTriangle();
+            selPointer = PaintUtil.createUpTriangle();
             selPointer.setVisible(false);
             selPointer.setManaged(false);
 

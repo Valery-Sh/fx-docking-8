@@ -15,6 +15,8 @@
  */
 package org.vns.javafx.dock.api.dragging.view;
 
+import org.vns.javafx.dock.api.resizer.Resizer;
+import org.vns.javafx.dock.api.resizer.StageResizer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;

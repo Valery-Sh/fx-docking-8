@@ -32,8 +32,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.vns.javafx.dock.api.Dockable;
-import org.vns.javafx.dock.api.dragging.view.PopupNodeFraming;
-import org.vns.javafx.dock.api.dragging.view.WindowNodeFraming;
+import org.vns.javafx.dock.api.selection.PopupNodeFraming;
+import org.vns.javafx.dock.api.selection.WindowNodeFraming;
 
 /**
  *

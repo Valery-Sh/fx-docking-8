@@ -64,7 +64,7 @@ public class FontStringConverter extends StringConverter<Font> {
         }
         size = Double.valueOf(sb.toString());
         family = str.substring(0, idx).trim();
-        font = Util.getFont(family, style, size);
+        font = EditorUtil.getFont(family, style, size);
 
         return font;
     }
@@ -93,7 +93,7 @@ public class FontStringConverter extends StringConverter<Font> {
             //double size = editor.getSize().getDecimalEditor().getValue();
             String style = ((Font)editor.getBoundProperty().getValue()).getStyle();
             double size = ((Font)editor.getBoundProperty().getValue()).getSize();
-            return Util.getFont(family, style, size);
+            return EditorUtil.getFont(family, style, size);
             
             //if (font.getFamily().equals(family) && font.getStyle().equals(editor.getFontStyle().getTextField().getText()) && font.getSize() == editor.getSize().getDecimalEditor().getValue()) {
             //if (font.getFamily().equals(family) && font.getStyle().equals(editor.getFontStyle().getTextField().getText()) && String.valueOf(font.getSize()).equals(editor.getSize().getTextField().getText()) ) {            
@@ -137,7 +137,7 @@ public class FontStringConverter extends StringConverter<Font> {
             String family = ((Font)editor.getBoundProperty().getValue()).getFamily();
             double size = ((Font)editor.getBoundProperty().getValue()).getSize();
 
-            return Util.getFont(family, style, size);
+            return EditorUtil.getFont(family, style, size);
 /*            if (font.getFamily().equals(family) && font.getStyle().equals(editor.getFontStyle().getTextField().getText())) {
                 retval = font;
             } else {
@@ -182,7 +182,7 @@ public class FontStringConverter extends StringConverter<Font> {
             
             double size = Double.valueOf(sz);
 
-            Font font = Util.getFont(family, style, size);
+            Font font = EditorUtil.getFont(family, style, size);
             if (font.getFamily().equals(family) && font.getStyle().equals(editor.getFontStyle().getTextField().getText())) {
                 retval = font;
             } else {

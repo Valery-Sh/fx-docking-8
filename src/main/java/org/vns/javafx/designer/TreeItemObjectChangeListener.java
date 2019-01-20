@@ -25,7 +25,7 @@ import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.SaveRestore;
-import org.vns.javafx.dock.api.dragging.view.NodeFraming;
+import org.vns.javafx.dock.api.selection.NodeFraming;
 
 /**
  *

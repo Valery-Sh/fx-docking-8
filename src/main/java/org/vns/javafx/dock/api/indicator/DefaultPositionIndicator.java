@@ -19,7 +19,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.LayoutContext;
 
@@ -62,7 +62,7 @@ public class DefaultPositionIndicator extends PositionIndicator {
 
         Pane p = (Pane) getIndicatorPane();
 
-        if (DockUtil.contains(p, x, y)) {
+        if (Util.contains(p, x, y)) {
             //adjustPlace(p, x, y);
             adjustPlace(p);
         } else {

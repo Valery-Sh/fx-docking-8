@@ -19,7 +19,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.demo.MyButton1;
-import org.vns.javafx.designer.DesignerLookup;
 import org.vns.javafx.scene.control.editors.beans.PropertyPaneModelRegistry;
 
 /**
@@ -30,6 +29,7 @@ public class Test07 extends Application {
     int exCount = 0;
     Button mybtn1 = new MyButton1("create Mybutton mybtn1");
     Button mybtn2 = new MyButton1("createMybutton mybtn2");
+    Button mybtn3 = new MyButton1("set null");
     Button labelBtn = new Button("create Label");
     Button bloomEffectBtn = new Button("create Bloom Effect");
     Button paneBtn = new Button("create Pane");
@@ -47,7 +47,7 @@ public class Test07 extends Application {
 
     @Override
     public void start(Stage stage) {
-        PropertyPaneModelRegistry.getPropertyPaneModel();
+        //PropertyPaneModelRegistry.getPropertyPaneModel();
         GridPane vb = new GridPane();
         
 
@@ -62,6 +62,7 @@ public class Test07 extends Application {
         Label t = new Label("Effect");
         String u1 = PropertyEditor.class.getResource("resources/images/effect-bloom-15x15.png").toExternalForm();
         URL u = PropertyEditor.class.getResource("resources/images/effect-bloom-15x15.png");
+        
         System.err.println("URL = " + u);
         t.setStyle("-fx-graphic: url(" + u1 + ")");
         labelBtn.setGraphic(t);
@@ -74,13 +75,17 @@ public class Test07 extends Application {
         //System.err.println("u = " + u);
                 
         vb.add(mybtn1,0,0);
+        
         vb.add(lb1,0,1);
         vb.add(tp,0,2);
+        vb.add(mybtn3,0,3);
         //lb1.setStyle("-fx-background-color: -fx-box-border, -fx-inner-border, -fx-body-color");
         //mybtn1.setStyle("-fx-background-color: aqua, yellow, red");
         //vb.getChildren().add(mybtn1);
         AnchorPane anchorPane = new AnchorPane(mybtn2);
-        
+        mybtn3.setOnAction(a -> {
+           editorPane.setBean(null);
+        });
         mybtn1.setOnAction(a -> {
             long start = System.currentTimeMillis();
             if ( editorPane.getBean() == mybtn1 && (mybtn1.getParent() instanceof StackPane) ) {

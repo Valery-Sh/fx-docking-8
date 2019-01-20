@@ -25,7 +25,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.Dockable;
 import static org.vns.javafx.dock.api.demo.TestTreeView.MousePosInfo.ANCHOR_OFFSET;
 
@@ -201,7 +201,7 @@ public class TestTreeView extends Application {
             
         });
         stage.setOnShown(s -> {
-            DockUtil.print(rootTreeViewPane);
+            Util.print(rootTreeViewPane);
         });
         stage.show();
         Application.setUserAgentStylesheet(Application.STYLESHEET_MODENA);

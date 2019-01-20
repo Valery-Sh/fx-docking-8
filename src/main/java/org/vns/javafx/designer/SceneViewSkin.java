@@ -48,8 +48,7 @@ import org.vns.javafx.dock.api.DockLayout;
 import org.vns.javafx.dock.api.LayoutContext;
 import org.vns.javafx.dock.api.Scope;
 import org.vns.javafx.dock.api.Selection;
-import org.vns.javafx.dock.api.dragging.view.FramePane;
-import org.vns.javafx.dock.api.dragging.view.NodeFraming;
+import org.vns.javafx.dock.api.selection.NodeFraming;
 
 /**
  *
@@ -61,15 +60,15 @@ public class SceneViewSkin extends SkinBase<SceneView> {
     private ScrollAnimation scrollAnimation;
     private DragIndicator dragIndicator;
     private final Pane treeViewPane; // = new StackPane();
-
+    private boolean update;
     //
     // ? May be to be removed
     //
     private ChangeListener rootSceneSizeListener = (v, ov, nv) -> {
-        
-            //FramePane.hideAll(getSkinnable().getRoot().getScene().getWindow());
-            //DockRegistry.lookup(Selection.class).setSelected(null);
-            //FramePane.adjust(getSkinnable().getRoot().getScene().getWindow());
+
+        //FramePane.hideAll(getSkinnable().getRoot().getScene().getWindow());
+        //DockRegistry.lookup(Selection.class).setSelected(null);
+        //FramePane.adjust(getSkinnable().getRoot().getScene().getWindow());
 /*        Platform.runLater(() -> {
 //            EditorUtil.findTreeItemByObject(getSkinnable().getTreeView(), ov);
 //            Selection sel = DockRegistry.lookup(Selection.class);
@@ -81,7 +80,7 @@ public class SceneViewSkin extends SkinBase<SceneView> {
             }
 
         });
-*/        
+         */
     };
 
     public SceneViewSkin(SceneView control) {
@@ -149,12 +148,6 @@ public class SceneViewSkin extends SkinBase<SceneView> {
 
     private void sceneMousePressed(MouseEvent ev) {
         TreeItemEx item = getSkinnable().getTreeItem(ev.getScreenX(), ev.getScreenY());
-        if ( item != null ) {
-            System.err.println("itemType = " + item.getItemType());
-            System.err.println("item.getValue = " + item.getValue());
-            System.err.println("----------------------------------");
-        }
-        
         if (ev.isSecondaryButtonDown()) {
             secondaryMousePressed(ev, item);
             return;
@@ -166,12 +159,9 @@ public class SceneViewSkin extends SkinBase<SceneView> {
         if (item == null || item.getValue() == null) {
             Selection sel = DockRegistry.lookup(Selection.class);
             sel.setSelected(null);
-            //22.12nf.hide();
-        } else { //if (item.getValue() instanceof Node) {
+        } else {
             Selection sel = DockRegistry.lookup(Selection.class);
-            //sel.setSelected((Node) item.getValue());
             sel.setSelected(item.getValue());
-            //22.12nf.show((Node) item.getValue());
         }
 
     }
@@ -304,17 +294,22 @@ public class SceneViewSkin extends SkinBase<SceneView> {
     }
 
     protected void rootChanged(ObservableValue<? extends Node> observable, Node oldValue, Node newValue) {
-        if (oldValue != null && oldValue.getScene() != null) {
-            oldValue.getScene().heightProperty().removeListener(rootSceneSizeListener);
-            oldValue.getScene().widthProperty().removeListener(rootSceneSizeListener);
-            if (oldValue.getScene() != null) {
-                if ((oldValue.getScene().getEventDispatcher() instanceof SceneEventDispatcher)) {
-                    ((SceneEventDispatcher) oldValue.getScene().getEventDispatcher()).finish(oldValue.getScene());
-                }
-                SceneEventDispatcher d = new SceneEventDispatcher();
-            }
+        if ( update ) {
+            return;
         }
-        /*        if (oldValue != null) {
+        try {
+            
+            if (oldValue != null && oldValue.getScene() != null) {
+                oldValue.getScene().heightProperty().removeListener(rootSceneSizeListener);
+                oldValue.getScene().widthProperty().removeListener(rootSceneSizeListener);
+                if (oldValue.getScene() != null) {
+                    if ((oldValue.getScene().getEventDispatcher() instanceof DesignerSceneEventDispatcher)) {
+                        ((DesignerSceneEventDispatcher) oldValue.getScene().getEventDispatcher()).finish(oldValue.getScene());
+                    }
+                    DesignerSceneEventDispatcher d = new DesignerSceneEventDispatcher();
+                }
+            }
+            /*        if (oldValue != null) {
             Parent parent = null;
             if (oldValue.getParent() != null) {
                 parent = oldValue.getParent();
@@ -329,36 +324,40 @@ public class SceneViewSkin extends SkinBase<SceneView> {
                 SceneView.removeFramePanes(oldValue.getScene().getRoot());
             }
         }
-         */
-        if (oldValue != null && oldValue.getScene() != null) {
-            oldValue.getScene().getRoot().getStylesheets().remove(DesignerLookup.class.getResource("resources/styles/designer-customize.css").toExternalForm());
-            oldValue.getScene().getRoot().getStyleClass().remove("designer-mode-root");
-            SceneView.removeFramePanes(oldValue.getScene().getRoot());
+             */
+            if (oldValue != null && oldValue.getScene() != null) {
+                oldValue.getScene().getRoot().getStylesheets().remove(DesignerLookup.class.getResource("resources/styles/designer-customize.css").toExternalForm());
+                oldValue.getScene().getRoot().getStyleClass().remove("designer-mode-root");
+                SceneView.removeFramePanes(oldValue.getScene().getRoot());
+            }
+
+            if (newValue == null) {
+                getSkinnable().getTreeView().setRoot(null);
+                return;
+            }
+
+            createSceneGraph(newValue);
+            scrollAnimation = new ScrollAnimation(getSkinnable().getTreeView());
+        } finally {
+            update = false;
         }
-
-        if (newValue == null) {
-            getSkinnable().getTreeView().setRoot(null);
-            return;
-        }
-
-        createSceneGraph(newValue);
-        scrollAnimation = new ScrollAnimation(getSkinnable().getTreeView());
-
     }
 
     private void createSceneGraph(Node node) {
         ChangeListener<? super Scene> sceneListener = (v, oldScene, newScene) -> {
             if (oldScene != null) {
-                if ((oldScene.getEventDispatcher() instanceof SceneEventDispatcher)) {
-                    ((SceneEventDispatcher) oldScene.getEventDispatcher()).finish(oldScene);
+                if ((oldScene.getEventDispatcher() instanceof DesignerSceneEventDispatcher)) {
+                    ((DesignerSceneEventDispatcher) oldScene.getEventDispatcher()).finish(oldScene);
                 }
             }
             if (newScene != null) {
-                SceneEventDispatcher d = new SceneEventDispatcher();
+                DesignerSceneEventDispatcher d = new DesignerSceneEventDispatcher();
                 d.start(newScene);
                 SceneView.addFramePanes(newScene.getRoot());
-                SceneView.getParentFrame().hide();
-                SceneView.getResizeFrame().hide();
+                if (getSkinnable().getRoot() != null) {
+                    SceneView.getParentFrame().hide();
+                    SceneView.getResizeFrame().hide();
+                }
                 newScene.getRoot().getStyleClass().add("designer-mode-root");
                 newScene.getRoot().getStylesheets().add(DesignerLookup.class.getResource("resources/styles/designer-customize.css").toExternalForm());
             }
@@ -368,13 +367,13 @@ public class SceneViewSkin extends SkinBase<SceneView> {
             return;
         }
         if (node.getScene() != null) {
-            if ((node.getScene().getEventDispatcher() instanceof SceneEventDispatcher)) {
-                ((SceneEventDispatcher) node.getScene().getEventDispatcher()).finish(node.getScene());
+            if ((node.getScene().getEventDispatcher() instanceof DesignerSceneEventDispatcher)) {
+                ((DesignerSceneEventDispatcher) node.getScene().getEventDispatcher()).finish(node.getScene());
             }
-            SceneEventDispatcher d = new SceneEventDispatcher();
+            DesignerSceneEventDispatcher d = new DesignerSceneEventDispatcher();
             d.start(node.getScene());
         }
-        node.sceneProperty().addListener(sceneListener);
+        //node.sceneProperty().addListener(sceneListener);
 
         LayoutContext lc = DockRegistry.getLayoutContext(getSkinnable().getRoot());
         DockRegistry.makeDockLayout(getSkinnable().getRoot(), lc);

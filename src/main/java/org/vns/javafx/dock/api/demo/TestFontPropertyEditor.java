@@ -25,7 +25,7 @@ import javafx.stage.Stage;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.scene.control.editors.FontPane;
 import org.vns.javafx.scene.control.editors.FontPropertyEditor;
-import org.vns.javafx.scene.control.editors.Util;
+import org.vns.javafx.scene.control.editors.EditorUtil;
 
 /**
  *
@@ -39,7 +39,7 @@ public class TestFontPropertyEditor  extends Application {
     public void start(Stage stage) {
         
         //System.err.println("VALUE OF " + Double.valueOf(10));
-        Font font1 = Util.getFont("Amiri", "Bold Slanted", 10);
+        Font font1 = EditorUtil.getFont("Amiri", "Bold Slanted", 10);
 /*        System.err.println("FONT STYLE: " + Util.getFontStyle("Amiri Bold", "Slanted", 10));
         Font font1 = Font.font("Amiri", FontWeight.BOLD, FontPosture.ITALIC, 10);
         System.err.println("font name = " + font1.getFamily());

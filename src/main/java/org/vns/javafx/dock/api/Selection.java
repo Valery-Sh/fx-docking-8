@@ -21,12 +21,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
-import org.vns.javafx.designer.EditorUtil;
-import org.vns.javafx.designer.TreeItemEx;
-import org.vns.javafx.designer.TreeItemEx.ItemType;
-import org.vns.javafx.dock.api.dragging.view.NodeFraming;
-import org.vns.javafx.dock.api.dragging.view.ObjectFraming;
-import org.vns.javafx.dock.api.dragging.view.ObjectFramingProvider;
+import org.vns.javafx.dock.api.selection.NodeFraming;
+import org.vns.javafx.dock.api.selection.ObjectFraming;
 
 /**
  *
@@ -54,21 +50,24 @@ public abstract class Selection {
             if (nf != null) {
                 nf.hide();
             }
+            notifySelected(newValue);
             return;
         }
 
         if (nf != null) {
             nf.hide();
         }
+        //boolean objectShowing = false;
         if (newValue instanceof Node) {
             nf.show((Node) newValue);
         } else {
             showObjectFraming(newValue);
         }
+        
         notifySelected(newValue);
     }
 
-    protected abstract void showObjectFraming(Object value);
+    protected abstract boolean showObjectFraming(Object value);
 
     protected ObjectFraming getObjectFraming() {
         return objectFraming;
@@ -85,32 +84,13 @@ public abstract class Selection {
     }
 
     public void setSelected(Object toSelect) {
-        //Object old = getSelected();
         this.selected.set(toSelect);
-        //if ( old == getSelected() ) {
-        //selectedChanged(null, old, getSelected());
-        //}
     }
 
     public Object getSelected() {
         return selected.get();
     }
 
-    /*    protected boolean doSelect(Object toSelect) {
-        boolean retval = false;
-        return retval;
-    }
-
-    public void removeSelected() {
-        setSelected(null);
-    }
-
-    public void removeSelected(Object obj) {
-        if (getSelected() == obj) {
-            setSelected(null);
-        }
-    }
-     */
     public static void addListeners(Node node) {
         MouseSelectionListener l = DockRegistry.lookup(MouseSelectionListener.class);
         if (l != null) {

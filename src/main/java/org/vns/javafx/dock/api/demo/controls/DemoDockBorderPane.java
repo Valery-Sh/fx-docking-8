@@ -5,6 +5,7 @@
  */
 package org.vns.javafx.dock.api.demo.controls;
 
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.*;
 import java.util.List;
 import javafx.collections.FXCollections;
@@ -97,15 +98,15 @@ public class DemoDockBorderPane implements DockLayout {
             BorderPane target = (BorderPane) getLayoutNode();
             BorderPane bp = (BorderPane) getPositionIndicator().getIndicatorPane();
 
-            if (target.getTop() == null && DockUtil.contains(bp.getTop(), mousePos.getX(), mousePos.getY())) {
+            if (target.getTop() == null && Util.contains(bp.getTop(), mousePos.getX(), mousePos.getY())) {
                 target.setTop(node);
-            } else if (target.getRight() == null && DockUtil.contains(bp.getRight(), mousePos.getX(), mousePos.getY())) {
+            } else if (target.getRight() == null && Util.contains(bp.getRight(), mousePos.getX(), mousePos.getY())) {
                 target.setRight(node);
-            } else if (target.getBottom() == null && DockUtil.contains(bp.getBottom(), mousePos.getX(), mousePos.getY())) {
+            } else if (target.getBottom() == null && Util.contains(bp.getBottom(), mousePos.getX(), mousePos.getY())) {
                 target.setBottom(node);
-            } else if (target.getLeft() == null && DockUtil.contains(bp.getLeft(), mousePos.getX(), mousePos.getY())) {
+            } else if (target.getLeft() == null && Util.contains(bp.getLeft(), mousePos.getX(), mousePos.getY())) {
                 target.setLeft(node);
-            } else if (target.getCenter() == null && DockUtil.contains(bp.getCenter(), mousePos.getX(), mousePos.getY())) {
+            } else if (target.getCenter() == null && Util.contains(bp.getCenter(), mousePos.getX(), mousePos.getY())) {
                 target.setCenter(node);
             } else {
                 retval = false;
@@ -207,15 +208,15 @@ public class DemoDockBorderPane implements DockLayout {
 
             BorderPane bp = (BorderPane) getIndicatorPane();
 
-            if (target.getTop() == null && DockUtil.contains(bp.getTop(), x, y)) {
+            if (target.getTop() == null && Util.contains(bp.getTop(), x, y)) {
                 adjustPlace(bp.getTop());
-            } else if (target.getRight() == null && DockUtil.contains(bp.getRight(), x, y)) {
+            } else if (target.getRight() == null && Util.contains(bp.getRight(), x, y)) {
                 adjustPlace(bp.getRight());
-            } else if (target.getBottom() == null && DockUtil.contains(bp.getBottom(), x, y)) {
+            } else if (target.getBottom() == null && Util.contains(bp.getBottom(), x, y)) {
                 adjustPlace(bp.getBottom());
-            } else if (target.getLeft() == null && DockUtil.contains(bp.getLeft(), x, y)) {
+            } else if (target.getLeft() == null && Util.contains(bp.getLeft(), x, y)) {
                 adjustPlace(bp.getLeft());
-            } else if (target.getCenter() == null && DockUtil.contains(bp.getCenter(), x, y)) {
+            } else if (target.getCenter() == null && Util.contains(bp.getCenter(), x, y)) {
                 adjustPlace(bp.getCenter());
             } else {
                 visible = false;

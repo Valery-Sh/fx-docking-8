@@ -11,7 +11,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.vns.javafx.dock.DockNode;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.event.DockEvent;
@@ -67,7 +67,7 @@ public class TestVBoxTargetContext  extends Application {
             }
             //b1.getScene().getWindow().setX(40);
             //b1.getScene().getWindow().setY(40);
-            DockUtil.print(primaryRoot);
+            Util.print(primaryRoot);
             
         });
         
@@ -79,7 +79,7 @@ public class TestVBoxTargetContext  extends Application {
         custom.setContent(p1);
         
         p1.setId("pane p1");
-        DockUtil.print(primaryRoot);
+        Util.print(primaryRoot);
         //dockPane.dock(p1, Side.TOP).getContext().setTitle("Pane p1");
         Scene primaryScene = new Scene(primaryRoot);
         
@@ -89,7 +89,7 @@ public class TestVBoxTargetContext  extends Application {
         primaryStage.setOnShown(s -> {
             //((Pane)custom.getContent()).getChildren().forEach(n -> {System.err.println("custom node=" + n);});
             //System.err.println("tp.lookup(arrowRegion)" + tp.);
-            DockUtil.print(b1);
+            Util.print(b1);
         });
         primaryStage.setAlwaysOnTop(true);
         primaryStage.show();

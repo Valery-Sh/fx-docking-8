@@ -22,10 +22,10 @@ import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.designer.TreeItemEx.ItemType;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.Selection;
-import org.vns.javafx.dock.api.dragging.view.FramePane;
-import org.vns.javafx.dock.api.dragging.view.NodeFraming;
+import org.vns.javafx.dock.api.selection.SelectionFrame;
+import org.vns.javafx.dock.api.selection.NodeFraming;
 
 /**
  *
@@ -56,7 +56,7 @@ public class TreeItemListObjectChangeListener implements ListChangeListener {
                 }
                  */
                 for (Object elem : list) {
-                    if ( DockUtil.isForeign(elem) ) {
+                    if ( Util.isForeign(elem) ) {
                         continue;
                     }
                     TreeItemEx toRemove = null;
@@ -76,7 +76,8 @@ public class TreeItemListObjectChangeListener implements ListChangeListener {
                             break;
                         }
                     }
-                    if ((elem instanceof Node) && !SceneView.isFrame(elem)) {
+                    //if ((elem instanceof Node) && ! SceneView.isFrame(elem)) {
+                    if ((elem instanceof Node) && ! Util.isForeign(elem)) {
                         Selection sel = DockRegistry.lookup(Selection.class);
                         if (sel != null) {
                             sel.setSelected(null);
@@ -100,33 +101,16 @@ public class TreeItemListObjectChangeListener implements ListChangeListener {
                 });
                 int idx = change.getFrom();
                 for ( int i=0; i < change.getFrom(); i++ ) {
-                    if ( DockUtil.isForeign(change.getList().get(i)) ) {
+                    if ( Util.isForeign(change.getList().get(i)) ) {
                         idx--;
                     }
                 }
                 for ( TreeItemEx it  : itemList) {
-                    if ( it.getValue() != null && DockUtil.isForeign(it.getValue())) {
+                    if ( it.getValue() != null && Util.isForeign(it.getValue())) {
                         continue;
                     }
                     treeItem.getChildren().add(idx, it);
                     idx++;
-                }
-                //treeItem.getChildren().addAll(idx, itemList);
-
-                NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
-                if (nf != null && (list.get(list.size() - 1)) instanceof Node) {
-                    //
-                    // We apply Platform.runLater because a list do not 
-                    // has to be a children but for instance for SplitPane it
-                    // is an items and an added node may be not set into scene graph
-                    // immeduately
-                    //
-                    Node n = (Node) list.get(list.size() - 1);
-                    if (!SceneView.isFrame(n)) {
-                        //System.err.println("TreeItemListObjectChangeListener before show");
-                        //nf.show((Node) list.get(list.size() - 1));
-                    }
-
                 }
             }
         }//while

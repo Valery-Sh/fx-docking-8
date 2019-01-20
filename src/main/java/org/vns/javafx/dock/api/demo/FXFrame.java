@@ -21,10 +21,12 @@ import javafx.scene.control.PopupControl;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import org.vns.javafx.DefaultTopWindowFinder;
 import org.vns.javafx.dock.DockBorderPane;
 import org.vns.javafx.dock.DockNode;
 import org.vns.javafx.dock.DockSideBar;
@@ -48,7 +50,7 @@ public class FXFrame {
     public FXFrame() {
     }
 
-    private void initAndShowGUI() {
+    public void initAndShowGUI() {
         // This method is invoked on the EDT thread
         fxPanel = new JFXPanel();
         frame.add(fxPanel);
@@ -89,7 +91,7 @@ public class FXFrame {
 //        BorderPane bp = new BorderPane();
 //        scene.getWindow().getProperties().put(JFXDragManager.DRAG_FLOATING_STAGE, floatStage);
 //        scene.getWindow().getProperties().put(JFXDragManager.DRAG_PANE_KEY, mainBorderPane);        
-        DockRegistry.register(scene.getWindow());
+        ((DefaultTopWindowFinder)DockRegistry.getTopWindowFinder()).add(scene.getWindow());
     }
 
     private Scene createScene() {
@@ -105,7 +107,8 @@ public class FXFrame {
                 System.err.println("PARENT: " + parent.getClass().getName());
                 parent = parent.getParent();
             }
-            PopupControl pc = ((PopupControl) content.getScene().getWindow());
+            //PopupControl pc = ((PopupControl) content.getScene().getWindow());
+            Window pc = content.getScene().getWindow();
             System.err.println("maxW=" + ((Pane) pc.getScene().getRoot()).getMaxWidth());
             System.err.println("minW=" + ((Pane) pc.getScene().getRoot()).getMinWidth());
             System.err.println("prefW=" + ((Pane) pc.getScene().getRoot()).getPrefWidth());

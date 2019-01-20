@@ -34,13 +34,13 @@ public class HyperlinkTitle extends Hyperlink {
     private String propName = null;
             
     public HyperlinkTitle(BaseEditor editor, String propName ) {
-        super(Util.toDisplayName(propName));
+        super(EditorUtil.toDisplayName(propName));
         this.editor = editor;
         this.propName = propName;
         setId("title-" + propName);
         setOnAction(a -> {
             setVisited(false);
-            Util.showInBrowser(editor);
+            EditorUtil.showInBrowser(editor);
         });
         init();
     }

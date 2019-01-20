@@ -62,12 +62,11 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.vns.javafx.JdkUtil;
-import org.vns.javafx.dock.DockUtil;
 import org.vns.javafx.dock.api.Constraints.GridPaneConstraints;
 import static org.vns.javafx.dock.api.LayoutContext.getValue;
-import org.vns.javafx.dock.api.dragging.view.GridPaneFrame;
-import org.vns.javafx.dock.api.dragging.view.ObjectFraming;
-import org.vns.javafx.dock.api.dragging.view.ObjectFramingProvider;
+import org.vns.javafx.dock.api.selection.GridSelectionFrame;
+import org.vns.javafx.dock.api.selection.ObjectFraming;
+import org.vns.javafx.dock.api.selection.ObjectFramingProvider;
 import org.vns.javafx.dock.api.indicator.IndicatorPopup;
 import org.vns.javafx.dock.api.indicator.IndicatorPopup.KeysDown;
 import org.vns.javafx.dock.api.indicator.PositionIndicator;
@@ -243,22 +242,22 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             boolean retval = true;
             StackPane target = (StackPane) getLayoutNode();
             BorderPane bp = (BorderPane) getPositionIndicator().getIndicatorPane().lookup("#stack-pane-indicator");
-            if (DockUtil.contains(bp.getTop(), mousePos.getX(), mousePos.getY())) {
+            if (Util.contains(bp.getTop(), mousePos.getX(), mousePos.getY())) {
                 target.getChildren().add(node);
                 StackPane.setAlignment(node, Pos.TOP_CENTER);
-            } else if (DockUtil.contains(bp.getRight(), mousePos.getX(), mousePos.getY())) {
+            } else if (Util.contains(bp.getRight(), mousePos.getX(), mousePos.getY())) {
                 target.getChildren().add(node);
                 StackPane.setAlignment(node, Pos.CENTER_RIGHT);
 
-            } else if (DockUtil.contains(bp.getBottom(), mousePos.getX(), mousePos.getY())) {
+            } else if (Util.contains(bp.getBottom(), mousePos.getX(), mousePos.getY())) {
                 target.getChildren().add(node);
                 StackPane.setAlignment(node, Pos.BOTTOM_CENTER);
 
-            } else if (DockUtil.contains(bp.getLeft(), mousePos.getX(), mousePos.getY())) {
+            } else if (Util.contains(bp.getLeft(), mousePos.getX(), mousePos.getY())) {
                 target.getChildren().add(node);
                 StackPane.setAlignment(node, Pos.CENTER_LEFT);
 
-            } else if (DockUtil.contains(bp.getCenter(), mousePos.getX(), mousePos.getY())) {
+            } else if (Util.contains(bp.getCenter(), mousePos.getX(), mousePos.getY())) {
                 target.getChildren().add(node);
                 StackPane.setAlignment(node, Pos.CENTER);
             } else {
@@ -356,7 +355,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
 
             Bounds bnd = targetNode.localToScene(targetNode.getBoundsInLocal());
             if (!isControlDown()) {
-                bnd = DockUtil.sceneIntersection(targetNode);
+                bnd = Util.sceneIntersection(targetNode);
             }
             updateSnapshot(isControlDown());
 
@@ -413,15 +412,15 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
 
             BorderPane bp = (BorderPane) getIndicatorPane().lookup("#stack-pane-indicator");
 
-            if (DockUtil.contains(bp.getTop(), x, y)) {
+            if (Util.contains(bp.getTop(), x, y)) {
                 adjustPlace(bp.getTop());
-            } else if (DockUtil.contains(bp.getRight(), x, y)) {
+            } else if (Util.contains(bp.getRight(), x, y)) {
                 adjustPlace(bp.getRight());
-            } else if (DockUtil.contains(bp.getBottom(), x, y)) {
+            } else if (Util.contains(bp.getBottom(), x, y)) {
                 adjustPlace(bp.getBottom());
-            } else if (DockUtil.contains(bp.getLeft(), x, y)) {
+            } else if (Util.contains(bp.getLeft(), x, y)) {
                 adjustPlace(bp.getLeft());
-            } else if (DockUtil.contains(bp.getCenter(), x, y)) {
+            } else if (Util.contains(bp.getCenter(), x, y)) {
                 adjustPlace(bp.getCenter());
             } else {
                 visible = false;
@@ -494,7 +493,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             double x = mousePos.getX();
             double y = mousePos.getY();
 
-            if (!DockUtil.contains(getLayoutNode(), x, y)) {
+            if (!Util.contains(getLayoutNode(), x, y)) {
                 return false;
             }
 
@@ -568,7 +567,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
                 //Bounds b = n.localToScreen(n.getBoundsInLocal());
                 //Bounds b = n.localToScreen(n.getBoundsInLocal());
             }
-            if (DockUtil.contains(p, x, y)) {
+            if (Util.contains(p, x, y)) {
                 adjustPlace(p, x, y);
             } else {
                 visible = false;
@@ -712,11 +711,11 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             boolean retval = true;
             Node targetNode = getLayoutNode();
 
-            if (!DockUtil.contains(targetNode, mousePos.getX(), mousePos.getY())) {
+            if (!Util.contains(targetNode, mousePos.getX(), mousePos.getY())) {
                 return false;
             }
             int idx = -1;
-            Node innerNode = TopNodeHelper.getTop(targetNode, mousePos.getX(), mousePos.getY(), n -> {
+            Node innerNode = Util.getTop(targetNode, mousePos.getX(), mousePos.getY(), n -> {
                 return getItems().contains(n);
             });
             if (innerNode != null) {
@@ -733,21 +732,21 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             if (idx == -1) {
                 items.add((T) node);
             } else if (((targetNode instanceof VBox) || ((targetNode instanceof Accordion)))) {
-                Bounds b = DockUtil.getHalfBounds(Side.TOP, innerNode, mousePos.getX(), mousePos.getY());
+                Bounds b = Util.getHalfBounds(Side.TOP, innerNode, mousePos.getX(), mousePos.getY());
                 if (b != null && b.contains(mousePos)) {
                     items.add(idx, (T) node);
                 } else {
-                    b = DockUtil.getHalfBounds(Side.BOTTOM, innerNode, mousePos.getX(), mousePos.getY());
+                    b = Util.getHalfBounds(Side.BOTTOM, innerNode, mousePos.getX(), mousePos.getY());
                     if (b != null && b.contains(mousePos)) {
                         items.add(idx + 1, (T) node);
                     }
                 }
             } else if (targetNode instanceof HBox) {
-                Bounds b = DockUtil.getHalfBounds(Side.LEFT, innerNode, mousePos.getX(), mousePos.getY());
+                Bounds b = Util.getHalfBounds(Side.LEFT, innerNode, mousePos.getX(), mousePos.getY());
                 if (b != null && b.contains(mousePos)) {
                     items.add(idx, (T) node);
                 } else {
-                    b = DockUtil.getHalfBounds(Side.RIGHT, innerNode, mousePos.getX(), mousePos.getY());
+                    b = Util.getHalfBounds(Side.RIGHT, innerNode, mousePos.getX(), mousePos.getY());
                     if (b != null && b.contains(mousePos)) {
                         items.add(idx + 1, (T) node);
                     }
@@ -812,11 +811,11 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
 
         @Override
         public void showDockPlace(double x, double y) {
-
+            
             boolean visible = true;
 
             Pane p = (Pane) getIndicatorPane();
-            if (DockUtil.contains(p, x, y)) {
+            if (Util.contains(p, x, y)) {
 
                 adjustPlace(p, x, y);
             } else {
@@ -843,7 +842,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             ListBasedTargetContext ctx = (ListBasedTargetContext) getLayoutContext();
             Region targetPane = (Region) ctx.getLayoutNode();
 
-            Node innerNode = TopNodeHelper.getTop(ctx.getLayoutNode(), x, y, n -> {
+            Node innerNode = Util.getTop(ctx.getLayoutNode(), x, y, n -> {
                 return ctx.getItems().contains(n);
             });
             //
@@ -1151,7 +1150,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
 
             Bounds bnd = targetNode.localToScene(targetNode.getBoundsInLocal());
             if (!isControlDown()) {
-                bnd = DockUtil.sceneIntersection(targetNode);
+                bnd = Util.sceneIntersection(targetNode);
             }
             if (bnd == null) {
                 return;
@@ -1248,7 +1247,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             double dh = targetNode.getInsets().getTop() + targetNode.getInsets().getBottom();
 
             int[] dim = JdkUtil.getGridDimensions(targetNode);
-            System.err.println("adjustConstraints dim[0] = " + dim[0] + "; dim[1] = " + dim[1]);
+
             if (dim[0] < 0) {
                 grid.getColumnConstraints().clear();
             }
@@ -1421,7 +1420,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
         private final ObjectProperty<ConstraintsBase> selected = new SimpleObjectProperty<>();
         //private String propertyName;
 
-        private GridPaneFrame frame;
+        private GridSelectionFrame frame;
         private final GridPane gridPane;
         private ObjectProperty<Node> childNode = new SimpleObjectProperty<>();
         
@@ -1452,6 +1451,10 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
         public void setChildNode(Node childNode) {
             this.childNode.set(childNode);
         }
+        public boolean isShowing() {
+            return false;
+        }
+        
         
         @Override
         public void showParent(Object... parms) {
@@ -1465,7 +1468,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             } else {
                 setSelected(null);
             }
-            frame = new GridPaneFrame(gridPane,getChildNode());
+            frame = new GridSelectionFrame(gridPane,getChildNode());
             frame.selectedConstraintsProperty().addListener(selectedConstraintsListener);
             gridPane.getChildren().add(frame);
             //02.01DockUtil.getChildren(gridPane.getScene().getRoot()).add(frame);
@@ -1494,7 +1497,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             } else {
                 setSelected(null);
             }
-            frame = new GridPaneFrame(gridPane);
+            frame = new GridSelectionFrame(gridPane);
             frame.selectedConstraintsProperty().addListener(selectedConstraintsListener);
             gridPane.getChildren().add(frame);
             //02.01DockUtil.getChildren(gridPane.getScene().getRoot()).add(frame);

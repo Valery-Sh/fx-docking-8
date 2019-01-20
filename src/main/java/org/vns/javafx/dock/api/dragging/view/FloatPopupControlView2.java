@@ -21,7 +21,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.PopupControl;
-import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.stage.PopupWindow;
 import javafx.stage.Window;
 import org.vns.javafx.dock.api.DockRegistry;
@@ -52,6 +52,7 @@ public class FloatPopupControlView2 extends FloatPopupControlView {
         }
 
         final PopupControl floatPopup = new PopupControl();
+        floatPopup.getScene().setFill(Color.rgb(240, 240, 240,1));
         
         floatPopup.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_TOP_LEFT);
         setFloatingWindow(floatPopup);
@@ -70,12 +71,11 @@ public class FloatPopupControlView2 extends FloatPopupControlView {
         floatPopup.setAutoFix(false);
 
         floatPopup.setOnShown(e -> {
-           DockRegistry.register(floatPopup);
-           
+//           DockRegistry.register(floatPopup);
         });
 
         floatPopup.setOnHidden(e -> {
-           DockRegistry.unregister(floatPopup);
+//           DockRegistry.unregister(floatPopup);
         });
         floatPopup.getStyleClass().clear();
         ChangeListener<Parent> pcl = new ChangeListener<Parent>() {

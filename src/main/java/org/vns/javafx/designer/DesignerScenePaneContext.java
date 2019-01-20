@@ -46,7 +46,7 @@ public class DesignerScenePaneContext extends ScenePaneContext {
         }
         
         TreeViewEx tv = DesignerLookup.lookup(SceneView.class).getTreeView();
-        TreeItemEx item = EditorUtil.findTreeItemByObject(tv, obj);
+        TreeItemEx item = SceneViewUtil.findTreeItemByObject(tv, obj);
   
         return Dockable.of(obj) != null && Dockable.of(obj).getContext().getLayoutContext() == this && item != null;
     }
@@ -62,7 +62,7 @@ public class DesignerScenePaneContext extends ScenePaneContext {
             return;
         }
         TreeViewEx tv = DesignerLookup.lookup(SceneView.class).getTreeView();
-        TreeItemEx item = EditorUtil.findTreeItemByObject(tv, obj);        
+        TreeItemEx item = SceneViewUtil.findTreeItemByObject(tv, obj);        
         if ( item != null && item.getParent() == null ) {
             //
             // root item
@@ -83,7 +83,7 @@ public class DesignerScenePaneContext extends ScenePaneContext {
             } else {
                 TreeItemBuilder builder = new TreeItemBuilder();
                 TreeItemEx it = builder.build(sgv.getRoot().getScene().getRoot());
-                it = EditorUtil.findChildTreeItem(it, item.getValue());
+                it = SceneViewUtil.findChildTreeItem(it, item.getValue());
                 builder.updateOnMove(it);
                 sgv.setRoot(null);
                 tv.setRoot(null);

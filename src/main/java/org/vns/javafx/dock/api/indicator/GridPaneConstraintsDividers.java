@@ -34,9 +34,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.RowConstraints;
 import org.vns.javafx.JdkUtil;
-import org.vns.javafx.dock.DockUtil;
-import org.vns.javafx.dock.api.dragging.view.DividerLine;
-import org.vns.javafx.dock.api.dragging.view.Dividers;
+import org.vns.javafx.dock.api.Util;
+import static org.vns.javafx.dock.api.Constants.FOREIGN;
+import org.vns.javafx.dock.api.resizer.DividerLine;
+import org.vns.javafx.dock.api.resizer.Dividers;
 
 /**
  *
@@ -130,7 +131,7 @@ public class GridPaneConstraintsDividers implements Dividers {
     private void init() {
         lineGroup = new Group();
         lineGroup.setManaged(false);
-        lineGroup.getStyleClass().add(DockUtil.FOREIGN);
+        lineGroup.getStyleClass().add(FOREIGN);
         gridPane.getRowConstraints().addListener(rowConstraintsListener);
         gridPane.getColumnConstraints().addListener(columnConstraintsListener);
         if (!resizable) {
@@ -139,7 +140,7 @@ public class GridPaneConstraintsDividers implements Dividers {
         service = new Service<ObjectProperty<Bounds>>() {
             @Override
             protected Task<ObjectProperty<Bounds>> createTask() {
-                return new GridCellChageTask(GridPaneConstraintsDividers.this);
+                return new GridCellChangeTask(GridPaneConstraintsDividers.this);
             }
         };
         service.start();

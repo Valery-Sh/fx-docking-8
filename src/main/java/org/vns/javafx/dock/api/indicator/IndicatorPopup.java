@@ -18,7 +18,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Popup;
 import javafx.stage.Window;
 import javafx.util.Duration;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.LayoutContext;
 
 /**
@@ -352,7 +352,7 @@ public class IndicatorPopup extends Popup implements IndicatorManager {
             return true;
         }
         boolean retval = false;
-        if (DockUtil.contains(getPositionIndicator().getIndicatorPane(), x, y)) {
+        if (Util.contains(getPositionIndicator().getIndicatorPane(), x, y)) {
             retval = true;
         } else if (isShowing()) {
             hide();

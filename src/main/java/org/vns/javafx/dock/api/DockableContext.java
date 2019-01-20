@@ -590,7 +590,6 @@ public class DockableContext {
 
         @Override
         public void handle(MouseEvent event) {
-            
             dragHandler = getLookup().lookup(MouseDragHandler.class);
             if (dragHandler == null) {
                 dragHandler = new DefaultMouseDragHandler(dockableContext);

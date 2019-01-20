@@ -15,7 +15,6 @@
  */
 package org.vns.javafx.dock.api.demo;
 
-import com.sun.javafx.stage.StageHelper;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
@@ -26,25 +25,16 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.JFXPanel;
-import javafx.event.ActionEvent;
-import javafx.geometry.Orientation;
-import javafx.geometry.Side;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.PopupControl;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.stage.Stage;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import org.vns.javafx.dock.DockBorderPane;
 import org.vns.javafx.dock.DockNode;
-import org.vns.javafx.dock.DockSideBar;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 
@@ -110,7 +100,7 @@ public class TestJFXLayout {
 //        BorderPane bp = new BorderPane();
 //        scene.getWindow().getProperties().put(JFXDragManager.DRAG_FLOATING_STAGE, floatStage);
 //        scene.getWindow().getProperties().put(JFXDragManager.DRAG_PANE_KEY, mainBorderPane);        
-        DockRegistry.register(scene.getWindow());
+//        DockRegistry.register(scene.getWindow());
     }
 
     private Scene createScene() {

@@ -20,7 +20,6 @@ import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import org.vns.javafx.dock.DockUtil;
 
 /**
  *
@@ -51,7 +50,7 @@ public class TabPaneHelper {
 
     public Node getHeaderArea(double screenX, double screenY) {
         Node retval = getContext().getLayoutNode().lookup(".tab-header-area");
-        if (retval == null || !DockUtil.contains(retval, screenX, screenY)) {
+        if (retval == null || !Util.contains(retval, screenX, screenY)) {
             retval = null;
         }
         return retval;
@@ -68,7 +67,7 @@ public class TabPaneHelper {
     public Node getHeadersRegion(double screenX, double screenY) {
 
         Node retval = getContext().getLayoutNode().lookup(".headers-region");
-        if (retval == null || !DockUtil.contains(retval, screenX, screenY)) {
+        if (retval == null || !Util.contains(retval, screenX, screenY)) {
             retval = null;
         }
         return retval;
@@ -86,7 +85,7 @@ public class TabPaneHelper {
         Set<Node> set = getContext().getLayoutNode().lookupAll(".tab");
         Node tabNode = null;
         for (Node node : set) {
-            if (DockUtil.contains(node, screenX, screenY)) {
+            if (Util.contains(node, screenX, screenY)) {
                 tabNode = node;
                 break;
             }
@@ -121,7 +120,7 @@ public class TabPaneHelper {
     public Node getControlButtonsTab(double screenX, double screenY) {
 
         Node retval = getContext().getLayoutNode().lookup(".control-buttons-tab ");
-        if (retval == null || !DockUtil.contains(retval, screenX, screenY)) {
+        if (retval == null || !Util.contains(retval, screenX, screenY)) {
             retval = null;
         }
         return retval;

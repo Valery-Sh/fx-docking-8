@@ -448,6 +448,7 @@ public class TrashTray extends Control {
             Selection.removeListeners(node);
 
             final Stage window = new Stage();
+            System.err.println("Trash window = " + window);
             if (owner != null) {
                 window.initOwner(owner);
             }
@@ -472,11 +473,11 @@ public class TrashTray extends Control {
             windowRoot.applyCss();
 
             window.setOnShown(e -> {
-                DockRegistry.register(window);
+                //DockRegistry.register(window);
             });
 
             window.setOnHidden(e -> {
-                DockRegistry.unregister(window);
+                //DockRegistry.unregister(window);
             });
 
             if (show) {
@@ -524,10 +525,10 @@ public class TrashTray extends Control {
             window.getStyleClass().clear();
 
             window.setOnShown(e -> {
-                DockRegistry.register(window);
+                //DockRegistry.register(window);
             });
             window.setOnHidden(e -> {
-                DockRegistry.unregister(window);
+                //DockRegistry.unregister(window);
             });
 
             if (show) {

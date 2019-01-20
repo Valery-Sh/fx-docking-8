@@ -20,7 +20,7 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Shape;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.LayoutContext;
 import org.vns.javafx.dock.api.DockLayout;
 import org.vns.javafx.dock.api.DockRegistry;
@@ -28,13 +28,13 @@ import org.vns.javafx.dock.api.ScenePaneContext.ScenePaneContextFactory;
 import org.vns.javafx.dock.api.Scope;
 import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.bean.BeanAdapter;
-import org.vns.javafx.dock.api.dragging.view.FramePane;
-import static org.vns.javafx.dock.api.dragging.view.FramePane.CSS_CLASS;
-import static org.vns.javafx.dock.api.dragging.view.FramePane.NODE_ID;
-import static org.vns.javafx.dock.api.dragging.view.FramePane.PARENT_ID;
-import org.vns.javafx.dock.api.dragging.view.NodeFraming;
-import org.vns.javafx.dock.api.dragging.view.DividerLine;
-import org.vns.javafx.dock.api.dragging.view.ResizeShape;
+import org.vns.javafx.dock.api.selection.SelectionFrame;
+import static org.vns.javafx.dock.api.selection.SelectionFrame.NODE_ID;
+import static org.vns.javafx.dock.api.selection.SelectionFrame.PARENT_ID;
+import org.vns.javafx.dock.api.selection.NodeFraming;
+import org.vns.javafx.dock.api.resizer.DividerLine;
+import org.vns.javafx.dock.api.resizer.ResizeShape;
+import static org.vns.javafx.dock.api.selection.SelectionFrame.FRAME_CSS_CLASS;
 
 /**
  *
@@ -99,8 +99,8 @@ public class SceneView extends Control implements DockLayout {
             root = startNode.getScene().getRoot();
         }
         if (root.getScene() != null) {
-            if ((root.getScene().getEventDispatcher() instanceof SceneEventDispatcher)) {
-                ((SceneEventDispatcher) root.getScene().getEventDispatcher()).finish(root.getScene());
+            if ((root.getScene().getEventDispatcher() instanceof DesignerSceneEventDispatcher)) {
+                ((DesignerSceneEventDispatcher) root.getScene().getEventDispatcher()).finish(root.getScene());
             }
         }
 
@@ -114,13 +114,13 @@ public class SceneView extends Control implements DockLayout {
             ((TreeItemEx) item).unregisterChangeHandlers();
         });
 
-        Set<Node> nodes = root.lookupAll("." + CSS_CLASS);
+        Set<Node> nodes = root.lookupAll("." + FRAME_CSS_CLASS);
         nodes.forEach(node -> {
-            if (node instanceof FramePane) {
-                ((FramePane) node).setBoundNode(null);
+            if (node instanceof SelectionFrame) {
+                ((SelectionFrame) node).setBoundNode(null);
             }
             if (node.getParent() != null) {
-                EditorUtil.removeFromParent(node.getParent(), node);
+                SceneViewUtil.removeFromParent(node.getParent(), node);
             }
         });
         nodes = root.lookupAll(".designer-mode");
@@ -238,13 +238,12 @@ public class SceneView extends Control implements DockLayout {
                         getVisibleCells().remove(this);
 
                     } else {
-                        if (value != null && SceneView.isFrame(value)) {
+                        if (value != null && Util.isForeign(value)) {
                             setText(null);
                             this.setGraphic(null);
-                            this.setMaxHeight(2);
-                            this.setPrefHeight(2);
-                            this.setMinHeight(2);
-
+                            this.setMaxHeight(0);
+                            this.setPrefHeight(0);
+                            this.setMinHeight(0);
                         } else {
                             this.setGraphic(((TreeItemEx) this.getTreeItem()).getCellGraphic());
                         }
@@ -264,78 +263,48 @@ public class SceneView extends Control implements DockLayout {
    
     public static void addFramePanes(Parent parent) {
         //9.12Node framePane = parent.lookup("#" + FramePane.PARENT_ID);
-        Node framePane = parent.lookup("#" + FramePane.PARENT_ID);
+        Node framePane = parent.lookup("#" + SelectionFrame.PARENT_ID);
         if (framePane == null) {
             //
             // Frame without resize shapes
             //
-            framePane = new FramePane(parent, false);
-            framePane.setId(FramePane.PARENT_ID);
-            EditorUtil.addToParent(parent, framePane);
+            framePane = new SelectionFrame(parent, false);
+            framePane.setId(SelectionFrame.PARENT_ID);
+            SceneViewUtil.addToParent(parent, framePane);
             
         }
         framePane.setVisible(false);
         
-        framePane = parent.lookup("#" + FramePane.NODE_ID);
+        framePane = parent.lookup("#" + SelectionFrame.NODE_ID);
         if (framePane == null) {
             //
             // Frame with resize shapes
             //
-            framePane = new FramePane(parent);
-            framePane.setId(FramePane.NODE_ID);
-            EditorUtil.addToParent(parent, framePane);
+            framePane = new SelectionFrame(parent);
+            framePane.setId(SelectionFrame.NODE_ID);
+            SceneViewUtil.addToParent(parent, framePane);
         }
         framePane.setVisible(false);
     }
     public static void removeFramePanes(Parent parent) {
-        Node framePane = parent.lookup("#" + FramePane.PARENT_ID);
+        Node framePane = parent.lookup("#" + SelectionFrame.PARENT_ID);
         if (framePane == null) {
             return;
         } else {
-            EditorUtil.removeFromParent(parent, framePane);
+            SceneViewUtil.removeFromParent(parent, framePane);
         }
     }
 
-    public static FramePane getResizeFrame() {
+    public static SelectionFrame getResizeFrame() {
         Parent p = (Parent) DesignerLookup.lookup(SceneView.class).getRoot();
-        if (p.getParent() != null) {
-            //p = p.getParent();
-        }
-        //9.12
-        return (FramePane) p.getScene().getRoot().lookup("#" + NODE_ID);
+        return (SelectionFrame) p.getScene().getRoot().lookup("#" + NODE_ID);
     }
 
-    public static FramePane getParentFrame() {
-
+    public static SelectionFrame getParentFrame() {
         Parent p = (Parent) DesignerLookup.lookup(SceneView.class).getRoot();
-        if (p.getParent() != null) {
-            //p = p.getParent();
-        }
-        //9.12
-        return (FramePane) p.getScene().getRoot().lookup("#" + PARENT_ID);
+        return (SelectionFrame) p.getScene().getRoot().lookup("#" + PARENT_ID);
     }
 
-    public static boolean isFrame(Object obj) {
-        if (obj == null || (!(obj instanceof FramePane) && !(obj instanceof ResizeShape))) {
-            return false;
-        }
-        return ((Node) obj).getStyleClass().contains(CSS_CLASS);
-    }
-
-    public static boolean isFrameShape(Object obj) {
-        boolean retval = isFrame(obj);
-        if (!retval && (obj instanceof Shape)) {
-            retval = ResizeShape.isResizeShape((Shape) obj);
-        }
-        return retval;
-    }
-    public static boolean isFrameLine(Object obj) {
-        boolean retval = isFrame(obj) || isFrameShape(obj);
-        if (!retval && (obj instanceof Shape)) {
-            retval = DividerLine.isDividerLine((Shape) obj);
-        }
-        return retval;
-    }
 
     public static boolean removeFramePanes(Node root) {
         boolean retval = false;
@@ -346,14 +315,14 @@ public class SceneView extends Control implements DockLayout {
             parent = (Parent) root;
         }
         if (parent != null) {
-            Node framePane = parent.lookup("#" + FramePane.NODE_ID);
+            Node framePane = parent.lookup("#" + SelectionFrame.NODE_ID);
             if (framePane != null) {
-                EditorUtil.removeFromParent(parent, framePane);
+                SceneViewUtil.removeFromParent(parent, framePane);
             }
 
-            framePane = parent.lookup("#" + FramePane.PARENT_ID);
+            framePane = parent.lookup("#" + SelectionFrame.PARENT_ID);
             if (framePane != null) {
-                EditorUtil.removeFromParent(parent, framePane);
+                SceneViewUtil.removeFromParent(parent, framePane);
             }
         }
 
@@ -362,7 +331,7 @@ public class SceneView extends Control implements DockLayout {
 
     public TreeViewEx getTreeView(double x, double y) {
         TreeViewEx retval = null;
-        if (DockUtil.contains(getTreeView(), x, y)) {
+        if (Util.contains(getTreeView(), x, y)) {
             return getTreeView();
         }
         return retval;
@@ -371,7 +340,7 @@ public class SceneView extends Control implements DockLayout {
     public TreeItemEx getTreeItem(double x, double y) {
         TreeItemEx retval = null;
         for (TreeCell cell : getVisibleCells()) {
-            if (DockUtil.contains(cell, x, y)) {
+            if (Util.contains(cell, x, y)) {
                 retval = (TreeItemEx) cell.getTreeItem();
                 break;
             }

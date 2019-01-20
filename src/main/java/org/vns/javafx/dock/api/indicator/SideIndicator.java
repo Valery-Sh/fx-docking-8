@@ -13,7 +13,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.transform.Scale;
 import javafx.stage.Popup;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.DockableContext;
 import org.vns.javafx.dock.api.LayoutContext;
@@ -204,30 +204,30 @@ public abstract class SideIndicator extends PositionIndicator {
         }
         switch (side) {
             case TOP:
-                dockPlace.setWidth(DockUtil.widthOf(pane) - 2*dx);
-                dockPlace.setHeight(DockUtil.heightOf(pane) / 2);
+                dockPlace.setWidth(Util.widthOf(pane) - 2*dx);
+                dockPlace.setHeight(Util.heightOf(pane) / 2);
                 Point2D p = dockPlace.localToParent(0, 0);
                 dockPlace.setX(p.getX() + dx);
                 dockPlace.setY(p.getY() + dx);
                 break;
             case BOTTOM:
-                dockPlace.setWidth(DockUtil.widthOf(pane) - 2*dx);
-                dockPlace.setHeight(DockUtil.heightOf(pane) / 2);
-                p = dockPlace.localToParent(0, DockUtil.heightOf(pane) - dockPlace.getHeight());
+                dockPlace.setWidth(Util.widthOf(pane) - 2*dx);
+                dockPlace.setHeight(Util.heightOf(pane) / 2);
+                p = dockPlace.localToParent(0, Util.heightOf(pane) - dockPlace.getHeight());
                 dockPlace.setX(p.getX() + dx);
                 dockPlace.setY(p.getY() + dx);
                 break;
             case LEFT:
-                dockPlace.setWidth(DockUtil.widthOf(pane) / 2);
-                dockPlace.setHeight(DockUtil.heightOf(pane)  - 2*dx);
+                dockPlace.setWidth(Util.widthOf(pane) / 2);
+                dockPlace.setHeight(Util.heightOf(pane)  - 2*dx);
                 p = dockPlace.localToParent(0, 0);
                 dockPlace.setX(p.getX() + dx);
                 dockPlace.setY(p.getY() + dx);
                 break;
             case RIGHT:
-                dockPlace.setWidth(DockUtil.widthOf(pane) / 2);
-                dockPlace.setHeight(DockUtil.heightOf(pane) - 2*dx);
-                p = dockPlace.localToParent(DockUtil.widthOf(pane) - dockPlace.getWidth(), 0);
+                dockPlace.setWidth(Util.widthOf(pane) / 2);
+                dockPlace.setHeight(Util.heightOf(pane) - 2*dx);
+                p = dockPlace.localToParent(Util.widthOf(pane) - dockPlace.getWidth(), 0);
                 dockPlace.setX(p.getX() + dx);
                 dockPlace.setY(p.getY() + dx);
                 break;
@@ -340,8 +340,8 @@ public abstract class SideIndicator extends PositionIndicator {
             }
             dockPlace.setX(p.getX() + dx);
             dockPlace.setY(p.getY() + dx);
-            double width = DockUtil.widthOf(getTargetNode()) - 2 * dx;
-            double height = DockUtil.heightOf(getTargetNode()) - 2 * dx;
+            double width = Util.widthOf(getTargetNode()) - 2 * dx;
+            double height = Util.heightOf(getTargetNode()) - 2 * dx;
             switch (side) {
                 case TOP:
                     dockPlace.setWidth(width);
@@ -412,8 +412,8 @@ public abstract class SideIndicator extends PositionIndicator {
         public Point2D getIndicatorPosition() {
             Point2D newPos = null;
             if (getTargetNode() != null && getIndicatorPane() != null) {
-                double width = DockUtil.widthOf(getTargetNode());
-                double height = DockUtil.heightOf(getTargetNode());
+                double width = Util.widthOf(getTargetNode());
+                double height = Util.heightOf(getTargetNode());
 
                 newPos = getTargetNode().localToScreen((width - getIndicatorPane().getWidth()) / 2, (height - getIndicatorPane().getHeight()) / 2);
             }

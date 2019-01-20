@@ -26,13 +26,14 @@ import org.vns.javafx.dock.api.SaveRestore;
 import org.vns.javafx.dock.api.ScenePaneContext.ScenePaneContextFactory;
 import org.vns.javafx.dock.api.Selection.SelectionHandler;
 import org.vns.javafx.designer.DesignerScenePaneContext.DesignerScenePaneContextFactory;
-import org.vns.javafx.dock.api.dragging.view.NodeFraming;
-import org.vns.javafx.dock.api.dragging.view.ResizerFactory;
-import org.vns.javafx.dock.api.dragging.view.ResizerFactory.NodeResizerFactory;
-import org.vns.javafx.dock.api.dragging.view.Resizer;
-import org.vns.javafx.dock.api.dragging.view.StageNodeFraming;
-import org.vns.javafx.dock.api.dragging.view.WindowNodeFraming;
+import org.vns.javafx.dock.api.selection.NodeFraming;
+import org.vns.javafx.dock.api.resizer.ResizerFactory;
+import org.vns.javafx.dock.api.resizer.ResizerFactory.NodeResizerFactory;
+import org.vns.javafx.dock.api.resizer.Resizer;
+import org.vns.javafx.dock.api.selection.StageNodeFraming;
+import org.vns.javafx.dock.api.selection.WindowNodeFraming;
 import org.vns.javafx.dock.api.Selection.MouseSelectionListener;
+import org.vns.javafx.scene.control.editors.PropertyEditorPane;
 
 /**
  *
@@ -60,6 +61,7 @@ public class DesignerLookup { // implements ContextLookup {
 */
         initDockRegistry();
         lookup.putUnique(PalettePane.class, new PalettePane(true));
+        lookup.putUnique(PropertyEditorPane.class, new PropertyEditorPane());
         lookup.putUnique(SceneView.class, new SceneView(true));
     }
     private Map<Class<?>, Object> dockRegistrySafe = FXCollections.observableHashMap();

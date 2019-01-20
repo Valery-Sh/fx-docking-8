@@ -24,7 +24,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
-import org.vns.javafx.dock.DockUtil;
 import org.vns.javafx.dock.api.dragging.DefaultMouseDragHandler;
 
 /**
@@ -100,7 +99,7 @@ public class DockTabPaneMouseDragHandler extends DefaultMouseDragHandler {
 
     protected Node getHeaderArea(MouseEvent ev) {
         Node retval = getContext().getDragNode().lookup(".tab-header-area");
-        if (retval == null || !DockUtil.contains(retval, ev.getScreenX(), ev.getScreenY())) {
+        if (retval == null || !Util.contains(retval, ev.getScreenX(), ev.getScreenY())) {
             retval = null;
         }
         return retval;
@@ -109,7 +108,7 @@ public class DockTabPaneMouseDragHandler extends DefaultMouseDragHandler {
     protected Node getHeadersRegion(MouseEvent ev) {
 
         Node retval = getContext().getDragNode().lookup(".headers-region");
-        if (retval == null || !DockUtil.contains(retval, ev.getScreenX(), ev.getScreenY())) {
+        if (retval == null || !Util.contains(retval, ev.getScreenX(), ev.getScreenY())) {
             retval = null;
         }
         return retval;
@@ -120,7 +119,7 @@ public class DockTabPaneMouseDragHandler extends DefaultMouseDragHandler {
         Set<Node> set = getContext().getDragNode().lookupAll(".tab");
         Node tabNode = null;
         for (Node node : set) {
-            if (DockUtil.contains(node, ev.getScreenX(), ev.getScreenY())) {
+            if (Util.contains(node, ev.getScreenX(), ev.getScreenY())) {
                 tabNode = node;
                 break;
             }

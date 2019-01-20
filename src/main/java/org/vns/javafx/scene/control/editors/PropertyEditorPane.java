@@ -118,17 +118,17 @@ public class PropertyEditorPane extends Control {
         tb.setId(TOOLBAR_ID);
         tb.setVisible(false);
         setToolBar(tb);
-        
+
         setStatusBar(createDefaultStatusBar());
 
         manager = new PropertyEditorPaneManager(this);
         //layout = manager.getLayout();
     }
 
-/*    protected VBox getLayout() {
+    /*    protected VBox getLayout() {
         return layout;
     }
-*/    
+     */
     protected PropertyEditorPaneManager getManager() {
         return manager;
     }
@@ -184,6 +184,19 @@ public class PropertyEditorPane extends Control {
         hb.setId(STATUSBAR_ID);
         hb.getStyleClass().add("status-bar");
         return hb;
+    }
+
+    private void updateStatusBar() {
+
+        Labeled lb = getBean() == null ? new Label("No bean selected")
+                : new Label("Properties: " + getBean().getClass().getSimpleName());
+        lb.setId(STATUSBAR_LABEL_ID);
+
+        lb.setPadding(new Insets(4, 4, 4, 4));
+
+        HBox hb = new HBox(lb);
+        hb.setId(STATUSBAR_ID);
+        hb.getStyleClass().add("status-bar");
     }
 
     @Override
@@ -304,19 +317,19 @@ public class PropertyEditorPane extends Control {
             layout.setSpacing(2);
 
             control.beanProperty().addListener(beanChangeListener);
-            control.statusBarProperty().addListener((v,ov,nv) -> {
-                if ( ov != null  ) {
+            control.statusBarProperty().addListener((v, ov, nv) -> {
+                if (ov != null) {
                     int idx = layout.getChildren().indexOf(ov);
-                    if ( nv == null ) {
+                    if (nv == null) {
                         layout.getChildren().remove(idx);
                     } else {
                         layout.getChildren().set(idx, nv);
                     }
-                } else if ( nv != null && beanPane != null) {
+                } else if (nv != null && beanPane != null) {
                     int idx = layout.getChildren().indexOf(beanPane);
-                    layout.getChildren().add(idx,nv);
+                    layout.getChildren().add(idx, nv);
                 }
-                
+
             });
         }
 
@@ -338,10 +351,16 @@ public class PropertyEditorPane extends Control {
                 k.removeListener(v);
             });
             styleableListeners.clear();
-
+            Label statusBarLabel = ((Label) layout.lookup("#" + STATUSBAR_LABEL_ID));
+            if (statusBarLabel != null && newValue != null ) {
+                statusBarLabel.setText("Properties: " + newValue.getClass().getSimpleName());
+            } else if (statusBarLabel != null ) {
+                statusBarLabel.setText("No Bean Selected");
+            }
             if (newValue != null) {
-                ((Label) layout.lookup("#" + STATUSBAR_LABEL_ID)).setText("Properties: " + newValue.getClass().getSimpleName());
                 show();
+            } else {
+                hide();
             }
         }
 
@@ -367,6 +386,11 @@ public class PropertyEditorPane extends Control {
             });
             long end = System.currentTimeMillis();
 
+        }
+
+        public void hide() {
+            toggleGroup.selectToggle(null);
+            categoryButtonPane.getChildren().clear();
         }
 
         public void show() {
@@ -509,7 +533,6 @@ public class PropertyEditorPane extends Control {
                                 StackPane sp = new StackPane();
                                 grid.add(sp, 0, ++i);
                                 GridPane.setColumnSpan(sp, 2);
-                                System.err.println("setExternalValuePane for " + editor.getName());
                                 ((TreePane) editor).setExternalValuePane(sp);
                             }
                         }
@@ -551,7 +574,7 @@ public class PropertyEditorPane extends Control {
             if (pane == null) {
 
                 if (displayName == null || displayName.trim().isEmpty()) {
-                    displayName = Util.toDisplayName(name);
+                    displayName = EditorUtil.toDisplayName(name);
                 }
                 pane = new VBox();
                 pane.setId(name);
@@ -580,7 +603,7 @@ public class PropertyEditorPane extends Control {
 
             if (pane == null) {
                 if (displayName == null || displayName.trim().isEmpty()) {
-                    displayName = Util.toDisplayName(sectionName);
+                    displayName = EditorUtil.toDisplayName(sectionName);
                 }
                 pane = new TitledPane();
                 pane.setId(id);

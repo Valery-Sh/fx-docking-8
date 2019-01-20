@@ -22,6 +22,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
@@ -55,6 +56,7 @@ public class FloatStageView2 extends FloatStageView {
         }
 
         final Stage window = new Stage();
+        
         window.initStyle(stageStyle);
 
         setFloatingWindow(window);
@@ -63,6 +65,8 @@ public class FloatStageView2 extends FloatStageView {
         
         Scene scene = new Scene(windowRoot);
         window.setScene(scene);
+        scene.setFill(Color.rgb(240, 240, 240,1));
+        
         setWindowRoot(windowRoot);
 
         windowRoot.getStyleClass().add("sidebar-popup-root");
@@ -72,10 +76,10 @@ public class FloatStageView2 extends FloatStageView {
         node.applyCss();
         windowRoot.applyCss();
         window.setOnShown(e -> {
-            DockRegistry.register(window);
+            //DockRegistry.register(window);
         });
         window.setOnHidden(e -> {
-            DockRegistry.unregister(window);
+            //DockRegistry.unregister(window);
         });
         ChangeListener<Parent> pcl = new ChangeListener<Parent>() {
             @Override

@@ -13,7 +13,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.LayoutContext;
 import org.vns.javafx.dock.api.indicator.SideIndicator.NodeSideIndicator;
 //import org.vns.javafx.dock.api.indicator.SideIndicator.NodeSideIndicator;
@@ -243,7 +243,7 @@ public class DockPaneIndicatorPopup extends IndicatorPopup {
             return true;
         }
         boolean retval = false;
-        if (DockUtil.contains(getPaneIndicator().getIndicatorPane(), x, y)) {
+        if (Util.contains(getPaneIndicator().getIndicatorPane(), x, y)) {
             retval = true;
         } else if (isShowing()) {
             hide();
@@ -345,7 +345,7 @@ public class DockPaneIndicatorPopup extends IndicatorPopup {
         // if the node exists but its property usedAsDockTarge==false then 
         // findDockable returns null
         //
-        Node targetNode = DockUtil.findDockable(getTargetNode(), screenX, screenY);
+        Node targetNode = Util.findDockable(getTargetNode(), screenX, screenY);
         getNodeIndicator().showSideIndicator(screenX, screenY, targetNode);
 
         getPaneIndicator().hideDockPlace();

@@ -19,7 +19,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.bean.BeanAdapter;
 import org.vns.javafx.dock.api.bean.ReflectHelper;
@@ -167,7 +167,8 @@ public class TreeItemEx extends TreeItem<Object> {
 
     public void registerChangeHandlers() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
-        if (SceneView.isFrame(getValue()) || DockUtil.isForeign(getValue())) {
+//        if (SceneView.isFrame(getValue()) || Util.isForeign(getValue())) {
+        if (Util.isForeign(getValue())) {
             return;
         }
         if (getValue() == null) {
@@ -237,7 +238,8 @@ public class TreeItemEx extends TreeItem<Object> {
     }
 
     public void unregisterChangeHandlers(){
-        if (SceneView.isFrame(getValue()) || DockUtil.isForeign(getValue())) {
+        //if (SceneView.isFrame(getValue()) || Util.isForeign(getValue())) {
+        if (Util.isForeign(getValue())) {
             return;
         }
         if (getValue() == null) {

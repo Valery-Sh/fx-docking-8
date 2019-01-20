@@ -30,10 +30,10 @@ import javafx.stage.Stage;
 import org.vns.javafx.designer.SceneView;
 import org.vns.javafx.dock.api.DockLayout;
 import org.vns.javafx.dock.api.Dockable;
-import org.vns.javafx.dock.api.dragging.view.FramePane;
-import static org.vns.javafx.dock.api.dragging.view.FramePane.CSS_CLASS;
-import static org.vns.javafx.dock.api.dragging.view.FramePane.NODE_ID;
-import static org.vns.javafx.dock.api.dragging.view.FramePane.PARENT_ID;
+import org.vns.javafx.dock.api.selection.SelectionFrame;
+import static org.vns.javafx.dock.api.selection.SelectionFrame.NODE_ID;
+import static org.vns.javafx.dock.api.selection.SelectionFrame.PARENT_ID;
+import static org.vns.javafx.dock.api.selection.SelectionFrame.FRAME_CSS_CLASS;
 
 /**
  *
@@ -82,9 +82,9 @@ public class Demo01  extends Application {
         Dockable.initDefaultStylesheet(null);
 
         
-        FramePane fp1 = (FramePane) vboxRight.lookup("#" + PARENT_ID);
+        SelectionFrame fp1 = (SelectionFrame) vboxRight.lookup("#" + PARENT_ID);
         System.err.println("fp1.isVisible() = " + fp1.isVisible());
-        FramePane fp2 = (FramePane) vboxRight.lookup("#" + NODE_ID);
+        SelectionFrame fp2 = (SelectionFrame) vboxRight.lookup("#" + NODE_ID);
         System.err.println("fp2.isVisible() = " + fp2.isVisible());
         //fp1.setVisible(false);
         //fp2.setVisible(false);

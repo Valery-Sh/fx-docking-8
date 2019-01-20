@@ -15,7 +15,7 @@
  */
 package org.vns.javafx.scene;
 
-import org.vns.javafx.scene.control.paint.Util;
+import org.vns.javafx.scene.control.paint.PaintUtil;
 import org.vns.javafx.scene.control.paint.StopPane;
 import org.vns.javafx.scene.control.paint.ColorChooserPane;
 import javafx.application.Application;
@@ -75,7 +75,7 @@ public class TestStopPane1 extends Application {
             Paint p = new LinearGradient(0,0,1,1, true, CycleMethod.REFLECT, nv);
             rect.setFill(p);
         });
-        Polygon pol = Util.createUpTriangle();
+        Polygon pol = PaintUtil.createUpTriangle();
         VBox root = new VBox(rect,lb1, anchor,btn2, btn1, colorChooserPane);//, stopPane);
         
         root.setPadding(new Insets(10, 10, 10, 20));

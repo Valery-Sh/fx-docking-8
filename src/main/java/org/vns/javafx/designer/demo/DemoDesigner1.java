@@ -59,7 +59,7 @@ import org.vns.javafx.designer.TrashTray;
 import org.vns.javafx.dock.api.DockLayout;
 import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.dragging.DragManager;
-import org.vns.javafx.dock.api.dragging.view.FramePane;
+import org.vns.javafx.dock.api.selection.SelectionFrame;
 
 /**
  *

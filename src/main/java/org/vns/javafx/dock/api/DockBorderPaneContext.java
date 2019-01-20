@@ -31,7 +31,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import org.vns.javafx.dock.DockUtil;
 import org.vns.javafx.dock.api.indicator.IndicatorPopup;
 import org.vns.javafx.dock.api.indicator.PositionIndicator;
 
@@ -152,15 +151,15 @@ public class DockBorderPaneContext extends LayoutContext {
         //(BorderPane) getIndicatorPane().lookup("#border-pane-indicator");
         BorderPane bp = (BorderPane) getPositionIndicator().getIndicatorPane().lookup("#border-pane-indicator");
 
-        if (target.getTop() == null && DockUtil.contains(bp.getTop(), mousePos.getX(), mousePos.getY())) {
+        if (target.getTop() == null && Util.contains(bp.getTop(), mousePos.getX(), mousePos.getY())) {
             target.setTop(node);
-        } else if (target.getRight() == null && DockUtil.contains(bp.getRight(), mousePos.getX(), mousePos.getY())) {
+        } else if (target.getRight() == null && Util.contains(bp.getRight(), mousePos.getX(), mousePos.getY())) {
             target.setRight(node);
-        } else if (target.getBottom() == null && DockUtil.contains(bp.getBottom(), mousePos.getX(), mousePos.getY())) {
+        } else if (target.getBottom() == null && Util.contains(bp.getBottom(), mousePos.getX(), mousePos.getY())) {
             target.setBottom(node);
-        } else if (target.getLeft() == null && DockUtil.contains(bp.getLeft(), mousePos.getX(), mousePos.getY())) {
+        } else if (target.getLeft() == null && Util.contains(bp.getLeft(), mousePos.getX(), mousePos.getY())) {
             target.setLeft(node);
-        } else if (target.getCenter() == null && DockUtil.contains(bp.getCenter(), mousePos.getX(), mousePos.getY())) {
+        } else if (target.getCenter() == null && Util.contains(bp.getCenter(), mousePos.getX(), mousePos.getY())) {
             target.setCenter(node);
         } else {
             retval = false;
@@ -249,7 +248,7 @@ public class DockBorderPaneContext extends LayoutContext {
             Bounds bnd = targetNode.localToScene(targetNode.getBoundsInLocal());
 
             if (!isControlDown()) {
-                bnd = DockUtil.sceneIntersection(targetNode);
+                bnd = Util.sceneIntersection(targetNode);
             } 
             updateSnapshot(isControlDown());
 
@@ -345,18 +344,18 @@ public class DockBorderPaneContext extends LayoutContext {
             BorderPane target = (BorderPane) getLayoutContext().getLayoutNode();
             Bounds bnd = target.localToScene(target.getBoundsInLocal());
             if (!isControlDown()) {
-                bnd = DockUtil.sceneIntersection(target);
+                bnd = Util.sceneIntersection(target);
             }
             BorderPane bp = (BorderPane) getIndicatorPane().lookup("#border-pane-indicator");
-            if (target.getTop() == null && DockUtil.contains(bp.getTop(), x, y)) {
+            if (target.getTop() == null && Util.contains(bp.getTop(), x, y)) {
                 adjustPlace(bp.getTop(), 0, 0);
-            } else if (target.getRight() == null && DockUtil.contains(bp.getRight(), x, y)) {
+            } else if (target.getRight() == null && Util.contains(bp.getRight(), x, y)) {
                 adjustPlace(bp.getRight(), ((Region) bp.getLeft()).getWidth() + ((Region) bp.getCenter()).getWidth(), ((Region) bp.getTop()).getHeight());
-            } else if (target.getBottom() == null && DockUtil.contains(bp.getBottom(), x, y)) {
+            } else if (target.getBottom() == null && Util.contains(bp.getBottom(), x, y)) {
                 adjustPlace(bp.getBottom(), 0, ((Region) bp.getTop()).getHeight() + ((Region) bp.getCenter()).getHeight());
-            } else if (target.getLeft() == null && DockUtil.contains(bp.getLeft(), x, y)) {
+            } else if (target.getLeft() == null && Util.contains(bp.getLeft(), x, y)) {
                 adjustPlace(bp.getLeft(), 0, ((Region) bp.getTop()).getHeight());
-            } else if (target.getCenter() == null && DockUtil.contains(bp.getCenter(), x, y)) {
+            } else if (target.getCenter() == null && Util.contains(bp.getCenter(), x, y)) {
                 adjustPlace(bp.getCenter(), ((Region) bp.getLeft()).getWidth(), ((Region) bp.getTop()).getHeight());
             } else {
                 visible = false;

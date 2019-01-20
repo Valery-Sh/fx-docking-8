@@ -24,7 +24,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 
@@ -53,9 +53,9 @@ public class TestDockUtilBounds extends Application {
         primaryStage.setTitle("JavaFX TestCanvas");
         primaryStage.setScene(scene);
         scene.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-            System.err.println("findDockable spBtn2 = " + DockUtil.findDockable(spBtn1,  e.getScreenX(), e.getScreenY()));
+            System.err.println("findDockable spBtn2 = " + Util.findDockable(spBtn1,  e.getScreenX(), e.getScreenY()));
             System.err.println("layoutContext = " + Dockable.of(spBtn1).getContext().getLayoutContext());
-            System.err.println("findDockable stackPane = " + DockUtil.findDockable(stackPane,  e.getScreenX(), e.getScreenY()));            
+            System.err.println("findDockable stackPane = " + Util.findDockable(stackPane,  e.getScreenX(), e.getScreenY()));            
             
         });
         b1.setOnAction(e -> {
@@ -68,7 +68,7 @@ public class TestDockUtilBounds extends Application {
 
         });
         spBtn1.setPrefHeight(76);
-        System.err.println("DockUtil.heightOf(spBtn1) = " + DockUtil.heightOf(spBtn1));
+        System.err.println("DockUtil.heightOf(spBtn1) = " + Util.heightOf(spBtn1));
         System.err.println("layoutBounds.getHeight()(spBtn1) = " + spBtn1.getLayoutBounds().getHeight());
         System.err.println("spBtn1.getHeight = " + spBtn1.getHeight());        
         primaryStage.setAlwaysOnTop(true);

@@ -84,7 +84,7 @@ public class AutoSaveRestore implements SaveRestore {
             return;
         }
         System.err.println("AutoSaveRestore save 2");
-        objectItem = EditorUtil.findTreeItemByObject(sgv.getTreeView(), obj);
+        objectItem = SceneViewUtil.findTreeItemByObject(sgv.getTreeView(), obj);
         if (objectItem == null) {
             return;
         }
@@ -133,7 +133,7 @@ public class AutoSaveRestore implements SaveRestore {
         }
         this.objectToSave = obj;
 
-        objectItem = EditorUtil.findTreeItemByObject(sgv.getTreeView(), obj);
+        objectItem = SceneViewUtil.findTreeItemByObject(sgv.getTreeView(), obj);
         if (objectItem == null) {
             return;
         }
@@ -160,7 +160,7 @@ public class AutoSaveRestore implements SaveRestore {
         //
 
         SceneView sgv = DesignerLookup.lookup(SceneView.class);
-        TreeItemEx item = (sgv == null || obj == null) ? null : EditorUtil.findTreeItemByObject(sgv.getTreeView(), obj);
+        TreeItemEx item = (sgv == null || obj == null) ? null : SceneViewUtil.findTreeItemByObject(sgv.getTreeView(), obj);
         TrashTray tray = DockRegistry.lookup(TrashTray.class);
         if (dragInitiator == TRASH_TRAY) {
             if (item != null) {
@@ -210,7 +210,7 @@ public class AutoSaveRestore implements SaveRestore {
             ba.put(propertyName, obj);
         }
 
-        item = EditorUtil.findTreeItemByObject(sgv.getTreeView(), obj);
+        item = SceneViewUtil.findTreeItemByObject(sgv.getTreeView(), obj);
         if (verify(item, objectItem)) {
             restoreExpanded(item, objectItem);
             item.setExpanded(objectItem.isExpanded());
@@ -238,7 +238,7 @@ public class AutoSaveRestore implements SaveRestore {
     @Override
     public void restoreExpanded(Object obj) {
         SceneView sgv = DesignerLookup.lookup(SceneView.class);
-        TreeItemEx item = (sgv == null || obj == null) ? null : EditorUtil.findTreeItemByObject(sgv.getTreeView(), obj);
+        TreeItemEx item = (sgv == null || obj == null) ? null : SceneViewUtil.findTreeItemByObject(sgv.getTreeView(), obj);
         if (item == null || obj != objectToSave || objectItem == null) {
             return;
         }

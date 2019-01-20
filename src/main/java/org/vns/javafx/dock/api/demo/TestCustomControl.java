@@ -15,7 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.demo.controls.CustomControl;
 
@@ -41,7 +41,7 @@ public class TestCustomControl extends Application {
         custom.setContent(p1);
         
         p1.setId("pane p1");
-        DockUtil.print(dockPane);
+        Util.print(dockPane);
         //dockPane.dock(p1, Side.TOP).getContext().setTitle("Pane p1");
         Scene scene = new Scene(dockPane);
         
@@ -51,7 +51,7 @@ public class TestCustomControl extends Application {
         stage.setOnShown(s -> {
             //((Pane)custom.getContent()).getChildren().forEach(n -> {System.err.println("custom node=" + n);});
             //System.err.println("tp.lookup(arrowRegion)" + tp.lookup("#arrowRegion"));
-            DockUtil.print(dockPane);
+            Util.print(dockPane);
         });
         stage.show();
         

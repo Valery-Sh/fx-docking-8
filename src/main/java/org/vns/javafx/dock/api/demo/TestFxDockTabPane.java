@@ -16,7 +16,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.vns.javafx.dock.DockTabPane;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.DockNode;
 import org.vns.javafx.dock.DockPane;
@@ -54,7 +54,7 @@ public class TestFxDockTabPane  extends Application {
         dn01.setTitle("DockNode: dn01");
         Button dn01Btn = new Button("Print");
         dn01Btn.setOnAction((event) -> {
-            DockUtil.print(dn01Btn.getScene().getRoot());
+            Util.print(dn01Btn.getScene().getRoot());
         });
         dpCenter.getItems().add(dn01Btn);
         
@@ -66,7 +66,7 @@ public class TestFxDockTabPane  extends Application {
         dpRight.dock(dn02, Side.TOP);
         Button dn02Btn = new Button("Print");
         dn02Btn.setOnAction((event) -> {
-            DockUtil.print(dn02Btn.getScene().getRoot());
+            Util.print(dn02Btn.getScene().getRoot());
         });
         
         dpRight.getItems().add(dn02Btn);

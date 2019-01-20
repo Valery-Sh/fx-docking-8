@@ -28,7 +28,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import org.vns.javafx.scene.control.paint.binding.DoubleBinder;
-import org.vns.javafx.scene.control.paint.Util;
+import org.vns.javafx.scene.control.paint.PaintUtil;
 import org.vns.javafx.scene.control.paint.ColorChooserPane;
 import org.vns.javafx.scene.control.paint.ColorPane;
 
@@ -77,9 +77,9 @@ public class ColorChooserPaneSkin  extends SkinBase<ColorChooserPane> {
             alphaValue = new TextField();
             alphaValue.getStyleClass().add("alpha-value");
 
-            Util.createTextFormatter(alphaValue, 0, 1, 2);
+            PaintUtil.createTextFormatter(alphaValue, 0, 1, 2);
 
-            alphaValue.textProperty().bindBidirectional(alphaSlider.valueProperty(), Util.doubleStringConverter(2));
+            alphaValue.textProperty().bindBidirectional(alphaSlider.valueProperty(), PaintUtil.doubleStringConverter(2));
             
             //colorPane.alphaProperty().bind(alphaSlider.valueProperty().multiply(100));
             
@@ -189,10 +189,10 @@ public class ColorChooserPaneSkin  extends SkinBase<ColorChooserPane> {
                             retval = Long.toString(dv.longValue());
                             break;
                         case "saturation":
-                            retval = Util.doubleStringConverter(2).toString(((Color) shapeView.getFill()).getSaturation());
+                            retval = PaintUtil.doubleStringConverter(2).toString(((Color) shapeView.getFill()).getSaturation());
                             break;
                         case "brightness":
-                            retval = Util.doubleStringConverter(2).toString(((Color) shapeView.getFill()).getBrightness());
+                            retval = PaintUtil.doubleStringConverter(2).toString(((Color) shapeView.getFill()).getBrightness());
                             break;
                     }//switch
                     return retval;

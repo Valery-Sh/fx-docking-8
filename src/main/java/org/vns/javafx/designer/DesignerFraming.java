@@ -15,6 +15,10 @@
  */
 package org.vns.javafx.designer;
 
+import org.vns.javafx.dock.api.selection.ObjectFramingProvider;
+import org.vns.javafx.dock.api.selection.ObjectFraming;
+import org.vns.javafx.dock.api.selection.AbstractNodeFraming;
+import org.vns.javafx.dock.api.selection.SelectionFrame;
 import org.vns.javafx.dock.api.dragging.view.*;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -35,15 +39,15 @@ public class DesignerFraming extends AbstractNodeFraming {
     protected void initializeOnShow(Node node) {
 
         SceneView sv = DesignerLookup.lookup(SceneView.class);
-        if (sv == null || sv.getRoot().getScene() != node.getScene()) {
+        if (sv == null || sv.getRoot() == null || sv.getRoot().getScene() != node.getScene()) {
             return;
         }
         //Parent p = EditorUtil.getTopParentOf(node);
-        Parent p = EditorUtil.findParentByObject(node);
+        Parent p = SceneViewUtil.findParentByObject(node);
 
         if (p != null && node != sv.getRoot()) {
             //if (node.getParent() != null && node.getParent() != sv.getRoot()) {
-            FramePane parentPane = null;
+            SelectionFrame parentPane = null;
             ObjectFraming objFraming = getParentObjectFraming(p, node);
 
             if (objFraming != null) {
@@ -55,7 +59,7 @@ public class DesignerFraming extends AbstractNodeFraming {
             }
 
             //}
-            FramePane resizePane = SceneView.getResizeFrame();
+            SelectionFrame resizePane = SceneView.getResizeFrame();
             resizePane.setBoundNode(node);
         }
 
@@ -69,7 +73,7 @@ public class DesignerFraming extends AbstractNodeFraming {
     public void showParent(Node node, Object... parms) {
         SceneView sv = DesignerLookup.lookup(SceneView.class);
 //        Parent p = EditorUtil.getTopParentOf(node);
-        Parent p = EditorUtil.findParentByObject(node);
+        Parent p = SceneViewUtil.findParentByObject(node);
 
         if (p != null && node != sv.getRoot()) {
             //          if (node.getParent() != null && node.getParent() != sv.getRoot()) {
@@ -79,7 +83,7 @@ public class DesignerFraming extends AbstractNodeFraming {
             if (objFraming != null) {
                 objFraming.showParent();
             } else {
-                FramePane parentPane = SceneView.getParentFrame();
+                SelectionFrame parentPane = SceneView.getParentFrame();
                 //parentPane.setBoundNode(node.getParent());
                 parentPane.setBoundNode(p);
             }
@@ -92,20 +96,21 @@ public class DesignerFraming extends AbstractNodeFraming {
 
     @Override
     protected void finalizeOnHide(Node node) {
-        System.err.println("finalizeOnHide node = " + node);
+        //System.err.println("finalizeOnHide node = " + node);
         SceneView sv = DesignerLookup.lookup(SceneView.class);
-        if (sv == null || sv.getRoot().getScene() != node.getScene()) {
+        
+        if (sv == null || sv.getRoot() == null || sv.getRoot().getScene() == null  || sv.getRoot().getScene() != node.getScene()) {
             return;
         }
         //Parent p = EditorUtil.getTopParentOf(node);
-        Parent p = EditorUtil.findParentByObject(node);
+        Parent p = SceneViewUtil.findParentByObject(node);
 
         if (p != null) {
-            FramePane resizePane = SceneView.getResizeFrame();
+            SelectionFrame resizePane = SceneView.getResizeFrame();
             if (resizePane != null) {
                 resizePane.setBoundNode(null);
             }
-            FramePane parentPane = SceneView.getParentFrame();
+            SelectionFrame parentPane = SceneView.getParentFrame();
             if (parentPane != null) {
                 parentPane.setBoundNode(null);
             }

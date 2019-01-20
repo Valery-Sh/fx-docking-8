@@ -20,7 +20,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.vns.javafx.dock.DockUtil;
+import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.demo.controls.CustomControl;
 
@@ -65,7 +65,7 @@ public class TestTranslate extends Application {
         stage.setOnShown(s -> {
             //((Pane)custom.getContent()).getChildren().forEach(n -> {System.err.println("custom node=" + n);});
             //System.err.println("tp.lookup(arrowRegion)" + tp.lookup("#arrowRegion"));
-            DockUtil.print(rootPane);
+            Util.print(rootPane);
         });
         stage.show();
         //javafx.data.pull.PullParser
