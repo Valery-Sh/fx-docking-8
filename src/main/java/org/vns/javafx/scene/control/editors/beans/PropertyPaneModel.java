@@ -51,17 +51,8 @@ public class PropertyPaneModel extends Control {
     }
     public boolean isComposite(Class<?> clazz) {
         boolean retval = false;
-//        System.err.println("-----------------------------");
-//        System.err.println("clazz = " + clazz);
-        for ( Class c : compositeProperties ) {
-//            System.err.println("composite: " + c);
-            if ( c.isAssignableFrom(clazz)) {
-//                System.err.println("isAssign from class = " + clazz);
-            }
-        }        
         for ( Class c : compositeProperties ) {
             if ( c.isAssignableFrom(clazz)) {
-                
                 retval = true;
                 break;
             }

@@ -85,10 +85,10 @@ public class TreePaneItem<E> extends AbstractPropertyEditor implements Composite
 
     private TreePaneItem delegateItem;
 
-    public TreePaneItem() {
-        this(null);
+//    public TreePaneItem() {
+//        this(null);
 
-    }
+//    }
 
     public TreePaneItem(String name) {
         super(name);
@@ -407,7 +407,7 @@ public class TreePaneItem<E> extends AbstractPropertyEditor implements Composite
                 //
                 modifyOnReplace(oldValue, newValue);
             }
-            List<TreePaneItem> oldChilds = getChildItems();
+            //List<TreePaneItem> oldChilds = getChildItems();
 
             PropertyEditorPane ppe = null;
             if (delegateItem == null) {
@@ -421,7 +421,7 @@ public class TreePaneItem<E> extends AbstractPropertyEditor implements Composite
                 delegateItem.setValue((E) ppe);
             }
             ppe.setStatusBar(createDefaultStatusBar(newValue));
-            List<TreePaneItem> newChilds = getChildItems();
+            //List<TreePaneItem> newChilds = getChildItems();
         }
     }
 

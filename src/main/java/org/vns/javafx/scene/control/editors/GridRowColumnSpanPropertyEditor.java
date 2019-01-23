@@ -77,7 +77,7 @@ public class GridRowColumnSpanPropertyEditor extends StringPropertyEditor {
     }
 
     @Override
-    public void bindConstraint(Parent node, Method... setMethods) {
+    public void bindConstraint(Node node, Method... setMethods) {
         unbind();
         setEditable(true);
         ObjectProperty<String> property = new SimpleObjectProperty<>();
@@ -111,7 +111,7 @@ public class GridRowColumnSpanPropertyEditor extends StringPropertyEditor {
     }
 
     @Override
-    protected void setConstraint(Parent node, String value) {
+    protected void setConstraint(Node node, String value) {
         try {
 
             Integer intValue = null;

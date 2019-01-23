@@ -85,6 +85,7 @@ public class DemoDesigner2 extends Application {
         DefaultTopWindowFinder.getInstance();
         
         Button tb = new Button();
+        
         tb.toFront();
 
         Node n;
@@ -233,7 +234,8 @@ public class DemoDesigner2 extends Application {
         gridPane1.getRowConstraints().addAll(rc0);
         gridPane1.getColumnConstraints().add(new ColumnConstraints(25, 25, 25));
         gridPane1.getColumnConstraints().add(new ColumnConstraints(35, 35, 35));
-        root1.getChildren().addAll(new Label("My Label 1"), topPane, centerPane, gridPane1);
+        //root1.getChildren().addAll(new Label("My Label 1"), topPane, centerPane, gridPane1);
+        root1.getChildren().addAll(new Label("My Label 1"), topPane, centerPane);
         //root1.setScaleX(0.5);
         //root1.setTop(topPane);
         //root1.setCenter(centerPane);
@@ -246,6 +248,9 @@ public class DemoDesigner2 extends Application {
         stackPane1.setStyle("-fx-background-color: red; -fx-padding: 20 20 20 20");
 
         formButton1.setOnAction(e -> {
+            System.gc ();
+            System.runFinalization ();
+            if ( true ) return;
 //            System.err.println("gridPane1.getPrefHeight()  = " + gridPane1.getPrefHeight());
 //            centerPane.setPrefHeight(centerPane.getPrefHeight() + 10);
             List<Window> list = JdkUtil.getWindows();
@@ -508,7 +513,9 @@ public class DemoDesigner2 extends Application {
 
         DockNode editorPaneDockNode = new DockNode(" Property Editor ");
         editorPaneDockNode.setContent(editorPane);
-        editorPane.setPrefWidth(300);
+        if ( editorPane != null ) {
+            editorPane.setPrefWidth(300);
+        }
         
         //palleteDockNode.getContext().getDragManager().getHideOption();
         editorPaneDockNode.getContext().getDragManager().setHideOption(DragManager.HideOption.NONE);

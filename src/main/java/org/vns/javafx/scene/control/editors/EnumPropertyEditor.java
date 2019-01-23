@@ -216,7 +216,7 @@ public class EnumPropertyEditor<T extends Enum<T>> extends AbstractPropertyEdito
         enumValue.bindBidirectional(property);
     }
     @Override
-    public void bindConstraint(Parent node, Method... setMethods) {
+    public void bindConstraint(Node node, Method... setMethods) {
         saveEditableOnBind = isEditable();
         saveNullableOnBind = isNullable();        
         setNullable(true);

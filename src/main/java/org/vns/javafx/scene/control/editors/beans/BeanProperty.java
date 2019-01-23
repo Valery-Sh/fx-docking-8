@@ -42,7 +42,7 @@ public class BeanProperty  extends AbstractNamedItem {
 //    private final StringProperty  editorClass = new SimpleStringProperty();
 //    private final ReadOnlyObjectWrapper<Section> sectionWrapper = new ReadOnlyObjectWrapper<>();
 
-    protected Class<? extends PropertyEditor> editorType;
+    //protected Class<? extends PropertyEditor> editorType;
 
     public BeanProperty() {
     }
@@ -185,17 +185,14 @@ public class BeanProperty  extends AbstractNamedItem {
     }
 */
     public BeanProperty getCopyFor(Class<?> clazz, BeanModel ppd, Category cat, Section sec) {
-        BeanProperty pd = new BeanProperty();
-        pd.setName(getName());
-        pd.setDisplayName(getDisplayName());
-        pd.setModifiable(isModifiable());
-        pd.setRejected(isRejected());
-        pd.setConstraint(isConstraint());
+        BeanProperty bp = new BeanProperty();
+        bp.setName(getName());
+        bp.setDisplayName(getDisplayName());
+        bp.setModifiable(isModifiable());
+        bp.setRejected(isRejected());
+        bp.setConstraint(isConstraint());
         
-        //pd.setOriginClass(originClass);
-        //pd.setModifiable(isModifiable());
-        //pd.setSection(sec);
-        return pd;
+        return bp;
     }
 
 }

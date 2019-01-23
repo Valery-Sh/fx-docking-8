@@ -31,20 +31,20 @@ public class HyperlinkTitle extends Hyperlink {
     
     private static final PseudoClass CSS_VALUE = PseudoClass.getPseudoClass("cssvalue");
     private BaseEditor editor = null;
-    private String propName = null;
+    private String propertyName = null;
             
-    public HyperlinkTitle(BaseEditor editor, String propName ) {
-        super(EditorUtil.toDisplayName(propName));
+    public HyperlinkTitle(BaseEditor editor, String propertyName ) {
+        super(EditorUtil.toDisplayName(propertyName));
         this.editor = editor;
-        this.propName = propName;
-        setId("title-" + propName);
+        this.propertyName = propertyName;
+        setId("title-" + propertyName);
+        getStyleClass().add(PropertyEditor.TITLE_STYLE_CLASS);
         setOnAction(a -> {
             setVisited(false);
             EditorUtil.showInBrowser(editor);
         });
         init();
     }
-    
     public HyperlinkTitle() {
     }
 
@@ -60,6 +60,14 @@ public class HyperlinkTitle extends Hyperlink {
     private void init() {
         setTextFill(Color.BLACK);
         setBorder(Border.EMPTY);
+    }
+
+    public BaseEditor getEditor() {
+        return editor;
+    }
+
+    public String getPropertyName() {
+        return propertyName;
     }
 
     @Override

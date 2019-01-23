@@ -41,7 +41,7 @@ import javafx.scene.layout.VBox;
 public class EnumBinding<T extends Enum<T>> implements WeakListener {
 
     private final WeakReference<ObjectProperty<T>> editorEnum;
-    private Parent node;
+    private Node node;
     private String propertyName;
     private Class<T> enumType;
     private Method[] setMethods;
@@ -51,12 +51,12 @@ public class EnumBinding<T extends Enum<T>> implements WeakListener {
         editorEnumChanged(v, ov, nv);
     };
 
-    public EnumBinding(String propName,Parent node, ObjectProperty<T> editorEnum, Class<T> enumType) {
+    public EnumBinding(String propName,Node node, ObjectProperty<T> editorEnum, Class<T> enumType) {
         this(propName,node, editorEnum,enumType, new Method[0]);
 
     }
 
-    public EnumBinding(String propName,Parent node, ObjectProperty<T> editorEnum, Class<T> enumType, Method... setMethods) {
+    public EnumBinding(String propName,Node node, ObjectProperty<T> editorEnum, Class<T> enumType, Method... setMethods) {
         this.editorEnum = new WeakReference<>(editorEnum);
         this.node = node;
         this.setMethods = setMethods;
@@ -82,7 +82,7 @@ public class EnumBinding<T extends Enum<T>> implements WeakListener {
         }
     }
 
-    public Parent getNode() {
+    public Node getNode() {
         return node;
     }
 

@@ -15,8 +15,6 @@
  */
 package org.vns.javafx.scene.control.editors.beans;
 
-import java.util.ArrayList;
-import java.util.List;
 import javafx.beans.DefaultProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -32,40 +30,10 @@ public class BeanModel extends AbstractNamedItem implements NamedItemList<Catego
     private Class<?> beanType;
     private String beanClassName;
     private Object bean;
-//    private String name;
-//    private String displayName;    
+
     private final ObservableList<Category> categories = FXCollections.observableArrayList();
 
-/*    public int indexByName(String categoryName) {
-        int retval = -1;
-        Category p = getByName(categoryName);
-        if (p != null) {
-            retval = categories.indexOf(p);
-        }
-        return retval;
-    }
 
-    public Category getByName(String categoryName) {
-        Category retval = null;
-        for (Category pd : categories) {
-            if (pd.getName().equals(categoryName)) {
-                retval = pd;
-                break;
-            }
-        }
-        return retval;
-    }
-*/
-/*    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-*/
     public Class<?> getBeanType() {
         return beanType;
     }
@@ -135,12 +103,7 @@ public class BeanModel extends AbstractNamedItem implements NamedItemList<Catego
         return "name = " + getName() + "; beanClassName = " + getBeanClassName() + "items.size = " + getItems().size(); 
     }
 
-/*    protected void merge(ObservableList<Category> cts) {
-        for (Category c : cts) {
-            updateBy(c);
-        }
-    }
-*/
+
     protected Category addCategory(String cat, String displayName) {
         Category retval = null;
         for (Category c : categories) {
@@ -151,164 +114,10 @@ public class BeanModel extends AbstractNamedItem implements NamedItemList<Catego
         }
         if (retval == null) {
             retval = new Category(cat, displayName);
-            //retval.setName(cat);
-            //retval.setDisplayName(displayName);
             categories.add(retval);
         }
 
         return retval;
     }
-
-/*    private void addCategories(int idx, Category... cts) {
-        Category retval = null;
-        for (Category cat : cts) {
-
-            for (Category c : categories) {
-                if (c.getName().equals(cat.getName())) {
-                    retval = c;
-                    break;
-                }
-            }
-            if (retval == null) {
-                categories.add(idx, cat);
-                retval = cat;
-                ObservableList<Section> scs = FXCollections.observableArrayList();
-                scs.addAll(cat.getItems());
-                cat.getItems().clear();
-                cat.merge(scs);
-            } else {
-                retval.setDisplayName(cat.getDisplayName());
-            }
-        }
-        
-    }
-
-    private Category addCategory(int idx, Category cat) {
-        Category retval = null;
-        for (Category c : categories) {
-            if (c.getName().equals(cat.getName())) {
-                retval = c;
-                break;
-            }
-        }
-        if (retval == null) {
-            categories.add(idx, cat);
-            retval = cat;
-            ObservableList<Section> scs = FXCollections.observableArrayList();
-            scs.addAll(cat.getItems());
-            cat.getItems().clear();
-            cat.merge(scs);
-        } else {
-            retval.setDisplayName(cat.getDisplayName());
-        }
-        return retval;
-    }
-*/
-    /*    protected Category addCategoryBefore(String beforeName, Category cat) {
-        int idx = indexByName(beforeName);
-        Category retval = null;
-        for (Category c : categories) {
-            if (c.getName().equals(cat.getName())) {
-                retval = c;
-                break;
-            }
-        }
-        if (retval == null && idx >= 0) {
-            categories.add(idx, cat);
-            retval = cat;
-        } else if (retval == null) {
-            categories.add(cat);
-            retval = cat;
-        } else {
-            retval.setDisplayName(cat.getDisplayName());
-        }
-
-        return retval;
-    }
-     */
- /*    protected Category addCategoryAfter(String afterName, Category cat) {
-        int idx = indexByName(afterName);
-        Category retval = null;
-        for (Category c : categories) {
-            if (c.getName().equals(cat.getName())) {
-                retval = c;
-                break;
-            }
-        }
-        if (retval == null && idx >= 0) {
-            categories.add(++idx, cat);
-            retval = cat;
-        } else if (retval == null) {
-            categories.add(cat);
-            retval = cat;
-        } else {
-            retval.setDisplayName(cat.getDisplayName());
-        }
-
-        return retval;
-    }
-     */
-/*    protected void updateBy(Category cat) {
-        int idx = indexByName(cat.getName());
-        int pos = NOT_INSERT;
-        List<Category> list = new ArrayList<>();
-        if (cat instanceof InsertCategoriesBefore) {
-            if ( idx < 0 && cat.getName() != null) {
-                return;
-            } else if ( idx < 0 ) {
-                idx = 0;
-            }
-            pos = BEFORE;
-            list = ((InsertCategoriesBefore) cat).getCategories();
-        } else if (cat instanceof InsertCategoriesAfter) {
-            if ( idx < 0 && cat.getName() != null) {
-                return;
-            } else if ( idx < 0 ) {
-                idx = categories.size();
-            } else {
-                idx++;
-            }            
-            pos = AFTER;
-            list = ((InsertCategoriesAfter) cat).getCategories();
-        } else {
-            list.add(cat);
-        }
-
-        if (idx < 0 || pos == NOT_INSERT) {
-            for (Category c : list) {
-                addItems(categories.size() - 1, cat);
-            }
-        } else if (pos == BEFORE) {
-            int size = categories.size();
-            for (Category c : list) {
-                addItems(idx, c);
-                if (categories.size() > size) {
-                    idx++;
-                }
-                size = categories.size();
-            }
-        } else if (pos == AFTER) {
-            int size = categories.size();
-            for (Category c : list) {
-                addItems(idx, c);
-                if (categories.size() > size) {
-                    ++idx;
-                }
-                size = categories.size();
-            }
-        }
-
-    }
-*/
-/*    @Override
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    @Override
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-*/
 
 }

@@ -25,6 +25,7 @@ import javafx.beans.property.ReadOnlyProperty;
  */
 public interface PropertyEditor<T> {
 
+    public final String TITLE_STYLE_CLASS = "editor-title-a796e7ef-bfda-4255-9a69-598be15d7571";    
     public final String EDITOR_STYLE_CLASS = "editor-a796e7ef-bfda-4255-9a69-598be15d7571";
     public static final String HYPERLINK = "https://docs.oracle.com/javase/8/javafx/api/";
 

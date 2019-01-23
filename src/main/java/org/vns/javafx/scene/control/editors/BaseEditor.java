@@ -128,6 +128,10 @@ public abstract class BaseEditor<T> extends Control {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     /*    @Override
     public void bind(ReadOnlyProperty<Boolean> property) {
 

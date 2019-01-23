@@ -188,7 +188,7 @@ public class InsetsPropertyEditor extends AbstractPropertyEditor<Insets> impleme
     }
 
     @Override
-    public void bindConstraint(Parent node, Method... setMethods) {
+    public void bindConstraint(Node node, Method... setMethods) {
         unbind();
         setBoundProperty(null);
         setEditable(true);

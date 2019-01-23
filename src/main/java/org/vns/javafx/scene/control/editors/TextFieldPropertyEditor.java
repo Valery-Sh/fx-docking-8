@@ -169,7 +169,7 @@ public abstract class TextFieldPropertyEditor<E> extends AbstractPropertyEditor<
     }
     
     @Override
-    public void bindConstraint(Parent node, Method... setMethods) {
+    public void bindConstraint(Node node, Method... setMethods) {
         unbind();
         setEditable(true);
         ObjectProperty<E> property = new SimpleObjectProperty<>();
@@ -192,7 +192,7 @@ public abstract class TextFieldPropertyEditor<E> extends AbstractPropertyEditor<
         getTextField().textProperty().bindBidirectional(property, stringConverter);
         //createContextMenu(property);
     }
-    protected void setConstraint(Parent node, E value) {
+    protected void setConstraint(Node node, E value) {
         try {
             
             String setname = "set" + getName().substring(0, 1).toUpperCase() + getName().substring(1);

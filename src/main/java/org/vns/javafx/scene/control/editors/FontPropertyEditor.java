@@ -132,7 +132,6 @@ public class FontPropertyEditor extends ComboButtonPropertyEditor<Font> {
     }
 
     protected Parent createPopupRoot() {
-        System.err.println("CREATE POPUP ROOT");
         VBox root = new VBox();
         root.setSpacing(10);
         root.setStyle("-fx-background-color: white;-fx-border-width: 1; -fx-border-color: gray ");
@@ -164,7 +163,6 @@ public class FontPropertyEditor extends ComboButtonPropertyEditor<Font> {
         for (String f : families) {
             MenuItem mi = new MenuItem(f);
             mi.setOnAction(a -> {
-                System.err.println("family getTextField() = " + family.getTextField());
                 family.getTextField().setText(mi.getText());
                 List<String> styles = EditorUtil.getFontStyles(mi.getText(), 10);
             });
@@ -180,9 +178,7 @@ public class FontPropertyEditor extends ComboButtonPropertyEditor<Font> {
         HyperlinkTitle styleTitle = fontStyle.getTitle();
         styleTitle.setText("Style");
         ComboButton cbtn = new ComboButton();
-        System.err.println("1. cbtn.getComboBox().parent = " + cbtn.getComboBox().getParent());
         fontStyle.getButtons().add(cbtn);
-        System.err.println("2. cbtn.getComboBox().parent = " + cbtn.getComboBox().getParent());
         addFontStyleValidators();
         
         size = new SliderPropertyEditor(0, 128, 0);
@@ -199,7 +195,6 @@ public class FontPropertyEditor extends ComboButtonPropertyEditor<Font> {
             cbtn.getComboBox().getItems().addAll(fontStyles);
         };
         cbtn.setItemsUpdater(updater);
-        System.err.println("3. cbtn.getComboBox().parent = " + cbtn.getComboBox().getParent());
         grid.add(familyTitle, 0, 0);
         grid.add(family, 1, 0);
 
@@ -218,8 +213,6 @@ public class FontPropertyEditor extends ComboButtonPropertyEditor<Font> {
         errorMessage.setMaxWidth(1000);
 
         grid.setAlignment(Pos.CENTER);
-System.err.println("4. cbtn.getComboBox().parent = " + cbtn.getComboBox().getParent());
-        //family.bindBidirectional();
         return root;
     }
 
@@ -229,7 +222,6 @@ System.err.println("4. cbtn.getComboBox().parent = " + cbtn.getComboBox().getPar
             if (Font.getFamilies().contains(item)) {
                 retval = true;
             }
-            //System.err.println("validator retval = " + retval);
             if (retval) {
                 errorMessage.setVisible(false);
             } else {
@@ -249,7 +241,6 @@ System.err.println("4. cbtn.getComboBox().parent = " + cbtn.getComboBox().getPar
             if (EditorUtil.getFontStyles(fm, sz).contains(item)) {
                 retval = true;
             }
-            //System.err.println("validator retval = " + retval);
             if (retval) {
                 errorMessage.setVisible(false);
             } else {

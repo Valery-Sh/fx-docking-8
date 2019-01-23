@@ -16,6 +16,7 @@
 package org.vns.javafx.scene.control.editors;
 
 import java.lang.reflect.Method;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 
 /**
@@ -27,7 +28,7 @@ public interface StaticConstraintPropertyEditor {
 
     String getName();
 
-    void bindConstraint(Parent node, Method... setMethods);
+    void bindConstraint(Node node, Method... setMethods);
 
     void unbind();
 

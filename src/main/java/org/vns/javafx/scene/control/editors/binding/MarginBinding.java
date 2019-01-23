@@ -41,7 +41,7 @@ import javafx.scene.layout.VBox;
 public class MarginBinding implements WeakListener {
 
     private final WeakReference<ObjectProperty<Insets>> editorInsets;
-    private Parent node;
+    private Node node;
     private Method[] setMethods;
     private boolean updating = false;
     private boolean bound = false;
@@ -49,12 +49,12 @@ public class MarginBinding implements WeakListener {
         editorInsetsChanged(v, ov, nv);
     };
 
-    public MarginBinding(Parent node, ObjectProperty<Insets> editorInsets) {
+    public MarginBinding(Node node, ObjectProperty<Insets> editorInsets) {
         this(node, editorInsets, new Method[0]);
         
         
     }
-    public MarginBinding(Parent node, ObjectProperty<Insets> editorInsets, Method... setMethods) {
+    public MarginBinding(Node node, ObjectProperty<Insets> editorInsets, Method... setMethods) {
         this.editorInsets = new WeakReference<>(editorInsets);
         this.node = node;
         this.setMethods = setMethods;
@@ -78,11 +78,11 @@ public class MarginBinding implements WeakListener {
         }
     }
 
-    public Parent getNode() {
+    public Node getNode() {
         return node;
     }
 
-    public void setNode(Parent node) {
+    public void setNode(Node node) {
         this.node = node;
     }
 

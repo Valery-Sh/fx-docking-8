@@ -28,7 +28,7 @@ import javafx.scene.control.ToggleGroup;
 
 /**
  *
- * @author Nastia
+ * @author Valery Shyshkin
  */
 public class TreePane<E> extends TreePaneItem<E> {
 

@@ -18,10 +18,8 @@ package org.vns.javafx.scene.control.editors;
 import java.beans.MethodDescriptor;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -42,6 +40,7 @@ import static javafx.css.StyleOrigin.INLINE;
 import javafx.css.StyleableProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
@@ -49,7 +48,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Skin;
 import javafx.scene.control.SkinBase;
 import javafx.scene.control.TitledPane;
-import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ToolBar;
@@ -57,12 +55,9 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
 import org.vns.javafx.MainLookup;
 import org.vns.javafx.scene.control.editors.beans.BeanModel;
 import org.vns.javafx.scene.control.editors.beans.Category;
@@ -76,7 +71,7 @@ import org.vns.javafx.scene.control.editors.beans.Section;
  * @author Valery
  */
 @DefaultProperty("bean")
-public class PropertyEditorPane extends Control {
+public class PropertyEditorPane2 extends Control {
 
     public static final String CATEGORY_BUTTON_ID_PREF = "toggle-";
     public static final String CATEGORY_SCROLLPANE_ID_PREF = "scrollpane-";
@@ -87,7 +82,7 @@ public class PropertyEditorPane extends Control {
 
     private final ObjectProperty bean = new SimpleObjectProperty<>();
 
-    private ObservableList<PropertyEditorPane> childEditorPanes = FXCollections.observableArrayList();
+    private ObservableList<PropertyEditorPane2> childEditorPanes = FXCollections.observableArrayList();
 
     //private final ObjectProperty<Node> compositeManager = new SimpleObjectProperty<>();
     private final ObjectProperty<Node> toolBar = new SimpleObjectProperty<>();
@@ -103,11 +98,11 @@ public class PropertyEditorPane extends Control {
 //    private VBox layout;
     private PropertyEditorPaneManager manager;
 
-    public PropertyEditorPane() {
+    public PropertyEditorPane2() {
         this(null);
     }
 
-    public PropertyEditorPane(TreePaneItem item) {
+    public PropertyEditorPane2(TreePaneItem item) {
         this.treePaneItem = item;
         init();
     }
@@ -245,11 +240,11 @@ public class PropertyEditorPane extends Control {
         return scrollVBarPolicy;
     }
 
-    public class PropertyEditorPaneSkin extends SkinBase<PropertyEditorPane> {
+    public class PropertyEditorPaneSkin extends SkinBase<PropertyEditorPane2> {
 
         private final VBox layout;
 
-        public PropertyEditorPaneSkin(PropertyEditorPane control) {
+        public PropertyEditorPaneSkin(PropertyEditorPane2 control) {
             super(control);
             layout = control.getManager().getLayout();
             getChildren().add(layout);
@@ -261,41 +256,57 @@ public class PropertyEditorPane extends Control {
 
         private final ObservableMap<String, Pane> categories = FXCollections.observableHashMap();
         private final ObservableMap<String, TitledPane> sections = FXCollections.observableHashMap();
-
         private final ObservableMap<String, PropertyEditor> editors = FXCollections.observableHashMap();
 
-        private final ObservableMap<String, PropertyEditor> nodeEditors = FXCollections.observableHashMap();
-        private final ObservableMap<String, PropertyEditor> regionEditors = FXCollections.observableHashMap();
-        private final ObservableMap<String, PropertyEditor> shapeEditors = FXCollections.observableHashMap();
-
         private final ObservableMap<String, PropertyEditor> beanSpecificEditors = FXCollections.observableHashMap();
-        private final ObservableMap<String, PropertyEditor> compositerEditors = FXCollections.observableHashMap();
-        private final ObservableMap<String, StaticConstraintPropertyEditor> constraintsEditors = FXCollections.observableHashMap();
 
         private final ObservableMap<Class<?>, List<String>> layoutConstraints = FXCollections.observableHashMap();
 
         private final VBox layout;
         private VBox beanPane;
+        private VBox categoriesLayout;
+        private Pane categoryButtonPane;
+        private StackPane contentPane;
+        private ToggleGroup toggleGroup;
 
-        private String lastSelectedToggleButtonId;
-        //private VBox categoriesLayout;
-        //private Pane categoryButtonPane;
-        //private StackPane contentPane;
-        //private ToggleGroup toggleGroup;
+        private final ObservableMap<Object, List<ScrollPane>> scrollPanes = FXCollections.observableHashMap();
 
-        //private final ObservableMap<Object, VBox> beanPanes = FXCollections.observableHashMap();
         private final Map<Property, ChangeListener> styleableListeners = FXCollections.observableHashMap(); // listenerMap.get(getSkinnable().getBean());
 
         private final ChangeListener<? extends Object> beanChangeListener = ((v, ov, nv) -> {
             beanChanged(v, ov, nv);
         });
 
-        private PropertyEditorPane control;
+        private PropertyEditorPane2 control;
 
-        public PropertyEditorPaneManager(PropertyEditorPane control) {
+        public PropertyEditorPaneManager(PropertyEditorPane2 control) {
             this.control = control;
             createLayoutConstraintMap();
-            //beanPane = createBeanPane();
+            beanPane = new VBox();
+            categoriesLayout = new VBox();
+            beanPane.getChildren().add(categoriesLayout);
+            //
+            // initialize categoriesLayout (creadted only once)
+            //
+            categoryButtonPane = control.getCategoryButtonPane();
+            categoriesLayout.getChildren().add(categoryButtonPane);
+            contentPane = new StackPane();
+            categoriesLayout.getChildren().add(contentPane);
+
+            toggleGroup = new ToggleGroup();
+            toggleGroup.selectedToggleProperty().addListener((v, ov, nv) -> {
+                //
+                // We must set all ScrollPanes as invisible except selected 
+                //
+                if (ov != null) {
+                    String id = "#" + CATEGORY_SCROLLPANE_ID_PREF + ((ToggleButton) ov).getId().substring(CATEGORY_BUTTON_ID_PREF.length());
+                    contentPane.lookup(id).setVisible(false);
+                }
+                if (nv != null) {
+                    String id = "#" + CATEGORY_SCROLLPANE_ID_PREF + ((ToggleButton) nv).getId().substring(CATEGORY_BUTTON_ID_PREF.length());
+                    contentPane.lookup(id).setVisible(true);
+                }
+            });
             layout = new VBox();
             if (control.getToolBar() != null) {
                 layout.getChildren().add(control.getToolBar());
@@ -303,10 +314,8 @@ public class PropertyEditorPane extends Control {
             if (control.getStatusBar() != null) {
                 layout.getChildren().add(control.getStatusBar());
             }
-            //layout.getChildren().add(beanPane);
+            layout.getChildren().add(beanPane);
             layout.setSpacing(2);
-
-            createPredefinedPropertyEditors();
 
             control.beanProperty().addListener(beanChangeListener);
 
@@ -318,52 +327,14 @@ public class PropertyEditorPane extends Control {
                     } else {
                         layout.getChildren().set(idx, nv);
                     }
-                } else if (nv != null) {
-                    layout.getChildren().add(1, nv);
+                } else if (nv != null && beanPane != null) {
+                    int idx = layout.getChildren().indexOf(beanPane);
+                    layout.getChildren().add(idx, nv);
                 }
 
             });
         }
 
-        protected void createBeanPane() {
-            beanPane = new VBox();
-            //beanPane.setId("beanPane");
-
-            VBox categoriesLayout = new VBox();
-            beanPane.getChildren().add(categoriesLayout);
-            //
-            // initialize categoriesLayout (creadted only once)
-            //
-            //categoryButtonPane = control.getCategoryButtonPane();
-            TilePane categoryButtonPane = new TilePane();
-            categoriesLayout.getChildren().add(categoryButtonPane);
-            StackPane contentPane = new StackPane();
-            categoriesLayout.getChildren().add(contentPane);
-
-            ToggleGroup toggleGroup = new ToggleGroup();
-
-            toggleGroup.selectedToggleProperty().addListener((v, ov, nv) -> {
-                //
-                // We must set all ScrollPanes as invisible except selected 
-                //
-                lastSelectedToggleButtonId = null;
-                if (ov != null) {
-                    String id = "#" + CATEGORY_SCROLLPANE_ID_PREF + ((ToggleButton) ov).getId().substring(CATEGORY_BUTTON_ID_PREF.length());
-                    contentPane.lookup(id).setVisible(false);
-                    //contentPane.lookup(id).setVisible(false);
-                }
-                if (nv != null) {
-                    String id = "#" + CATEGORY_SCROLLPANE_ID_PREF + ((ToggleButton) nv).getId().substring(CATEGORY_BUTTON_ID_PREF.length());
-                    contentPane.lookup(id).setVisible(true);
-                    lastSelectedToggleButtonId = ((ToggleButton) nv).getId();
-                }
-            });
-            beanPane.getProperties().put("categoriesLayout", categoriesLayout);
-            beanPane.getProperties().put("contentPane", contentPane);
-            beanPane.getProperties().put("categoryButtonPane", categoryButtonPane);
-            beanPane.getProperties().put("toggleGroup", toggleGroup);
-
-        }
 
         protected VBox getLayout() {
             return layout;
@@ -374,29 +345,7 @@ public class PropertyEditorPane extends Control {
                 editors.values().forEach(pe -> {
                     ((PropertyEditor) pe).unbind();
                 });
-                editors.clear();
                 beanSpecificEditors.values().forEach(pe -> {
-                    ((PropertyEditor) pe).unbind();
-                });
-                beanSpecificEditors.clear();
-
-                compositerEditors.values().forEach(pe -> {
-                    ((PropertyEditor) pe).unbind();
-                });
-                compositerEditors.clear();
-
-                constraintsEditors.values().forEach(pe -> {
-                    ((PropertyEditor) pe).unbind();
-                });
-                constraintsEditors.clear();
-
-                nodeEditors.values().forEach(pe -> {
-                    ((PropertyEditor) pe).unbind();
-                });
-                regionEditors.values().forEach(pe -> {
-                    ((PropertyEditor) pe).unbind();
-                });
-                shapeEditors.values().forEach(pe -> {
                     ((PropertyEditor) pe).unbind();
                 });
 
@@ -411,21 +360,6 @@ public class PropertyEditorPane extends Control {
             } else if (statusBarLabel != null) {
                 statusBarLabel.setText("No Bean Selected");
             }
-            if (oldValue != null && newValue == null) {
-                layout.getChildren().remove(beanPane);
-                beanPane = null;
-                hide();
-                return;
-            }
-            if (beanPane != null) {
-                layout.getChildren().remove(beanPane);
-            }
-            //
-            // creates but doesn't add to layout. The show() method adds 
-            // the created beanPane to layout.
-            //
-            createBeanPane();
-
             if (newValue != null) {
                 show();
             } else {
@@ -434,6 +368,7 @@ public class PropertyEditorPane extends Control {
         }
 
         private void createLayoutConstraintMap() {
+            //long start = System.currentTimeMillis();
             ObservableList<BeanModel> beanModels = PropertyPaneModelRegistry.getPropertyPaneModel().getBeanModels();
             beanModels.forEach(model -> {
                 for (Category cat : model.getItems()) {
@@ -446,17 +381,24 @@ public class PropertyEditorPane extends Control {
                                         names.add(pi.getName());
                                     }
                                 });
+                                /*                                System.err.println("model = " + model.getDisplayName());
+                                System.err.println("   --- beanType = " + model.getBeanType());
+                                System.err.println("   --- names = " + names);
+                                System.err.println("=======================================");
+                                 */
                                 layoutConstraints.put(model.getBeanType(), names);
                             }
                         }
                     }
                 }
             });
+            //long end = System.currentTimeMillis();
+
         }
 
         public void hide() {
-            //toggleGroup.selectToggle(null);
-            //categoryButtonPane.getChildren().clear();
+            toggleGroup.selectToggle(null);
+            categoryButtonPane.getChildren().clear();
         }
 
         public void show() {
@@ -464,13 +406,15 @@ public class PropertyEditorPane extends Control {
                 return;
             }
 
-            StackPane contentPane = (StackPane) beanPane.getProperties().get("contentPane");
-            TilePane categoryButtonPane = (TilePane) beanPane.getProperties().get("categoryButtonPane");
-            ToggleGroup toggleGroup = (ToggleGroup) beanPane.getProperties().get("toggleGroup");
-
             toggleGroup.selectToggle(null);
             categoryButtonPane.getChildren().clear();
-            contentPane.getChildren().clear();
+            
+            if (scrollPanes.containsKey(control.getBean())) {
+                showBeanPane();
+                return;
+            } else {
+                contentPane.getChildren().clear();
+            }
 
             Introspection introspection = PropertyPaneModelRegistry.getInstance().introspect(control.getBean().getClass());
 
@@ -493,9 +437,13 @@ public class PropertyEditorPane extends Control {
 
                             int i = 0;
                             for (String propName : list) {
+                                //StaticConstraintPropertyEditor editor = constraintEditors.get(propName);
+                                //if (editor == null) {
+                                //if (true) {    
                                 StaticConstraintPropertyEditor editor = ConstraintPropertyEditorFactory.getDefault().getEditor(propName, parentClass);
+                                //    constraintEditors.put(propName, editor);
+                                //}
                                 if (editor != null) {
-                                    constraintsEditors.put(propName, editor);
                                     editor.bindConstraint((Node) control.getBean());
                                     HyperlinkTitle title = editor.getTitle();
                                     grid.add(title, 0, i);
@@ -527,43 +475,36 @@ public class PropertyEditorPane extends Control {
                             // We deal with CompositeBeanModel
                             //
                             PropertyDescriptor pd = introspection.getPropertyDescriptors().get(propItem.getName());
-                            if (pd != null && isComposite(pd.getPropertyType())) {
+                            if (isComposite(pd.getPropertyType())) {
                                 editor = CompositePropertyEditorFactory.getDefault().getEditor(propItem.getName(), pd.getPropertyType(), control.getBean().getClass());
                             }
                             if (editor != null) {
-                                compositerEditors.put(propItem.getName(), editor);
                                 TreePaneItem treePaneChild = (TreePaneItem) CompositePropertyEditorFactory.getDefault().getEditor(propItem.getName(), pd.getPropertyType(), control.getBean().getClass());
                                 control.getTreePaneItem().getChildItems().add(treePaneChild);
                                 ((TreePaneItem) editor).bindItems(treePaneChild);
                             }
                         }
                         if (editor == null) {
-                            editor = nodeEditors.get(propItem.getName());
-                            if (editor == null && (control.getBean() instanceof Shape)) {
-                                editor = shapeEditors.get(propItem.getName());
-                            }
-                            if (editor == null && (control.getBean() instanceof Region)) {
-                                editor = regionEditors.get(propItem.getName());
-                            }
-
+                            //editor = editors.get(propItem.getName());
                         }
+
                         if (editor == null) {
                             Class[] propTypes = introspection.getPropTypes(propItem.getName());
                             if (propTypes == null) {
                                 continue;
                             }
                             List<? extends BeanSpecificPropertyEditorFactory> list = MainLookup.lookupAll(BeanSpecificPropertyEditorFactory.class);
-                            //PropertyEditor retval = null;
+                            PropertyEditor retval = null;
                             for (BeanSpecificPropertyEditorFactory f : list) {
-                                editor = f.getEditor(control.getBean(), propItem.getName(), propTypes);
-                                if (editor != null) {
-                                    beanSpecificEditors.put(propItem.getName(), editor);
+                                retval = f.getEditor(control.getBean(), propItem.getName(), propTypes);
+                                if (retval != null) {
+                                    //21.01.2019beanSpecificEditors.put(propItem.getName(), editor);
                                     break;
                                 }
                             }
                             if (editor == null) {
                                 editor = PropertyEditorFactory.getDefault().getEditor(propItem.getName(), propTypes);
-                                editors.put(propItem.getName(), editor);
+                                //21.01.2019editors.put(propItem.getName(), editor);
                             }
                         }
                         if (editor != null) {
@@ -575,7 +516,7 @@ public class PropertyEditorPane extends Control {
                                 try {
                                     value = pd.getReadMethod().invoke(control.getBean(), new Object[0]);
                                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                                    Logger.getLogger(PropertyEditorPane.class.getName()).log(Level.SEVERE, null, ex);
+                                    Logger.getLogger(PropertyEditorPane2.class.getName()).log(Level.SEVERE, null, ex);
                                 }
 
                             } else {
@@ -583,7 +524,7 @@ public class PropertyEditorPane extends Control {
                                 try {
                                     value = md.getMethod().invoke(control.getBean(), new Object[0]);
                                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                                    Logger.getLogger(PropertyEditorPane.class.getName()).log(Level.SEVERE, null, ex);
+                                    Logger.getLogger(PropertyEditorPane2.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                             }
 
@@ -622,33 +563,25 @@ public class PropertyEditorPane extends Control {
             contentPane.getChildren().forEach(node -> node.setVisible(false));
 
             if (toggleGroup.getToggles().size() > 0) {
-                int sel = 0;
-                if (lastSelectedToggleButtonId != null) {
-                    for (Toggle t : toggleGroup.getToggles()) {
-                        if (lastSelectedToggleButtonId.equals(((ToggleButton) t).getId())) {
-                            sel = toggleGroup.getToggles().indexOf(t);
-                            break;
-                        }
-                    }
-                }
-                toggleGroup.getToggles().get(sel).setSelected(true);
+                toggleGroup.getToggles().get(0).setSelected(true);
             }
 
             List<ScrollPane> list = FXCollections.observableArrayList();
             contentPane.getChildren().forEach(node -> {
                 list.add((ScrollPane) node);
             });
-            //beanPanes.put(control.getBean(), beanPane);
-            layout.getChildren().add(beanPane);
+            scrollPanes.put(control.getBean(), list);
+
             beanModel.setBean(null);
         }
 
         protected void showBeanPane() {
 
-            /*            List<ScrollPane> list = beanPanes.get(control.getBean());
             Introspection introspection = PropertyPaneModelRegistry.getInstance().introspect(control.getBean().getClass());
 
             BeanModel beanModel = PropertyPaneModelRegistry.getInstance().getBeanModel(control.getBean(), introspection);
+
+            List<ScrollPane> list = scrollPanes.get(control.getBean());
 
             for (Category c : beanModel.getItems()) {
                 String displayName = c.getDisplayName();
@@ -660,7 +593,6 @@ public class PropertyEditorPane extends Control {
                 toggleGroup.getToggles().add(catBtn);
                 categoryButtonPane.getChildren().add(catBtn);
             }
-            
             contentPane.getChildren().clear();
             contentPane.getChildren().addAll(list);
             contentPane.getChildren().forEach(node -> node.setVisible(false));
@@ -670,7 +602,6 @@ public class PropertyEditorPane extends Control {
             }
 
             beanModel.setBean(null);
-             */
         }
 
         private Object getPropertyValue(String name, Object bean, Introspection introspection) {
@@ -679,7 +610,7 @@ public class PropertyEditorPane extends Control {
             try {
                 value = md.getMethod().invoke(bean, new Object[0]);
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                Logger.getLogger(PropertyEditorPane.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(PropertyEditorPane2.class.getName()).log(Level.SEVERE, null, ex);
             }
             return value;
         }
@@ -693,10 +624,9 @@ public class PropertyEditorPane extends Control {
          */
         private VBox getCategoryPane(String name, String displayName) {
             VBox pane = (VBox) categories.get(name);
-
-            StackPane contentPane = (StackPane) beanPane.getProperties().get("contentPane");
-            TilePane categoryButtonPane = (TilePane) beanPane.getProperties().get("categoryButtonPane");
-            ToggleGroup toggleGroup = (ToggleGroup) beanPane.getProperties().get("toggleGroup");
+            if ( pane != null ) {
+                System.err.println("PANE != null");
+            }
             if (pane == null) {
                 if (displayName == null || displayName.trim().isEmpty()) {
                     displayName = EditorUtil.toDisplayName(name);
@@ -722,99 +652,6 @@ public class PropertyEditorPane extends Control {
             return pane;
         }
 
-        protected void createPredefinedPropertyEditors() {
-            List<String> names = PropertyPaneModelRegistry.getPropertyNames(Node.class);
-
-            regionEditors.putAll(getPropertyEditors(new Region()));
-
-            nodeEditors.putAll(regionEditors);
-
-            Set<String> keys = new HashSet<>(nodeEditors.keySet());
-            keys.forEach(key -> {
-                if (!names.contains(key)) {
-                    nodeEditors.remove(key);
-                }
-            });
-
-            List<String> shapeNames = PropertyPaneModelRegistry.getPropertyNames(Shape.class);
-            shapeEditors.putAll(getPropertyEditors(new Rectangle()));
-
-            keys = new HashSet<>(shapeEditors.keySet());
-            keys.forEach(key -> {
-                if (!shapeNames.contains(key) || names.contains(key)) {
-                    shapeEditors.remove(key);
-                }
-            });
-
-            keys = new HashSet<>(regionEditors.keySet());
-            keys.forEach(key -> {
-                if (names.contains(key)) {
-                    regionEditors.remove(key);
-                }
-            });
-        }
-
-        protected ObservableMap<String, PropertyEditor> getPropertyEditors(Node node) {
-
-            ObservableMap<String, PropertyEditor> map = FXCollections.observableHashMap();
-
-            Introspection introspection = PropertyPaneModelRegistry.getInstance().introspect(node.getClass());
-            BeanModel beanModel = PropertyPaneModelRegistry.getInstance().getBeanModel(node, introspection);
-
-            for (Category c : beanModel.getItems()) {
-
-/*                if ("layout".equals(c.getName())) {
-                    if (node.getParent() != null) {
-
-                        Class<?> parentClass = node.getParent().getClass();
-                        List<String> list = layoutConstraints.get(parentClass);
-
-                        if (list != null && !list.isEmpty()) {
-                            for (String propName : list) {
-                                StaticConstraintPropertyEditor editor = ConstraintPropertyEditorFactory.getDefault().getEditor(propName, parentClass);
-                                if (editor != null) {
-                                    //editor.bindConstraint((Node) control.getBean());
-                                    //HyperlinkTitle title = editor.getTitle();
-                                }
-                            }
-                        }
-                    }
-                }
-*/
-                for (Section s : c.getItems()) {
-                    if ("layout".equals(c.getName()) && "constraint".equals(s.getName())) {
-                        continue;
-                    }
-
-                    for (BeanProperty propItem : s.getItems()) {
-                        PropertyEditor editor = null;
-                    
-
-                        if (editor == null) {
-                            Class[] propTypes = introspection.getPropTypes(propItem.getName());
-                            if (propTypes == null) {
-                                continue;
-                            }
-                            List<? extends BeanSpecificPropertyEditorFactory> list = MainLookup.lookupAll(BeanSpecificPropertyEditorFactory.class);
-                            for (BeanSpecificPropertyEditorFactory f : list) {
-                                editor = f.getEditor(node, propItem.getName(), propTypes);
-                                if (editor != null) {
-                                    beanSpecificEditors.put(propItem.getName(), editor);
-                                    break;
-                                }
-                            }
-                            if (editor == null) {
-                                editor = PropertyEditorFactory.getDefault().getEditor(propItem.getName(), propTypes);
-                                map.put(propItem.getName(), editor);
-                            }
-                        }
-                    }
-                }
-
-            }
-            return map;
-        }
-
         private TitledPane getSectionPane(String categoryName, String sectionName, String displayName) {
             String id = categoryName + "-" + sectionName;
             TitledPane pane = sections.get(id);
@@ -830,7 +667,8 @@ public class PropertyEditorPane extends Control {
                 pane.getStyleClass().add("section");
                 pane.setText(displayName);
 
-                sections.put(id, pane);
+                //sections.put(id, pane);
+
                 GridPane grid = new GridPane();
                 grid.getStyleClass().add("prop-grid");
                 grid.setHgap(10);

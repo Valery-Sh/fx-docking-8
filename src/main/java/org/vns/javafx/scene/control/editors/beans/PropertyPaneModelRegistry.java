@@ -35,10 +35,16 @@ import org.vns.javafx.scene.control.editors.PropertyEditorFactory;
 public class PropertyPaneModelRegistry {
 
     private PropertyPaneModel propertyPaneModel;
-
+    
+    private final ObservableMap<Class<?>, Map<String,Object>>  beanTypeDefaultProperties = FXCollections.observableHashMap();
+    
     //private final ObservableMap<Class<?>, Introspection> introspection = FXCollections.observableHashMap();
     public static PropertyPaneModelRegistry getInstance() {
         return SingletonInstance.INSTANCE;
+    }
+
+    public ObservableMap<Class<?>, Map<String, Object>> getBeanTypeDefaultProperties() {
+        return beanTypeDefaultProperties;
     }
 
     public static PropertyPaneModel getPropertyPaneModel() {
@@ -434,7 +440,19 @@ public class PropertyPaneModelRegistry {
         });
         return list.sorted();
     }
-
+    public static ObservableList<String> getPropertyNames(Class<?> clazz) {
+        ObservableList<String> list = FXCollections.observableArrayList();
+        BeanModel beanModel = getBeanModelByType(clazz);
+        
+        beanModel.getItems().forEach(cat -> {
+            cat.getItems().forEach(sec -> {
+                sec.getItems().forEach(pd -> {
+                    list.add(pd.getName());
+                });
+            });
+        });
+        return list.sorted();
+    }
     protected static BeanModel getBeanModelByClassName(String beanClassName) {
         BeanModel ppd = null;
         for (BeanModel d : getPropertyPaneModel().getBeanModels()) {
@@ -516,7 +534,6 @@ public class PropertyPaneModelRegistry {
         String type = bean.getClass().getName();
         for (BeanModel bm : propertyPaneModel.getBeanModels()) {
             if (type.equals(bm.getBeanClassName())) {
-//                System.err.println("beanModel EXISTS !!!");
                 return bm;
             }
             map.put(bm.getBeanType(), bm);
@@ -674,13 +691,6 @@ public class PropertyPaneModelRegistry {
         ObservableList<BeanModel> part = FXCollections.observableArrayList();
         while (!updateCopy.isEmpty()) {
 
-/*            if (updateCopy.get(0).getBeanClassName() != null && updateCopy.get(0).getBeanClassName().endsWith(".Bloom")) {
-                System.err.println("**** Bloom");
-            }
-            if (updateCopy.get(0).getBeanClassName() != null && updateCopy.get(0).getBeanClassName().endsWith(".Effect")) {
-                System.err.println("**** Effect");
-            }
-*/
             fillPart(updateCopy.get(0), part, updateCopy);
             
             updateCopy.removeAll(part);
@@ -689,8 +699,7 @@ public class PropertyPaneModelRegistry {
                 updateBy(part.get(i));
             }
         }//while
-        printBeanModel(Bloom.class.getName(),true);
-        //printBeanModel(Effect.class.getName(),true);
+//        printBeanModel(Bloom.class.getName(),true);
 
         return true;
 
