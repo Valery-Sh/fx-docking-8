@@ -71,6 +71,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import org.vns.javafx.WindowLookup;
 import org.vns.javafx.dock.DockNode;
 import org.vns.javafx.dock.DockPane;
 import org.vns.javafx.dock.DockTitleBar;
@@ -197,14 +198,17 @@ public class PalettePane extends Control {
      *
      * @param value the value to make {@code DockLayout}
      */
-    public void setLayoutContext(Object value) {
+    public static void setLayoutContext(Object value) {
         if (!(value instanceof Node)) {
             return;
         }
-
-        PaletteItem item = getModel().getItem(value.getClass());
+        PalettePane pp = WindowLookup.lookupFirst(PalettePane.class);
+        if ( pp == null ) {
+            return;
+        }
+        PaletteItem item = pp.getModel().getItem(value.getClass());
         if (item != null) {
-            setLayoutContext(value, true);
+            setLayoutContext(pp,value, true);
         } else if (DockLayout.of(value) == null) {
             LayoutContext lc = DockRegistry.getLayoutContext(value);
             if (lc != null) {
@@ -230,12 +234,12 @@ public class PalettePane extends Control {
 
     }//setLayoutContext
 
-    public void setLayoutContext(Object value, boolean paletteRegistered) {
+    private static void setLayoutContext(PalettePane palettePane,Object value, boolean paletteRegistered) {
         if (!(value instanceof Node)) {
             return;
         }
 
-        PaletteItem item = getModel().getItem(value.getClass());
+        PaletteItem item = palettePane.getModel().getItem(value.getClass());
         if (item != null) {
             NodePolicy itemPolicy = item.getProducedNodePolicy();
             if (itemPolicy == DOCKLAYOUT || itemPolicy == BOTH) {
@@ -262,17 +266,17 @@ public class PalettePane extends Control {
      * @param value the value to make {@code Dockable}
      * @param paletteRegistered the boolean value
      */
-    public void setDockableContext(Object value, boolean paletteRegistered) {
+    public static void setDockableContext(PalettePane palettePane, Object value, boolean paletteRegistered) {
         if (!(value instanceof Node)) {
             return;
         }
 
-        PaletteItem item = getModel().getItem(value.getClass());
+        PaletteItem item = palettePane.getModel().getItem(value.getClass());
         if (item != null) {
             NodePolicy itemPolicy = item.getProducedNodePolicy();
             if (itemPolicy == DOCKABLE || itemPolicy == BOTH) {
                 if (Dockable.of(value) == null && (itemPolicy == DOCKABLE || itemPolicy == BOTH)) {
-                    if (getProducedNodePolicy() == DOCKABLE || getProducedNodePolicy() == BOTH) {
+                    if (palettePane.getProducedNodePolicy() == DOCKABLE || palettePane.getProducedNodePolicy() == BOTH) {
                         DockRegistry.makeDockable((Node) value);
                     }
                 }
@@ -280,14 +284,18 @@ public class PalettePane extends Control {
         }
     }
 
-    public void setDockableContext(Object value) {
+    public static void setDockableContext(Object value) {
         if (!(value instanceof Node)) {
             return;
         }
+        PalettePane pp = WindowLookup.lookupFirst(PalettePane.class);
+        if ( pp == null ) {
+            return;
+        }
 
-        PaletteItem item = getModel().getItem(value.getClass());
+        PaletteItem item = pp.getModel().getItem(value.getClass());
         if (item != null) {
-            setDockableContext(value, true);
+            setDockableContext(pp, value, true);
         } else if (Dockable.of(value) == null) {
             if (Dockable.of(value) == null) {
                 DockRegistry.makeDockable((Node) value);

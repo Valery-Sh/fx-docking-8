@@ -43,7 +43,7 @@ public abstract class AbstractNodeFraming implements NodeFraming {
     private ChangeListener<Node> nodeParentListener;
     private ChangeListener<Scene> nodeSceneListener;
     private ChangeListener<Window> nodeWindowListener;
-
+    
     @Override
     public final void show(Node node, Object... parms) {
         if (!isAcceptable(node)) {

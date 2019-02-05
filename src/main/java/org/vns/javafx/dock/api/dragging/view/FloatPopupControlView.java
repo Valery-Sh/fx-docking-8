@@ -173,7 +173,7 @@ public class FloatPopupControlView implements FloatWindowView {
         // Removes selected and then Removes all MMOUSE_CLICKED event handlers 
         // and filters of type SeectionListener
         //
-        Selection.removeListeners(node);
+        //05.02.2019Selection.removeListeners(node);
 
         Window owner;
         if ((node.getScene() == null || node.getScene().getWindow() == null)) {

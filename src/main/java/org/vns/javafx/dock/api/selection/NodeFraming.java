@@ -16,6 +16,7 @@
 package org.vns.javafx.dock.api.selection;
 
 import javafx.scene.Node;
+import org.vns.javafx.ContextLookup;
 
 /**
  *
@@ -33,5 +34,6 @@ public interface NodeFraming {
     void showParent(Node node, Object... parms);
     void hide();
     void removeListeners();
+    ContextLookup getContext();
     
 }

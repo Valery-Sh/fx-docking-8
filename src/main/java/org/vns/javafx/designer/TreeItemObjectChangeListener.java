@@ -23,8 +23,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.scene.Node;
+import org.vns.javafx.ContextLookup;
 import org.vns.javafx.dock.api.DockRegistry;
-import org.vns.javafx.dock.api.SaveRestore;
 import org.vns.javafx.dock.api.selection.NodeFraming;
 
 /**
@@ -35,8 +35,10 @@ public class TreeItemObjectChangeListener implements ChangeListener {
 
     private final TreeItemEx treeItem;
     private final String propertyName;
-
-    public TreeItemObjectChangeListener(TreeItemEx treeItem, String propertyName) {
+    private final ContextLookup context;
+    
+    public TreeItemObjectChangeListener(ContextLookup context,TreeItemEx treeItem, String propertyName) {
+        this.context = context;
         this.treeItem = treeItem;
         this.propertyName = propertyName;
     }
@@ -69,11 +71,11 @@ public class TreeItemObjectChangeListener implements ChangeListener {
         TreeItemEx propItem = treeItem.getTreeItem(propertyName);
         int insertPos = propItem == null ? 0 : treeItem.getInsertPos(propertyName);
 //        SaveRestore sr = DockRegistry.lookup(SaveRestore.class);
-        NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
+        NodeFraming nf = context.lookup(NodeFraming.class);
 
         if (propItem == null) {
             if (oldValue == null && newValue != null) {
-                TreeItemEx item = new TreeItemBuilder().build(newValue, prop);
+                TreeItemEx item = new TreeItemBuilder(context).build(newValue, prop);
                 if (item != null ) {
                     treeItem.getChildren().add(insertPos, item);
 //                    NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
@@ -106,7 +108,7 @@ public class TreeItemObjectChangeListener implements ChangeListener {
                        //sava sr.save(oldValue);
                     }
 */
-                    TreeItemEx item = new TreeItemBuilder().build(newValue, prop);
+                    TreeItemEx item = new TreeItemBuilder(context).build(newValue, prop);
 /*                    if ( item != null && sr != null && !sr.contains(newValue)) {
                         //
                         //changed outside and not by dragging 
@@ -123,7 +125,7 @@ public class TreeItemObjectChangeListener implements ChangeListener {
                 
             } else if ( newValue != null ) {
                 // May be is NodeContent and not hidden when null
-                TreeItemEx item = new TreeItemBuilder().build(newValue, prop);
+                TreeItemEx item = new TreeItemBuilder(context).build(newValue, prop);
 
                 if ( item != null ){
                     item.setExpanded(false);

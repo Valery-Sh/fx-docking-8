@@ -23,6 +23,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import org.vns.javafx.ContextLookup;
 
 /**
  *
@@ -30,12 +31,13 @@ import javafx.stage.Window;
  */
 public class StageNodeFraming extends WindowNodeFraming {
 
-    protected StageNodeFraming() {
+    public StageNodeFraming(ContextLookup context) {
+        super(context);
     }
-    public static WindowNodeFraming getInstance() {
+/*    public static WindowNodeFraming getInstance() {
         return SingletonInstance.instance;
     }
-
+*/
     @Override
     protected void createWindow() {
         Stage stage = new Stage(StageStyle.TRANSPARENT);
@@ -61,7 +63,7 @@ public class StageNodeFraming extends WindowNodeFraming {
         ((Stage)getWindow()).show();
     }
     private static class SingletonInstance {
-        private static final StageNodeFraming instance = new StageNodeFraming();
+        //private static final StageNodeFraming instance = new StageNodeFraming();
     }
     
 }

@@ -70,14 +70,7 @@ public class TrashTray extends Control {
 
     private static final PseudoClass FULL_PSEUDO_CLASS = PseudoClass.getPseudoClass("full");
 
-    /*    public PrimitivesTextField() {
-        System.err.println("PrimitveTextField Constructor");
-        editableProperty().addListener((v, oldValue, newValue) -> {
-            System.err.println("editableProperty changed: " + newValue);
-            pseudoClassStateChanged(EDITABLE_PSEUDO_CLASS, ! newValue);
-        });
-    }
-     */
+ 
     private final boolean designer;
     
     private final ObservableList<TrayItem> items = FXCollections.observableArrayList();
@@ -94,10 +87,7 @@ public class TrashTray extends Control {
                 if (!list.isEmpty()) {
                     SaveRestore sr = DockRegistry.lookup(SaveRestore.class);
                     if (sr != null) {
-//                        System.err.println("CHANGE FROM =" + change.getFrom() + " TO = " + change.getTo());
                         TrayItem ti = (TrayItem) list.get(list.size() - 1);
-
-                        //
                         sr.save(ti.getElement(), change.getTo());
                     }
                 }
@@ -445,7 +435,7 @@ public class TrashTray extends Control {
             // Removes selected and then Removes all MMOUSE_CLICKED event handlers 
             // and filters of type SeectionListener
             //
-            Selection.removeListeners(node);
+            //05.02.2019 Selection.removeListeners(node);
 
             final Stage window = new Stage();
             System.err.println("Trash window = " + window);
@@ -495,7 +485,7 @@ public class TrashTray extends Control {
             // Removes selected and then Removes all MMOUSE_CLICKED event handlers 
             // and filters of type SeectionListener
             //
-            Selection.removeListeners(node);
+            //05.02.2019Selection.removeListeners(node);
 
             Point2D windowPos = node.localToScreen(0, 0);
 

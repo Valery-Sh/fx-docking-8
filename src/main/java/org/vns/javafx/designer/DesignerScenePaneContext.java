@@ -16,6 +16,7 @@
 package org.vns.javafx.designer;
 
 import javafx.scene.Node;
+import org.vns.javafx.WindowLookup;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.ScenePaneContext;
 
@@ -24,34 +25,39 @@ import org.vns.javafx.dock.api.ScenePaneContext;
  * @author Olga
  */
 public class DesignerScenePaneContext extends ScenePaneContext {
-    
+
     public DesignerScenePaneContext(Dockable dockable) {
         super(dockable);
         init();
     }
-    private void init(){
+
+    private void init() {
     }
-    public static class DesignerScenePaneContextFactory extends ScenePaneContextFactory{
+
+    public static class DesignerScenePaneContextFactory extends ScenePaneContextFactory {
+
         @Override
         public ScenePaneContext getContext(Dockable dockable) {
             return new DesignerScenePaneContext(dockable);
         }
-    } 
-    
+    }
 
     @Override
     public boolean contains(Object obj) {
-        if (obj == null ) {
+        if (obj == null) {
             return false;
         }
-        
-        TreeViewEx tv = DesignerLookup.lookup(SceneView.class).getTreeView();
+        if (getDockable().getNode().getScene() == null || getDockable().getNode().getScene().getWindow() == null) {
+            return false;
+        }
+        //TreeViewEx tv = DesignerLookup.lookup(SceneView.class).getTreeView();
+        SceneView sv = WindowLookup.lookup(getDockable().getNode().getScene().getWindow(), SceneView.class);
+        TreeViewEx tv = sv == null ? null : sv.getTreeView();
         TreeItemEx item = SceneViewUtil.findTreeItemByObject(tv, obj);
-  
+
         return Dockable.of(obj) != null && Dockable.of(obj).getContext().getLayoutContext() == this && item != null;
     }
 
-    
     @Override
     public void remove(Object obj) {
         if (!(obj instanceof Node)) {
@@ -61,27 +67,29 @@ public class DesignerScenePaneContext extends ScenePaneContext {
         if (!contains(dockNode)) {
             return;
         }
-        TreeViewEx tv = DesignerLookup.lookup(SceneView.class).getTreeView();
-        TreeItemEx item = SceneViewUtil.findTreeItemByObject(tv, obj);        
-        if ( item != null && item.getParent() == null ) {
+        //TreeViewEx tv = DesignerLookup.lookup(SceneView.class).getTreeView();
+        TreeViewEx tv = WindowLookup.lookup(getDockable().getNode().getScene().getWindow(), SceneView.class).getTreeView();
+        TreeItemEx item = SceneViewUtil.findTreeItemByObject(tv, obj);
+        
+        if (item != null && item.getParent() == null) {
             //
             // root item
             //
             //tv.setRoot(null); //09.11 was old: return;
             //return; // 09.11;
-            SceneView sgv = DesignerLookup.lookup(SceneView.class);
-            if ( sgv.getRoot() == null ) {
+            SceneView sgv = tv.getSceneView();
+            if (sgv.getRoot() == null) {
                 return;
             }
-            if ( sgv.getRoot().getScene() == null ) {
+            if (sgv.getRoot().getScene() == null) {
                 return;
             }
-            if ( sgv.getRoot() == sgv.getRoot().getScene().getRoot() ) {
+            if (sgv.getRoot() == sgv.getRoot().getScene().getRoot()) {
                 sgv.setRoot(null);
                 sgv.getRoot().getScene().setRoot(null);
                 return;
             } else {
-                TreeItemBuilder builder = new TreeItemBuilder();
+                TreeItemBuilder builder = new TreeItemBuilder(sgv.getContext());
                 TreeItemEx it = builder.build(sgv.getRoot().getScene().getRoot());
                 it = SceneViewUtil.findChildTreeItem(it, item.getValue());
                 builder.updateOnMove(it);
@@ -90,10 +98,10 @@ public class DesignerScenePaneContext extends ScenePaneContext {
                 return;
             }
         }
-        new TreeItemBuilder().updateOnMove(item);
-      //  if (DockRegistry.getInstance().getBeanRemover() != null) {
-      //      DockRegistry.getInstance().getBeanRemover().remove(dockNode);
-      //  }
+        new TreeItemBuilder(tv.getSceneView().getContext()).updateOnMove(item);
+        //  if (DockRegistry.getInstance().getBeanRemover() != null) {
+        //      DockRegistry.getInstance().getBeanRemover().remove(dockNode);
+        //  }
     }
-    
+
 }

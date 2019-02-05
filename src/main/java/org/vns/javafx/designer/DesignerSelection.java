@@ -16,6 +16,7 @@
 package org.vns.javafx.designer;
 
 import javafx.scene.Node;
+import org.vns.javafx.ContextLookup;
 import org.vns.javafx.dock.api.DockLayout;
 import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.selection.ObjectFramingProvider;
@@ -29,19 +30,18 @@ public class DesignerSelection extends Selection {
 
     //private NodeResizer resizer;
     //private NodeFraming resizer;
-    public DesignerSelection() {
-        init();
+    public DesignerSelection(ContextLookup context) {
+        super(context);
     }
 
-    private void init() {
-    }
 
     public boolean isSelectable(Object value) {
         boolean retval = false;
         if (value != null && (value instanceof Node)) {
             return true;
         }
-        TreeItemEx item = SceneViewUtil.findTreeItemByObject(value);
+        TreeViewEx tv = getContext().lookup(SceneView.class).getTreeView();
+        TreeItemEx item = SceneViewUtil.findTreeItemByObject(tv,value);
         if (null != item.getItemType()) {
             switch (item.getItemType()) {
                 case LIST: {
@@ -109,8 +109,10 @@ public class DesignerSelection extends Selection {
     @Override
     protected boolean showObjectFraming(Object value) {
         boolean retval = false;
+        TreeViewEx tv = getContext().lookup(SceneView.class).getTreeView();
+        TreeItemEx item = SceneViewUtil.findTreeItemByObject(tv,value);
 
-        TreeItemEx item = SceneViewUtil.findTreeItemByObject(value);
+//        TreeItemEx item = SceneViewUtil.findTreeItemByObject(value);
         if (null != item.getItemType()) {
             switch (item.getItemType()) {
                 case LIST: {
@@ -188,7 +190,7 @@ public class DesignerSelection extends Selection {
             return;
         }
 
-        SceneView sgv = DesignerLookup.lookup(SceneView.class);
+        SceneView sgv = getContext().lookup(SceneView.class);
         if (sgv != null && sgv.getTreeView().getRoot() != null) {
             TreeItemEx item;
             if (sgv.getTreeView().getRoot().getValue() == value) {

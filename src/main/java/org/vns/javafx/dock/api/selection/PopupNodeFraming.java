@@ -20,6 +20,7 @@ import javafx.geometry.Bounds;
 import javafx.scene.Parent;
 import javafx.scene.control.PopupControl;
 import javafx.stage.Window;
+import org.vns.javafx.ContextLookup;
 
 /**
  *
@@ -27,13 +28,10 @@ import javafx.stage.Window;
  */
 public class PopupNodeFraming extends WindowNodeFraming {
 
-    protected PopupNodeFraming() {
-        super();
+    public PopupNodeFraming(ContextLookup context) {
+        super(context);
     }
     
-    public static WindowNodeFraming getInstance() {
-        return SingletonInstance.instance;
-    }
 
     @Override
     protected void createWindow() {
@@ -55,6 +53,6 @@ public class PopupNodeFraming extends WindowNodeFraming {
     }
     
     private static class SingletonInstance {
-        private static final PopupNodeFraming instance = new PopupNodeFraming();
+        //private static final PopupNodeFraming instance = new PopupNodeFraming();
     }
 }

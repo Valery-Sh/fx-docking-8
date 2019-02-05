@@ -91,15 +91,5 @@ public class TreeViewExMouseDragHandler extends DefaultMouseDragHandler {
         } 
     }
 
-    /*    @Override
-    protected void prepare() {
-        DragContainer dc = getContext().getDragContainer();
-        if ( dc != null && dc.getPlaceholder() != null && dc.getValue() != null && dc.getValue() instanceof Tab ) {
-            Tab tab = (Tab) dc.getValue();
-            if ( tab.getTabPane() != null ) {
-                tab.getTabPane().getTabs().remove(tab);
-            }
-        }
-    }
-     */
+  
 }

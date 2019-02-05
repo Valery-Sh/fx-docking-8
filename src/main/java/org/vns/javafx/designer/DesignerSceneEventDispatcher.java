@@ -27,6 +27,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Window;
+import org.vns.javafx.WindowLookup;
 import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
@@ -208,6 +209,7 @@ public class DesignerSceneEventDispatcher implements PalettePane.PaletteEventDis
     }
 
     protected Event pressed(Event event, EventDispatchChain tail) {
+        System.err.println("EventDispatcher: PRESSED" );        
         //System.err.println("pickTop node = " + TopNodeHelper.pickTop(scene.getWindow(), ((MouseEvent)event).getScreenX(), ((MouseEvent)event).getScreenY(), n -> {return true;}));
 //        System.err.println("SCENE PRESSED TARGET = " + target);
 //        System.err.println("Scene pressed ev.target = " + event.getTarget());
@@ -228,15 +230,18 @@ public class DesignerSceneEventDispatcher implements PalettePane.PaletteEventDis
         }
 
         target = (Node) event.getTarget();
+        System.err.println("PRESSED target = " + target);
         node = getDockableParent(target);
 //        System.err.println("pressed target " + target + "; dockable node = " + node);
-//        System.err.println("PRESSED node = " + node);
-        Selection.MouseSelectionListener l = DockRegistry.lookup(Selection.MouseSelectionListener.class);
+        System.err.println("PRESSED node = " + node);
+        //Selection.MouseSelectionListener l = DockRegistry.lookup(Selection.MouseSelectionListener.class);
+        Selection sel = WindowLookup.lookup(scene.getWindow(),Selection.class);        
+        Selection.MouseSelectionListener l = sel.getSelectionListener();        
         if (l != null) { //&& (event.getTarget() instanceof Node)) {
 //            System.err.println("PRESSED selectionListener = " + l);
             //l.handle((MouseEvent) event, (Node) event.getTarget());
             MouseEvent copy = (MouseEvent) event.copyFor(node, node);
-//            System.err.println("pressed Selection.SelectionListener " + Selection.MouseSelectionListener.class);
+            //System.err.println("pressed Selection.SelectionListener " + Selection.MouseSelectionListener.class);
             l.handle(copy, node);
             //l.mousePressed(copy);
         }
@@ -248,7 +253,7 @@ public class DesignerSceneEventDispatcher implements PalettePane.PaletteEventDis
 //            System.err.println("SceneDispatcher mousePressed x = " + ((MouseEvent)event).getX() + "; y = " + ((MouseEvent)event).getY());
             MouseEvent copy = (MouseEvent) event.copyFor(node, node);
             Dockable.of(node).getContext().getDragDetector().handle(copy);
-//             System.err.println("SceneDispatcher copy mousePressed x = " + copy.getX() + "; y = " + copy.getY());
+            System.err.println("SceneDispatcher copy mousePressed x = " + copy.getX() + "; y = " + copy.getY());
             double x = node.getBoundsInParent().getMinX();
             double y = node.getBoundsInParent().getMinY();
             //Point2D point = new Point2D( ((MouseEvent)event).getX(), ((MouseEvent)event).getY());
@@ -272,6 +277,7 @@ public class DesignerSceneEventDispatcher implements PalettePane.PaletteEventDis
 //        System.err.println("1. released target " + target);
 
         if (Dockable.of(node) != null) {
+            System.err.println("EventDispatcher: " + Dockable.of(node).getContext().getDragDetector().getDragHandler());
             DragManager dm = Dockable.of(node).getContext().getDragDetector().getDragHandler().getDragManager();
 //            System.err.println("dragget Scene released  1 ");
             MouseEvent copy = (MouseEvent) event.copyFor(node, node);

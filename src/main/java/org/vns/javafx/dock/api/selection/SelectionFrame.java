@@ -40,6 +40,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Transform;
 import javafx.stage.Window;
+import org.vns.javafx.ContextLookup;
+import org.vns.javafx.WindowLookup;
 import org.vns.javafx.designer.SceneViewUtil;
 import static org.vns.javafx.dock.api.Constants.SKIP_CSS_CLASS;
 import org.vns.javafx.dock.api.DockRegistry;
@@ -71,7 +73,8 @@ public class SelectionFrame extends Control {
     private final boolean enableResize;
     private Point2D startMousePos;
     private Parent root;
-
+    private final ContextLookup context;
+    
     public enum Direction {
         nShape, //north indicator
         neShape, //north-east indicator
@@ -103,7 +106,7 @@ public class SelectionFrame extends Control {
         }
         this.enableResize = enableResize;
         this.root = root;
-
+        context = WindowLookup.getLookup(root.getScene().getWindow());
         init();
     }
 
@@ -114,6 +117,10 @@ public class SelectionFrame extends Control {
         //if (!enableResize) {
         setMouseTransparent(true);
         //}
+    }
+
+    public ContextLookup getContext() {
+        return context;
     }
 
     public void hide() {
@@ -429,12 +436,7 @@ public class SelectionFrame extends Control {
                     if (!ctrl.getSideShapes().isEmpty()) {
                         removeShapeMouseEventHandlers();
                     }
-                    Selection sel = DockRegistry.lookup(Selection.class);
-                    if (sel != null) {
-                        //    sel.setSelected(null);
-                    } else {
-                        //    ctrl.hide();
-                    }
+                 
                     ctrl.hide();
                 }
                 if (nv != null) {
@@ -455,22 +457,8 @@ public class SelectionFrame extends Control {
                     removeShapeMouseEventHandlers();
                 }
                 if (nv == null) {
-                    Selection sel = DockRegistry.lookup(Selection.class);
-                    if (sel != null) {
-                        //    sel.setSelected(null);
-                    } else {
-                        //    ctrl.hide();
-                    }
-
                     ctrl.hide();
                 } else {
-                    Selection sel = DockRegistry.lookup(Selection.class);
-                    if (sel != null) {
-                        //    sel.setSelected(nv);
-                    } else {
-                        //    ctrl.show();
-                    }
-
                     ctrl.show();
                     if (ctrl.getBoundNode().getScene() != null && ctrl.getBoundNode().getScene().getWindow() != null) {
                         Bounds bounds = ctrl.getBoundNode().localToScene(ctrl.getBoundNode().getBoundsInLocal());
@@ -628,9 +616,10 @@ public class SelectionFrame extends Control {
                 removeMouseExitedListener(shape);
                 framePane.setStartMousePos(new Point2D(ev.getScreenX(), ev.getScreenY()));
             } else if (ev.getEventType() == MouseEvent.DRAG_DETECTED) {
-                WindowNodeFraming wnf = DockRegistry.getInstance().lookup(WindowNodeFraming.class);
+                WindowNodeFraming wnf = framePane.getContext().lookup(WindowNodeFraming.class);
                 Node node = framePane.getBoundNode();
-                NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
+                //NodeFraming nf = WindowLookup.lookup(node.getScene().getWindow(),NodeFraming.class);
+                NodeFraming nf = framePane.getContext().lookup(NodeFraming.class);
                 if (nf != null) {
                     nf.hide();
                 }

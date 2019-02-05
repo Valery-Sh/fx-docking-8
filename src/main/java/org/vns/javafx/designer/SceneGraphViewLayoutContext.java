@@ -78,7 +78,7 @@ public class SceneGraphViewLayoutContext extends LayoutContext {
     public void remove(Object obj) {
         TreeItemEx item = SceneViewUtil.findTreeItemByObject(getTreeView(), obj);
         if (item != null) {
-            new TreeItemBuilder().updateOnMove(item);
+            new TreeItemBuilder(((SceneView)getLayoutNode()).getContext()).updateOnMove(item);
         }
     }
 
@@ -134,33 +134,6 @@ public class SceneGraphViewLayoutContext extends LayoutContext {
             }
         }
         
-        //final Selection sel = DockRegistry.lookup(Selection.class);
-        //System.err.println("=== selected = " + sel.getSelected());
-/*        final Node anode = (Node) toAccept;
-        if ( sel != null ) {
-            Platform.runLater(() -> {
-                sel.setSelected(anode);
-            });
-        }
-*/        
-        NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
-        if (nf != null) {
-
-            //
-            // We apply Platform.runLater because a list do not 
-            // has to be a children but for instance for SplitPane it
-            // is an items and an added node may be not set into scene graph
-            // immeduately
-            //
-/*            if (!(toAccept instanceof Node)) {
-                return;
-            }
-            final Node av = (Node) toAccept;
-            Platform.runLater(() -> {
-                //nf.show(av);
-            });
-             */
-        }
     }
 
     /**
@@ -216,7 +189,7 @@ public class SceneGraphViewLayoutContext extends LayoutContext {
         if (value instanceof Dockable) {
             value = ((Dockable) value).getNode();
         }
-        return new TreeItemBuilder().isAdmissiblePosition(gv.getTreeView(), target, place, value);
+        return new TreeItemBuilder(gv.getContext()).isAdmissiblePosition(gv.getTreeView(), target, place, value);
 
     }
 
@@ -249,7 +222,7 @@ public class SceneGraphViewLayoutContext extends LayoutContext {
         if (place != null) {
             TreeItemEx target = getDragIndicator().getTargetTreeItem(mousePos.getX(), mousePos.getY(), place);
             if (target != null) {
-                new TreeItemBuilder().accept(gv.getTreeView(), target, place, value);
+                new TreeItemBuilder(gv.getContext()).accept(gv.getTreeView(), target, place, value);
                 retval = true;
             }
         }

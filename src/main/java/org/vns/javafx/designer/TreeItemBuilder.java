@@ -31,6 +31,8 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ConstraintsBase;
 import javafx.scene.layout.HBox;
+import org.vns.javafx.ContextLookup;
+import org.vns.javafx.WindowLookup;
 import static org.vns.javafx.designer.SceneView.ANCHOR_OFFSET;
 import static org.vns.javafx.designer.SceneView.FIRST;
 import static org.vns.javafx.designer.SceneView.LAST;
@@ -40,7 +42,6 @@ import static org.vns.javafx.designer.TreeItemEx.ItemType.DEFAULTLIST;
 import static org.vns.javafx.designer.TreeItemEx.ItemType.LIST;
 import static org.vns.javafx.designer.TreeItemEx.ItemType.MIXED;
 import org.vns.javafx.dock.api.Util;
-import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.bean.BeanAdapter;
 import org.vns.javafx.dock.api.bean.ReflectHelper;
@@ -73,19 +74,18 @@ public class TreeItemBuilder {
     public static final String NODE_UUID = "uuid-f53db037-2e33-4c68-8ffa-06044fc10f81";
 
     private final boolean designer;
-    private Object objToBuild;
+    //private Object objToBuild;
+    private final ContextLookup context;
 
-    public TreeItemBuilder(boolean designer) {
-        this.designer = designer;
+
+    public TreeItemBuilder(ContextLookup context) {
+        this.context = context;
+        designer = true;
+        
     }
 
-    public TreeItemBuilder(Object object) {
-        this(true);
-        objToBuild = object;
-    }
-
-    public TreeItemBuilder() {
-        this(true);
+    public ContextLookup getContext() {
+        return context;
     }
 
     private void setContexts(Object obj) {
@@ -96,13 +96,13 @@ public class TreeItemBuilder {
         if (Util.isForeign(obj)) {
             return;
         }
-        PalettePane palette = DesignerLookup.lookup(PalettePane.class);
+/*        PalettePane palette = DesignerLookup.lookup(PalettePane.class);
         if (palette == null) {
             return;
         }
-
-        palette.setLayoutContext(obj);
-        palette.setDockableContext(obj);
+*/
+        PalettePane.setLayoutContext(obj);
+        PalettePane.setDockableContext(obj);
     }
 
     public TreeItemEx build(Object obj) {
@@ -111,11 +111,12 @@ public class TreeItemBuilder {
 
     protected TreeItemEx build(Object obj, NodeElement p) {
         //if (SceneView.isFrame(obj)) {
-        if ( Util.isForeign(obj) ) {
+        if (Util.isForeign(obj)) {
             return null;
         }
         setContexts(obj);
         PalettePane.addDesignerStyles(obj);
+
         TreeItemEx retval;
         if (p != null && (p instanceof NodeContent)) {
             retval = createContentItem(obj, (NodeContent) p);
@@ -250,7 +251,7 @@ public class TreeItemBuilder {
         retval.setCellGraphic(anchorPane);
         retval.setItemType(TreeItemEx.ItemType.ELEMENT);
         try {
-            retval.registerChangeHandlers();
+            retval.registerChangeHandlers(context);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
             Logger.getLogger(TreeItemBuilder.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -289,7 +290,7 @@ public class TreeItemBuilder {
 
         retval.setItemType(TreeItemEx.ItemType.LIST);
         try {
-            retval.registerChangeHandlers();
+            retval.registerChangeHandlers(context);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
             Logger.getLogger(TreeItemBuilder.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -309,7 +310,7 @@ public class TreeItemBuilder {
         retval.setItemType(TreeItemEx.ItemType.CONTENT);
         try {
 
-            retval.registerChangeHandlers();
+            retval.registerChangeHandlers(context);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
             Logger.getLogger(TreeItemBuilder.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -746,9 +747,14 @@ public class TreeItemBuilder {
                 }
                 break;
         }
-        Selection sel = DockRegistry.lookup(Selection.class);
+        
+        //Selection sel = DockRegistry.lookup(Selection.class);
         Platform.runLater(() -> {
-            sel.setSelected(sourceObject);
+            SceneView sv = treeView.getSceneView();
+            if (sv.getRoot() != null && sv.getRoot().getScene() != null  && sv.getRoot().getScene().getWindow() != null) {
+                Selection sel = getContext().lookup(Selection.class);
+                sel.setSelected(sourceObject);
+            }
         });
     }
 

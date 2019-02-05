@@ -169,7 +169,9 @@ public class TestTreeItemBuilder03 extends Application {
         //TreeView treeView = new TreeView(rootItem);
         
         //sceneGraphView.setDragType(DragType.DRAG_AND_DROP);
-        SceneView sceneGraphView = new SceneView(root);  
+        SceneView sceneGraphView = new SceneView();  
+        sceneGraphView.setRoot(root);
+        
         btn1.setOnAction(v -> {
             sceneGraphView.getTreeView().getSelectionModel().selectRange(9,10);
             sceneGraphView.getTreeView().getFocusModel().focus(9);

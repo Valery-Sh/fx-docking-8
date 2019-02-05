@@ -39,13 +39,16 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 import javafx.util.Pair;
+import org.vns.javafx.WindowLookup;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.dragging.MouseDragHandler;
 import org.vns.javafx.dock.api.indicator.IndicatorManager;
 import org.vns.javafx.dock.api.DockLayout;
 import org.vns.javafx.dock.api.LayoutContext;
+import org.vns.javafx.dock.api.SaveRestore;
 import org.vns.javafx.dock.api.Scope;
 import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.selection.NodeFraming;
@@ -94,6 +97,7 @@ public class SceneViewSkin extends SkinBase<SceneView> {
         TreeViewExMouseDragHandler dragHandler = new TreeViewExMouseDragHandler(d.getContext());
 
         d.getContext().getLookup().putUnique(MouseDragHandler.class, dragHandler);
+        d.getContext().getLookup().putUnique(SaveRestore.class,control.getContext().lookup(SaveRestore.class));
         d.getContext().setLayoutContext(getSkinnable().getLayoutContext());
 
         treeViewPane = new StackPane();
@@ -130,7 +134,9 @@ public class SceneViewSkin extends SkinBase<SceneView> {
         targetContext.mousePositionProperty().addListener(this::mousePosChange);
 
         getChildren().add(contentPane);
-        control.getScene().addEventFilter(MouseEvent.MOUSE_PRESSED, this::sceneMousePressed);
+        if ( control.getScene() != null ) {
+            control.getScene().addEventFilter(MouseEvent.MOUSE_PRESSED, this::sceneMousePressed);
+        }
         control.rootProperty().addListener(this::rootChanged);
     }
 
@@ -152,15 +158,18 @@ public class SceneViewSkin extends SkinBase<SceneView> {
             secondaryMousePressed(ev, item);
             return;
         }
-        NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
+        NodeFraming nf = getSkinnable().getContext().lookup(NodeFraming.class);
         if (nf == null) {
             return;
         }
         if (item == null || item.getValue() == null) {
-            Selection sel = DockRegistry.lookup(Selection.class);
+            //Selection sel = DockRegistry.lookup(Selection.class);
+            Selection sel = getSkinnable().getContext().lookup(Selection.class);
+            
             sel.setSelected(null);
         } else {
-            Selection sel = DockRegistry.lookup(Selection.class);
+//            Selection sel = DockRegistry.lookup(Selection.class);
+            Selection sel = getSkinnable().getContext().lookup(Selection.class);
             sel.setSelected(item.getValue());
         }
 
@@ -193,7 +202,6 @@ public class SceneViewSkin extends SkinBase<SceneView> {
         getSkinnable().setContextMenu(menu);
 
     }
-
     private void setMenuiIemOnAction(MenuItem mi, Point2D point, String txt, TreeItemEx item) {
         Clipboard cb = Clipboard.getSystemClipboard();
         Map<DataFormat, Object> map = new HashMap<>();
@@ -353,10 +361,10 @@ public class SceneViewSkin extends SkinBase<SceneView> {
             if (newScene != null) {
                 DesignerSceneEventDispatcher d = new DesignerSceneEventDispatcher();
                 d.start(newScene);
-                SceneView.addFramePanes(newScene.getRoot());
+                getSkinnable().addFramePanes(newScene.getRoot());
                 if (getSkinnable().getRoot() != null) {
-                    SceneView.getParentFrame().hide();
-                    SceneView.getResizeFrame().hide();
+                    getSkinnable().getContext().lookup(SceneView.class).getParentFrame().hide();
+                    getSkinnable().getContext().lookup(SceneView.class).getResizeFrame().hide();
                 }
                 newScene.getRoot().getStyleClass().add("designer-mode-root");
                 newScene.getRoot().getStylesheets().add(DesignerLookup.class.getResource("resources/styles/designer-customize.css").toExternalForm());
@@ -387,13 +395,14 @@ public class SceneViewSkin extends SkinBase<SceneView> {
             dockable.getContext().getScopes().add(new Scope("designer"));
         }
         if (getSkinnable().getTreeView().getRoot() == null || getSkinnable().getTreeView().getRoot().getValue() != node) {
-            TreeItemEx item = new TreeItemBuilder().build(node);
+            TreeItemEx item = new TreeItemBuilder(getSkinnable().getContext()).build(node);
             getSkinnable().getTreeView().setRoot(item);
         }
 
         Platform.runLater(() -> {
             registerScrollBarEvents();
         });
+        
         if (getSkinnable().getRoot() != null && getSkinnable().getRoot().getScene() != null) {
             getSkinnable().getRoot().getScene().heightProperty().addListener(rootSceneSizeListener);
             getSkinnable().getRoot().getScene().widthProperty().addListener(rootSceneSizeListener);
@@ -407,9 +416,9 @@ public class SceneViewSkin extends SkinBase<SceneView> {
         }
 
         if (node.getScene() != null && node.getScene().getRoot() != null) {
-            SceneView.addFramePanes(node.getScene().getRoot());
-            SceneView.getParentFrame().hide();
-            SceneView.getResizeFrame().hide();
+            getSkinnable().addFramePanes(node.getScene().getRoot());
+            getSkinnable().getContext().lookup(SceneView.class).getParentFrame().hide();
+            getSkinnable().getContext().lookup(SceneView.class).getResizeFrame().hide();
             node.getScene().getRoot().getStyleClass().add("designer-mode-root");
             node.getScene().getRoot().getStylesheets().add(DesignerLookup.class.getResource("resources/styles/designer-customize.css").toExternalForm());
         }
@@ -433,6 +442,7 @@ public class SceneViewSkin extends SkinBase<SceneView> {
     }
 
     protected void registerScrollBarEvents() {
+        
         ScrollBar sb = getSkinnable().getTreeView().getVScrollBar();
 
         sb.addEventHandler(MouseEvent.MOUSE_EXITED, ev -> {

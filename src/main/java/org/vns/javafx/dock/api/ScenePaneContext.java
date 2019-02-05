@@ -32,6 +32,10 @@ public class ScenePaneContext extends LayoutContext {
     protected void initLookup(ContextLookup lookup) {
     }
 
+    public Dockable getDockable() {
+        return dockable;
+    }
+
     protected void parentChanged(ObservableValue<? extends Parent> value, Parent oldValue, Parent newValue) {
         if (oldValue != null) {
             oldValue.parentProperty().removeListener(this::parentChanged);

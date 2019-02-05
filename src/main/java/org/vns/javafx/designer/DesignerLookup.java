@@ -24,15 +24,12 @@ import org.vns.javafx.ContextLookup;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.SaveRestore;
 import org.vns.javafx.dock.api.ScenePaneContext.ScenePaneContextFactory;
-import org.vns.javafx.dock.api.Selection.SelectionHandler;
 import org.vns.javafx.designer.DesignerScenePaneContext.DesignerScenePaneContextFactory;
 import org.vns.javafx.dock.api.selection.NodeFraming;
 import org.vns.javafx.dock.api.resizer.ResizerFactory;
 import org.vns.javafx.dock.api.resizer.ResizerFactory.NodeResizerFactory;
-import org.vns.javafx.dock.api.resizer.Resizer;
 import org.vns.javafx.dock.api.selection.StageNodeFraming;
 import org.vns.javafx.dock.api.selection.WindowNodeFraming;
-import org.vns.javafx.dock.api.Selection.MouseSelectionListener;
 import org.vns.javafx.scene.control.editors.PropertyEditorPane;
 
 /**
@@ -62,7 +59,7 @@ public class DesignerLookup { // implements ContextLookup {
         initDockRegistry();
         lookup.putUnique(PalettePane.class, new PalettePane(true));
         lookup.putUnique(PropertyEditorPane.class, new PropertyEditorPane());
-        lookup.putUnique(SceneView.class, new SceneView(true));
+        //lookup.putUnique(SceneView.class, new SceneView(true));
     }
     private Map<Class<?>, Object> dockRegistrySafe = FXCollections.observableHashMap();
 
@@ -72,21 +69,11 @@ public class DesignerLookup { // implements ContextLookup {
     
     public void restoreDockRegistry() {
         dockRegistrySafe.forEach((k,v) -> {
-            //System.err.println("k = " + k + "; v = " + v);
             if ( v == null ) {
-                System.err.println("k = " + k + "; v = " + v);
                 DockRegistry.getInstance().getLookup().clear(k);
             } else {
-                System.err.println("again k = " + k + "; v = " + v);
                 DockRegistry.getInstance().getLookup().putUnique(k, v);
             }
-        });
-        System.err.println("===========================================================");
-         dockRegistrySafe.forEach((k,v) -> {
-            //System.err.println("k = " + k + "; v = " + v);
-            Object value = DockRegistry.getInstance().getLookup().lookup(k);
-            System.err.println("k = " + k + "; v = " + value);
-                
         });
     }
     
@@ -100,19 +87,19 @@ public class DesignerLookup { // implements ContextLookup {
         DockRegistry.getInstance().getLookup().putUnique(TrashTray.class, new TrashTray());
         
         saveDockRegistry(SaveRestore.class);
-        DockRegistry.getInstance().getLookup().putUnique(SaveRestore.class, new AutoSaveRestore2());
+        //DockRegistry.getInstance().getLookup().putUnique(SaveRestore.class, new AutoSaveRestore2());
 
         saveDockRegistry(Selection.class);
-        DockRegistry.getInstance().getLookup().putUnique(Selection.class, new DesignerSelection());
+        //DockRegistry.getInstance().getLookup().putUnique(Selection.class, new DesignerSelection());
         
         saveDockRegistry(WindowNodeFraming.class);
-        DockRegistry.getInstance().getLookup().putUnique(WindowNodeFraming.class, StageNodeFraming.getInstance());
+        //DockRegistry.getInstance().getLookup().putUnique(WindowNodeFraming.class, StageNodeFraming.getInstance());
         
         saveDockRegistry(NodeFraming.class);        
-        DockRegistry.getInstance().getLookup().putUnique(NodeFraming.class, new DesignerFraming());
+        //DockRegistry.getInstance().getLookup().putUnique(NodeFraming.class, new DesignerFraming());
 
-        saveDockRegistry(MouseSelectionListener.class);        
-        DockRegistry.getInstance().getLookup().putUnique(MouseSelectionListener.class, new SelectionHandler());
+        //saveDockRegistry(MouseSelectionListener.class);        
+        //DockRegistry.getInstance().getLookup().putUnique(MouseSelectionListener.class, new SelectionHandler());
 
 //        saveDockRegistry(ApplicationContext.class);        
 //        DockRegistry.getInstance().getLookup().putUnique(ApplicationContext.class, new DesignerApplicationContext());

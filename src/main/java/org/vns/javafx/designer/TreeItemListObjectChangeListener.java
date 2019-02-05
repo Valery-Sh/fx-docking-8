@@ -20,6 +20,8 @@ import java.util.List;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
+import org.vns.javafx.ContextLookup;
+import org.vns.javafx.WindowLookup;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.designer.TreeItemEx.ItemType;
 import org.vns.javafx.dock.api.Util;
@@ -34,10 +36,12 @@ import org.vns.javafx.dock.api.selection.NodeFraming;
 public class TreeItemListObjectChangeListener implements ListChangeListener {
 
     private final TreeItemEx treeItem;
-    //private final String propertyName;
+    private ContextLookup context;
 
-    public TreeItemListObjectChangeListener(TreeItemEx treeItem, String propertyName) {
+    public TreeItemListObjectChangeListener(ContextLookup context, TreeItemEx treeItem, String propertyName) {
+        this.context = context;
         this.treeItem = treeItem;
+
         //this.propertyName = propertyName;
     }
 
@@ -56,7 +60,7 @@ public class TreeItemListObjectChangeListener implements ListChangeListener {
                 }
                  */
                 for (Object elem : list) {
-                    if ( Util.isForeign(elem) ) {
+                    if (Util.isForeign(elem)) {
                         continue;
                     }
                     TreeItemEx toRemove = null;
@@ -66,7 +70,7 @@ public class TreeItemListObjectChangeListener implements ListChangeListener {
                                 if (((TreeItemEx) ith).getValue() == elem) {
                                     toRemove = (TreeItemEx) ith;
                                     it.getChildren().remove(toRemove);
-                                    SceneView.reset(toRemove);
+                                    SceneView.reset(context,toRemove);
                                     return;
                                 }
                             }
@@ -77,14 +81,17 @@ public class TreeItemListObjectChangeListener implements ListChangeListener {
                         }
                     }
                     //if ((elem instanceof Node) && ! SceneView.isFrame(elem)) {
-                    if ((elem instanceof Node) && ! Util.isForeign(elem)) {
-                        Selection sel = DockRegistry.lookup(Selection.class);
+                    if ((elem instanceof Node) && !Util.isForeign(elem)) {
+
+                        //Selection sel = DockRegistry.lookup(Selection.class);
+                        Selection sel = context.lookup(Selection.class);
                         if (sel != null) {
                             sel.setSelected(null);
+                            sel.removeListeners(((Node)elem));
                         }
                     }
                     treeItem.getChildren().remove(toRemove);
-                    SceneView.reset(toRemove);
+                    SceneView.reset(context,toRemove);
                 }
 
             }
@@ -93,20 +100,20 @@ public class TreeItemListObjectChangeListener implements ListChangeListener {
                 List list = change.getAddedSubList();
                 List<TreeItemEx> itemList = new ArrayList();
                 list.forEach(elem -> {
-                    TreeItemEx it = new TreeItemBuilder().build(elem);
+                    TreeItemEx it = new TreeItemBuilder(context).build(elem);
                     if (it != null) {
                         it.setExpanded(false);
                         itemList.add(it);
                     }
                 });
                 int idx = change.getFrom();
-                for ( int i=0; i < change.getFrom(); i++ ) {
-                    if ( Util.isForeign(change.getList().get(i)) ) {
+                for (int i = 0; i < change.getFrom(); i++) {
+                    if (Util.isForeign(change.getList().get(i))) {
                         idx--;
                     }
                 }
-                for ( TreeItemEx it  : itemList) {
-                    if ( it.getValue() != null && Util.isForeign(it.getValue())) {
+                for (TreeItemEx it : itemList) {
+                    if (it.getValue() != null && Util.isForeign(it.getValue())) {
                         continue;
                     }
                     treeItem.getChildren().add(idx, it);

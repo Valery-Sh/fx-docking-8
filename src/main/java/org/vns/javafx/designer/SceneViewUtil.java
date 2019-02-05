@@ -152,7 +152,7 @@ public class SceneViewUtil {
         );
     }
 
-    public static TreeItemEx findTreeItemByObject(Object value) {
+/*    public static TreeItemEx findTreeItemByObject(Object value) {
         TreeItemEx item = null;
         SceneView sgv = DesignerLookup.lookup(SceneView.class);
         if (sgv != null) {
@@ -164,15 +164,16 @@ public class SceneViewUtil {
         }
         return item;
     }
-    public static Parent findParentByObject(Object value) {
+*/    
+    public static Parent findParentByObject(TreeViewEx treeView, Object value) {
         Parent retval = null;
         TreeItem item = null;
-        SceneView sgv = DesignerLookup.lookup(SceneView.class);
-        if (sgv != null) {
-            if (sgv.getTreeView().getRoot().getValue() == value) {
-                item = (TreeItemEx) sgv.getTreeView().getRoot();
+        //SceneView sgv = DesignerLookup.lookup(SceneView.class);
+        if (treeView != null) {
+            if (treeView.getRoot().getValue() == value) {
+                item = (TreeItemEx) treeView.getRoot();
             } else {
-                item = SceneViewUtil.findTreeItemByObject(sgv.getTreeView(), value);
+                item = SceneViewUtil.findTreeItemByObject(treeView, value);
             }
             item = item.getParent();
 
@@ -189,6 +190,10 @@ public class SceneViewUtil {
     }
 
     public static TreeItemEx findTreeItemByObject(TreeView treeView, Object sourceGesture) {
+        System.err.println("findTreeItemByObject treeView = " + treeView);
+        if ( treeView == null ) {
+            return null;
+        }
         if (treeView.getRoot() != null && treeView.getRoot().getValue() == sourceGesture) {
             return (TreeItemEx) treeView.getRoot();
         }

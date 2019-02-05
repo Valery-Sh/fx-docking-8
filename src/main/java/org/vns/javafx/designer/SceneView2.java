@@ -8,25 +8,19 @@ import java.util.function.Consumer;
 import javafx.beans.DefaultProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Control;
-import javafx.scene.control.Skin;
-import javafx.scene.control.TreeCell;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Region;
-import org.vns.javafx.ContextLookup;
-import org.vns.javafx.WindowLookup;
-import org.vns.javafx.dock.api.Util;
-import org.vns.javafx.dock.api.LayoutContext;
-import org.vns.javafx.dock.api.DockLayout;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.ScenePaneContext.ScenePaneContextFactory;
-import org.vns.javafx.dock.api.Scope;
 import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.bean.BeanAdapter;
 import org.vns.javafx.dock.api.selection.SelectionFrame;
@@ -40,7 +34,7 @@ import static org.vns.javafx.dock.api.selection.SelectionFrame.FRAME_CSS_CLASS;
  * @author Valery
  */
 @DefaultProperty(value = "content")
-public class SceneView extends Control implements DockLayout {
+public class SceneView2 extends Control {
 
     private SceneGraphViewLayoutContext targetContext;
 
@@ -55,48 +49,20 @@ public class SceneView extends Control implements DockLayout {
 
     private final ObjectProperty<Node> statusBar = new SimpleObjectProperty<>();
 
-    private final ObservableList<TreeCell> visibleCells = FXCollections.observableArrayList();
-
-    private final Map<Class<?>, Map<String, Object>> saved = new HashMap<>();
-
-    private boolean designer;
+    private Map<Class<?>, Map<String, Object>> saved = new HashMap<>();
     
-    private ContextLookup context;
-
-    public SceneView(ContextLookup context) {
-        this(context,false);
-    }
-
-
-    public SceneView(ContextLookup context,boolean designer) {
-        this(context, null, designer);
-    }
-
-    protected SceneView(ContextLookup context,Node rootNode, boolean designer) {
-        this.context = context;
-        treeView = new TreeViewEx<>(this);
-        
+    private RootHandler rootHandler;
+    
+    public SceneView2(Node rootNode) {
+        this.treeView = new TreeViewEx<>(null);
         root.set(rootNode);
-        this.designer = designer;
         init();
     }
 
     private void init() {
-//        if (getRoot() != null && isDesigner()) {
-//            PalettePane palette = DesignerLookup.lookup(PalettePane.class);
-//        }
-        customizeCell();
-        //createDefaultSkin();
+        rootHandler = new RootHandler(this);
     }
-
-    public ContextLookup getContext() {
-        return context;
-    }
-
-    public boolean isDesigner() {
-        return designer;
-    }
-
+    
     public static void reset(Node startNode) {
 
         Node root = startNode;
@@ -113,11 +79,10 @@ public class SceneView extends Control implements DockLayout {
         NodeFraming fr = DockRegistry.lookup(NodeFraming.class);
         fr.hide();
         fr.removeListeners();
-        
-        
-        SceneView sv = WindowLookup.lookup(startNode.getScene().getWindow(),SceneView.class);
+
+        SceneView2 sv = DesignerLookup.lookup(SceneView2.class);
         sv.visitRoot(item -> {
-            ((TreeItemEx) item).unregisterChangeHandlers(sv.getContext());
+            ((TreeItemEx) item).unregisterChangeHandlers();
         });
 
         Set<Node> nodes = root.lookupAll("." + FRAME_CSS_CLASS);
@@ -139,7 +104,7 @@ public class SceneView extends Control implements DockLayout {
             if (node.getEventDispatcher() != null && (node.getEventDispatcher() instanceof PalettePane.PaletteEventDispatcher)) {
                 ((PalettePane.PaletteEventDispatcher) node.getEventDispatcher()).finish(node);
             }
-            sv.getContext().lookup(Selection.class).removeListeners(node);
+            Selection.removeListeners(node);
         });
         DesignerLookup.getInstance().restoreDockRegistry();
 
@@ -150,11 +115,6 @@ public class SceneView extends Control implements DockLayout {
             DockRegistry.unregisterDockable(node);
         });
         DesignerLookup.getInstance().restoreDockRegistry();
-    }
-
-    @Override
-    public String getUserAgentStylesheet() {
-        return DesignerLookup.class.getResource("resources/styles/designer-default.css").toExternalForm();
     }
 
     public void save() {
@@ -194,11 +154,6 @@ public class SceneView extends Control implements DockLayout {
 
     }
 
-    public ObservableList<TreeCell> getVisibleCells() {
-        return visibleCells;
-    }
-
-
     public ObjectProperty<Node> rootProperty() {
         return root;
     }
@@ -227,47 +182,7 @@ public class SceneView extends Control implements DockLayout {
         return treeView;
     }
 
-    protected void customizeCell() {
-        TreeView<Object> t = treeView;
-        t.setCellFactory((TreeView<Object> tv) -> {
-            TreeCell cell = new TreeCell() {
-                @Override
-                public void updateItem(Object value, boolean empty) {
-                    super.updateItem(value, empty);
-
-                    if (empty) {
-                        this.setMaxHeight(-1);
-                        this.setPrefHeight(-1);
-                        this.setMinHeight(-1);
-                        setText(null);
-                        setGraphic(null);
-                        getVisibleCells().remove(this);
-
-                    } else {
-                        if (value != null && Util.isForeign(value)) {
-                            setText(null);
-                            this.setGraphic(null);
-                            this.setMaxHeight(0);
-                            this.setPrefHeight(0);
-                            this.setMinHeight(0);
-                        } else {
-                            this.setGraphic(((TreeItemEx) this.getTreeItem()).getCellGraphic());
-                        }
-                        if (value != null && (value instanceof Node)) {
-                            setId(((Node) value).getId());
-                        }
-                        if (!getVisibleCells().contains(this)) {
-                            getVisibleCells().add(this);
-                        }
-                    }
-                }
-            };
-            return cell;
-        });
-    }
-
-   
-    public void addFramePanes(Parent parent) {
+    public static void addFramePanes(Parent parent) {
         //9.12Node framePane = parent.lookup("#" + FramePane.PARENT_ID);
         Node framePane = parent.lookup("#" + SelectionFrame.PARENT_ID);
         if (framePane == null) {
@@ -277,10 +192,10 @@ public class SceneView extends Control implements DockLayout {
             framePane = new SelectionFrame(parent, false);
             framePane.setId(SelectionFrame.PARENT_ID);
             SceneViewUtil.addToParent(parent, framePane);
-            
+
         }
         framePane.setVisible(false);
-        
+
         framePane = parent.lookup("#" + SelectionFrame.NODE_ID);
         if (framePane == null) {
             //
@@ -292,6 +207,7 @@ public class SceneView extends Control implements DockLayout {
         }
         framePane.setVisible(false);
     }
+
     public static void removeFramePanes(Parent parent) {
         Node framePane = parent.lookup("#" + SelectionFrame.PARENT_ID);
         if (framePane == null) {
@@ -301,18 +217,15 @@ public class SceneView extends Control implements DockLayout {
         }
     }
 
-    public SelectionFrame getResizeFrame() {
-        //Parent p = (Parent) DesignerLookup.lookup(SceneView.class).getRoot();
-        Parent p = (Parent) getRoot();
+    public static SelectionFrame getResizeFrame() {
+        Parent p = (Parent) DesignerLookup.lookup(SceneView2.class).getRoot();
         return (SelectionFrame) p.getScene().getRoot().lookup("#" + NODE_ID);
     }
 
-    public SelectionFrame getParentFrame() {
-        //Parent p = (Parent) DesignerLookup.lookup(SceneView.class).getRoot();
-        Parent p = (Parent) getRoot();
+    public static SelectionFrame getParentFrame() {
+        Parent p = (Parent) DesignerLookup.lookup(SceneView2.class).getRoot();
         return (SelectionFrame) p.getScene().getRoot().lookup("#" + PARENT_ID);
     }
-
 
     public static boolean removeFramePanes(Node root) {
         boolean retval = false;
@@ -337,64 +250,11 @@ public class SceneView extends Control implements DockLayout {
         return retval;
     }
 
-    public TreeViewEx getTreeView(double x, double y) {
-        TreeViewEx retval = null;
-        if (Util.contains(getTreeView(), x, y)) {
-            return getTreeView();
-        }
-        return retval;
-    }
-
-    public TreeItemEx getTreeItem(double x, double y) {
-        TreeItemEx retval = null;
-        for (TreeCell cell : getVisibleCells()) {
-            if (Util.contains(cell, x, y)) {
-                retval = (TreeItemEx) cell.getTreeItem();
-                break;
-            }
-        }
-        return retval;
-    }
-
-    public TreeItemEx getTreeItem(Point2D p) {
-        return getTreeItem(p.getX(), p.getY());
-    }
-
-    @Override
-    public Node getLayoutNode() {
-        return this;
-    }
-
-    @Override
-    public LayoutContext getLayoutContext() {
-        if (targetContext == null) {
-            targetContext = new SceneGraphViewLayoutContext(this);
-            if (isDesigner()) {
-                targetContext.getScopes().add(new Scope("designer"));
-            }
-        }
-        return targetContext;
-    }
-
-    @Override
-    protected Skin<?> createDefaultSkin() {
-        return new SceneViewSkin(this);
-    }
-
     public void visitRoot(Consumer<TreeItemEx> consumer) {
         getTreeView().getRoot();
         visit((TreeItemEx) getTreeView().getRoot(), consumer);
     }
 
-    /*    public void iterate(TreeItem item, Consumer<TreeItem> consumer) {
-        consumer.accept(item);
-        ObservableList<TreeItem> list = item.getChildren();
-        list.forEach(it -> {
-            iterate(it, consumer);
-        });
-
-    }
-     */
     public static void visit(TreeItemEx item, Consumer<TreeItemEx> consumer) {
         consumer.accept(item);
         ObservableList list = item.getChildren();
@@ -403,10 +263,117 @@ public class SceneView extends Control implements DockLayout {
         });
     }
 
-    public static void reset(ContextLookup context,TreeItemEx start) {
+    public static void reset(TreeItemEx start) {
         visit(start, it -> {
-            ((TreeItemEx) it).unregisterChangeHandlers(context);
+            ((TreeItemEx) it).unregisterChangeHandlers();
         });
     }
 
-}// SceneGraphView
+    public static class RootHandler {
+
+        private SceneView2 control;
+        private boolean update;
+
+        public RootHandler(SceneView2 control) {
+            this.control = control;
+            if (control.getRoot() != null) {
+                createSceneGraph(control.getRoot());
+            }
+
+            TreeView treeView = control.getTreeView();
+            treeView.rootProperty().addListener((v, ov, nv) -> {
+                if (nv != null && control.getRoot() == null) {
+                    control.setRoot((Node) ((TreeItem) nv).getValue());
+                } else if (nv == null) {
+                    control.setRoot(null);
+                }
+            });
+
+            control.rootProperty().addListener(this::rootChanged);
+        }
+
+        protected void rootChanged(ObservableValue<? extends Node> observable, Node oldValue, Node newValue) {
+            if (update) {
+                return;
+            }
+            try {
+
+                if (oldValue != null && oldValue.getScene() != null) {
+                    if (oldValue.getScene() != null) {
+                        if ((oldValue.getScene().getEventDispatcher() instanceof DesignerSceneEventDispatcher)) {
+                            ((DesignerSceneEventDispatcher) oldValue.getScene().getEventDispatcher()).finish(oldValue.getScene());
+                        }
+                        DesignerSceneEventDispatcher d = new DesignerSceneEventDispatcher();
+                    }
+                }
+                if (oldValue != null && oldValue.getScene() != null) {
+                    oldValue.getScene().getRoot().getStylesheets().remove(DesignerLookup.class.getResource("resources/styles/designer-customize.css").toExternalForm());
+                    oldValue.getScene().getRoot().getStyleClass().remove("designer-mode-root");
+                    SceneView.removeFramePanes(oldValue.getScene().getRoot());
+                }
+
+                if (newValue == null) {
+                    control.getTreeView().setRoot(null);
+                    return;
+                }
+
+                createSceneGraph(newValue);
+            } finally {
+                update = false;
+            }
+        }
+
+        private void createSceneGraph(Node node) {
+            ChangeListener<? super Scene> sceneListener = (v, oldScene, newScene) -> {
+                if (oldScene != null) {
+                    if ((oldScene.getEventDispatcher() instanceof DesignerSceneEventDispatcher)) {
+                        ((DesignerSceneEventDispatcher) oldScene.getEventDispatcher()).finish(oldScene);
+                    }
+                }
+                if (newScene != null) {
+                    DesignerSceneEventDispatcher d = new DesignerSceneEventDispatcher();
+                    d.start(newScene);
+                    SceneView.addFramePanes(newScene.getRoot());
+                    if (control.getRoot() != null) {
+                        //SceneView.getParentFrame().hide();
+                        //SceneView.getResizeFrame().hide();
+                    }
+                    newScene.getRoot().getStyleClass().add("designer-mode-root");
+                    newScene.getRoot().getStylesheets().add(DesignerLookup.class.getResource("resources/styles/designer-customize.css").toExternalForm());
+                }
+            };
+            if (node == null) {
+                control.getTreeView().setRoot(null);
+                return;
+            }
+            if (node.getScene() != null) {
+                if ((node.getScene().getEventDispatcher() instanceof DesignerSceneEventDispatcher)) {
+                    ((DesignerSceneEventDispatcher) node.getScene().getEventDispatcher()).finish(node.getScene());
+                }
+                DesignerSceneEventDispatcher d = new DesignerSceneEventDispatcher();
+                d.start(node.getScene());
+            }
+            //node.sceneProperty().addListener(sceneListener);
+
+            if (control.getTreeView().getRoot() == null || control.getTreeView().getRoot().getValue() != node) {
+                TreeItemEx item = new TreeItemBuilder().build(node);
+                control.getTreeView().setRoot(item);
+            }
+
+            Parent parent;// = null;
+            if (node instanceof Parent) {
+                parent = (Parent) node;
+            } else if (node.getParent() != null) {
+                parent = node.getParent();
+            }
+
+            if (node.getScene() != null && node.getScene().getRoot() != null) {
+                SceneView.addFramePanes(node.getScene().getRoot());
+                //getSkinnable().getContext().lookup(SceneView.class).getParentFrame().hide();
+                //SceneView.getResizeFrame().hide();
+                node.getScene().getRoot().getStyleClass().add("designer-mode-root");
+                node.getScene().getRoot().getStylesheets().add(DesignerLookup.class.getResource("resources/styles/designer-customize.css").toExternalForm());
+            }
+        }
+    }
+}

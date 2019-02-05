@@ -23,6 +23,7 @@ import java.util.List;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
+import org.vns.javafx.ContextLookup;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.SaveRestore;
@@ -49,7 +50,17 @@ public class AutoSaveRestore2 implements SaveRestore {
     private TreeItemEx parentItem;
     private int listIndex;
     private boolean saved;
+    private final ContextLookup context;
 
+    public AutoSaveRestore2(ContextLookup context) {
+        this.context = context;
+    }
+
+    @Override
+    public ContextLookup getContext() {
+        return context;
+    }
+    
     @Override
     public boolean isSaved() {
         return saved;
@@ -78,7 +89,7 @@ public class AutoSaveRestore2 implements SaveRestore {
         //
         // Not removes from PalettePane or TrashTray. So we save the position in SceneGraphView
         //
-        SceneView sgv = DesignerLookup.lookup(SceneView.class);
+        SceneView sgv = getContext().lookup(SceneView.class);
         if (sgv == null) {
             return;
         }
@@ -118,7 +129,7 @@ public class AutoSaveRestore2 implements SaveRestore {
         // Not removes from PalettePane or TrashTray. So we save the position in SceneGraphView
         //
 
-        SceneView sgv = DesignerLookup.lookup(SceneView.class);
+        SceneView sgv = getContext().lookup(SceneView.class);
         if (sgv == null) {
             return;
         }
@@ -153,7 +164,7 @@ public class AutoSaveRestore2 implements SaveRestore {
         // Not removes from PalettePane or TrashTray. So we save the position in SceneGraphView
         //
 
-        SceneView sgv = DesignerLookup.lookup(SceneView.class);
+        SceneView sgv = getContext().lookup(SceneView.class);
         TreeItemEx item = (sgv == null || obj == null) ? null : SceneViewUtil.findTreeItemByObject(sgv.getTreeView(), obj);
         TrashTray tray = DockRegistry.lookup(TrashTray.class);
         if (dragInitiator == TRASH_TRAY) {
@@ -233,7 +244,7 @@ public class AutoSaveRestore2 implements SaveRestore {
 
     @Override
     public void restoreExpanded(Object obj) {
-        SceneView sgv = DesignerLookup.lookup(SceneView.class);
+        SceneView sgv = getContext().lookup(SceneView.class);
         TreeItemEx item = (sgv == null || obj == null) ? null : SceneViewUtil.findTreeItemByObject(sgv.getTreeView(), obj);
         if (item == null || obj != objectToSave || objectItem == null) {
             return;

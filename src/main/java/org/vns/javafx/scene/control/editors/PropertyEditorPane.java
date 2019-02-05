@@ -639,41 +639,13 @@ public class PropertyEditorPane extends Control {
                 list.add((ScrollPane) node);
             });
             //beanPanes.put(control.getBean(), beanPane);
+            //Platform.runLater(() -> {
             layout.getChildren().add(beanPane);
             beanModel.setBean(null);
+            //});
         }
 
-        protected void showBeanPane() {
-
-            /*            List<ScrollPane> list = beanPanes.get(control.getBean());
-            Introspection introspection = PropertyPaneModelRegistry.getInstance().introspect(control.getBean().getClass());
-
-            BeanModel beanModel = PropertyPaneModelRegistry.getInstance().getBeanModel(control.getBean(), introspection);
-
-            for (Category c : beanModel.getItems()) {
-                String displayName = c.getDisplayName();
-                if (displayName == null || displayName.trim().isEmpty()) {
-                    displayName = EditorUtil.toDisplayName(c.getName());
-                }
-                ToggleButton catBtn = new ToggleButton(displayName);
-                catBtn.setId(CATEGORY_BUTTON_ID_PREF + c.getName());
-                toggleGroup.getToggles().add(catBtn);
-                categoryButtonPane.getChildren().add(catBtn);
-            }
-            
-            contentPane.getChildren().clear();
-            contentPane.getChildren().addAll(list);
-            contentPane.getChildren().forEach(node -> node.setVisible(false));
-
-            if (toggleGroup.getToggles().size() > 0) {
-                toggleGroup.getToggles().get(0).setSelected(true);
-            }
-
-            beanModel.setBean(null);
-             */
-        }
-
-        private Object getPropertyValue(String name, Object bean, Introspection introspection) {
+        /*        private Object getPropertyValue(String name, Object bean, Introspection introspection) {
             Object value = null;
             MethodDescriptor md = introspection.getMethodDescriptors().get(name + "Property");
             try {
@@ -683,7 +655,7 @@ public class PropertyEditorPane extends Control {
             }
             return value;
         }
-
+         */
         /**
          * Return the pane for the specified category name.
          *
@@ -711,7 +683,7 @@ public class PropertyEditorPane extends Control {
                 scrollPane.setFitToWidth(true);
 
                 contentPane.getChildren().add(scrollPane);
-                //categories.put(name, pane);
+                
             }
             ToggleButton catBtn = new ToggleButton(displayName);
             catBtn.setId(CATEGORY_BUTTON_ID_PREF + name);
@@ -763,7 +735,7 @@ public class PropertyEditorPane extends Control {
 
             for (Category c : beanModel.getItems()) {
 
-/*                if ("layout".equals(c.getName())) {
+                /*                if ("layout".equals(c.getName())) {
                     if (node.getParent() != null) {
 
                         Class<?> parentClass = node.getParent().getClass();
@@ -780,7 +752,7 @@ public class PropertyEditorPane extends Control {
                         }
                     }
                 }
-*/
+                 */
                 for (Section s : c.getItems()) {
                     if ("layout".equals(c.getName()) && "constraint".equals(s.getName())) {
                         continue;
@@ -788,7 +760,6 @@ public class PropertyEditorPane extends Control {
 
                     for (BeanProperty propItem : s.getItems()) {
                         PropertyEditor editor = null;
-                    
 
                         if (editor == null) {
                             Class[] propTypes = introspection.getPropTypes(propItem.getName());

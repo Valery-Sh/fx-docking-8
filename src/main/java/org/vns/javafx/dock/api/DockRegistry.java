@@ -1,24 +1,18 @@
 package org.vns.javafx.dock.api;
 
 import org.vns.javafx.ContextLookup;
-import com.sun.javafx.stage.StageHelper;
-import java.util.ArrayList;
 import java.util.List;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.geometry.BoundingBox;
-import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 
-import javafx.stage.PopupWindow;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.vns.javafx.BaseContextLookup;
-import org.vns.javafx.JdkUtil;
 import org.vns.javafx.TopWindowFinder;
 import org.vns.javafx.DefaultTopWindowFinder;
+import org.vns.javafx.designer.SceneView2;
 
 /**
  * The class contains methods to manage all windows
@@ -28,7 +22,7 @@ import org.vns.javafx.DefaultTopWindowFinder;
 public class DockRegistry {
 
     public final ContextLookup lookup;
-
+    public static final String ROOT_TREE = "root-tree-f18de851-8652-41fd-b4a8-3bf4ff79e0c0";
     private final ObservableList<Window> windows = FXCollections.observableArrayList();
 
 //    private final Map<Window, Window> owners = new HashMap<>();
@@ -37,7 +31,6 @@ public class DockRegistry {
     //private final ObservableMap<Node, Dockable> dockables = FXCollections.observableHashMap();
     //private final ObservableMap<Node, DockLayout> dockLayouts = FXCollections.observableHashMap();
 //    private BeanRemover beanRemover;
-    private boolean registerDone;
 
     private DockRegistry() {
         //beanRemover = new DefaultNodeRemover();
@@ -58,7 +51,27 @@ public class DockRegistry {
 
         //getTopWindowFinder();
     }
-
+    public static SceneView2 setDesignMode(Scene scene, Node root) {
+        assert scene != null;
+        if ( root == null ) {
+            scene.getProperties().remove(ROOT_TREE);
+            return null;
+        }
+        assert root.getScene() == scene;
+        SceneView2 sv;
+        if ( scene.getProperties().get(ROOT_TREE) != null ) {
+            sv = (SceneView2) scene.getProperties().get(ROOT_TREE);
+            if ( sv.getRoot() != root ) {
+                sv.setRoot(root);
+            }
+        } else {
+            sv = new SceneView2(root);
+            scene.getProperties().put(ROOT_TREE, sv);
+        }
+        return sv;
+    }
+    
+    
     public static <T> T lookup(Class<T> clazz) {
         return getInstance().lookup.lookup(clazz);
     }

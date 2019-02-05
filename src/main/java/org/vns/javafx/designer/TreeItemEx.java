@@ -19,6 +19,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
+import org.vns.javafx.ContextLookup;
 import org.vns.javafx.dock.api.Util;
 import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.bean.BeanAdapter;
@@ -165,9 +166,8 @@ public class TreeItemEx extends TreeItem<Object> {
         return retval;
     }
 
-    public void registerChangeHandlers() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void registerChangeHandlers(ContextLookup context) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
-//        if (SceneView.isFrame(getValue()) || Util.isForeign(getValue())) {
         if (Util.isForeign(getValue())) {
             return;
         }
@@ -175,13 +175,13 @@ public class TreeItemEx extends TreeItem<Object> {
             return;
         }
         if ((getValue() instanceof Node)) {
-            Selection.addListeners((Node) getValue());
+            context.lookup(Selection.class).addListeners((Node) getValue());
         }
         
         NodeDescriptor nd = NodeDescriptorRegistry.getInstance().getDescriptor(getValue().getClass());
         Object changeListener;
         if (this.getItemType() == ItemType.LIST) {
-            changeListener = new TreeItemListObjectChangeListener(this, getPropertyName());
+            changeListener = new TreeItemListObjectChangeListener(context,this, getPropertyName());
             ObservableList ol = (ObservableList) getValue();
             ol.addListener((ListChangeListener) changeListener);
             listChangeListeners.put(ol, (ListChangeListener) changeListener);
@@ -198,14 +198,14 @@ public class TreeItemEx extends TreeItem<Object> {
                     continue;
                 }
                 TreeItemEx item = this;
-                changeListener = new TreeItemListObjectChangeListener(item, p.getName());
+                changeListener = new TreeItemListObjectChangeListener(context,item, p.getName());
                 Object propValue = new BeanAdapter(getValue()).get(p.getName());
                 Method addListenerMethod = ReflectHelper.MethodUtil.getMethod(ObservableList.class, "addListener", new Class[]{ListChangeListener.class});
                 ReflectHelper.MethodUtil.invoke(addListenerMethod, propValue, new Object[]{changeListener});
                 //changeListeners2.put(p.getName(), changeListener);
                 listChangeListeners.put((ObservableList) propValue, (ListChangeListener) changeListener);
             } else {
-                changeListener = new TreeItemObjectChangeListener(this, p.getName());
+                changeListener = new TreeItemObjectChangeListener(context,this, p.getName());
                 Method propMethod = ReflectHelper.MethodUtil.getMethod(getValue().getClass(), p.getName() + "Property", new Class[0]);
                 Object propValue = ReflectHelper.MethodUtil.invoke(propMethod, getValue(), new Object[0]);
                 Method addListenerMethod = ReflectHelper.MethodUtil.getMethod(ObservableValue.class, "addListener", new Class[]{ChangeListener.class});
@@ -237,7 +237,7 @@ public class TreeItemEx extends TreeItem<Object> {
         propChangeListeners.clear();
     }
 
-    public void unregisterChangeHandlers(){
+    public void unregisterChangeHandlers(ContextLookup context){
         //if (SceneView.isFrame(getValue()) || Util.isForeign(getValue())) {
         if (Util.isForeign(getValue())) {
             return;
@@ -247,7 +247,7 @@ public class TreeItemEx extends TreeItem<Object> {
             return;
         }
         if (getValue() instanceof Node) {
-            Selection.removeListeners((Node) getValue());
+            context.lookup(Selection.class).removeListeners((Node) getValue());
         }
 
         //NodeDescriptor nd = NodeDescriptorRegistry.getInstance().getDescriptor(getValue().getClass());

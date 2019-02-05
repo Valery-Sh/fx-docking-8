@@ -15,6 +15,8 @@
  */
 package org.vns.javafx.dock.api;
 
+import org.vns.javafx.ContextLookup;
+
 /**
  *
  * @author Valery Shyshkin
@@ -32,5 +34,6 @@ public interface SaveRestore {
     
     void remove(Object toSave);
     boolean contains(Object obj);
+    ContextLookup getContext();
     
 }

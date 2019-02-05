@@ -15,10 +15,7 @@
  */
 package org.vns.javafx.dock.api.selection;
 
-import org.vns.javafx.dock.api.selection.NodeFraming;
-import org.vns.javafx.dock.api.selection.SelectionFrame;
 import java.util.List;
-import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -26,7 +23,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
-import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
@@ -37,6 +33,8 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.vns.javafx.ContextLookup;
+import org.vns.javafx.WindowLookup;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.resizer.Resizer;
@@ -82,11 +80,17 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
     private SelectionFrame frameControl;
 
     private Cursor saveCursor;
-
-    protected WindowNodeFraming() {
+    private final ContextLookup context;
+    
+    protected WindowNodeFraming(ContextLookup context) {
         super();
+        this.context = context;
     }
-
+    
+    @Override
+    public ContextLookup getContext() {
+        return context;
+    }
     @Override
     public ObservableList<String> getStyleClass() {
         return styleClass;
@@ -363,7 +367,8 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
             getNode().getScene().getRoot().removeEventFilter(MouseEvent.MOUSE_RELEASED, this);
 
             hide();
-            NodeFraming nf = DockRegistry.lookup(NodeFraming.class);
+            NodeFraming nf = getContext().lookup(NodeFraming.class);
+            //NodeFraming nf = context.lookup(NodeFraming.class);
             if (nf != null) {
                 nf.show(getNode());
             }

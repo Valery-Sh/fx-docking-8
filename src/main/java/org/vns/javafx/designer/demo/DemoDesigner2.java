@@ -17,10 +17,7 @@
 package org.vns.javafx.designer.demo;
 
 import com.sun.javafx.css.StyleManager;
-import com.sun.javafx.stage.ScreenHelper;
 import com.sun.javafx.stage.StageHelper;
-import com.sun.javafx.tk.Toolkit;
-import com.sun.javafx.util.WeakReferenceQueue;
 import java.net.URL;
 import java.util.List;
 import javafx.application.Application;
@@ -48,11 +45,14 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.vns.javafx.ContextLookup;
 import org.vns.javafx.JdkUtil;
 import org.vns.javafx.DefaultTopWindowFinder;
+import org.vns.javafx.WindowLookup;
+import org.vns.javafx.designer.AutoSaveRestore2;
+import org.vns.javafx.designer.DesignerFraming;
 import org.vns.javafx.dock.DockNode;
 import org.vns.javafx.dock.DockPane;
 import org.vns.javafx.dock.DockSideBar;
@@ -64,11 +64,18 @@ import org.vns.javafx.dock.api.DefaultLayoutContextFactory;
 import org.vns.javafx.designer.PalettePane;
 import org.vns.javafx.designer.DesignerLookup;
 import org.vns.javafx.designer.DesignerSceneEventDispatcher;
+import org.vns.javafx.designer.DesignerSelection;
 import org.vns.javafx.designer.SceneView;
 import org.vns.javafx.designer.TrashTray;
 import static org.vns.javafx.dock.api.Constants.FOREIGN;
 import org.vns.javafx.dock.api.DockLayout;
+import org.vns.javafx.dock.api.SaveRestore;
+import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.dragging.DragManager;
+import org.vns.javafx.dock.api.selection.NodeFraming;
+import org.vns.javafx.dock.api.selection.PopupNodeFraming;
+import org.vns.javafx.dock.api.selection.StageNodeFraming;
+import org.vns.javafx.dock.api.selection.WindowNodeFraming;
 import org.vns.javafx.scene.control.editors.PropertyEditorPane;
 
 /**
@@ -82,10 +89,31 @@ public class DemoDesigner2 extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         stage.getProperties().put("id", "primaryStage");
+        Stage stage1 = new Stage();
+        stage1.setTitle("MAIN");
+        stage1.getProperties().put("id", "MAIN STAGE");
+        stage1.setAlwaysOnTop(true);
+        stage1.setWidth(200);
+        stage1.setHeight(200);
+        stage1.initOwner(stage);
+        stage1.getProperties().put("ppp", "stage1");
+        
+        ContextLookup contextLookup = WindowLookup.getLookup(stage1);
+        SceneView sceneView = new SceneView(contextLookup, true);
+        contextLookup.putUnique(SceneView.class, sceneView);        
+        contextLookup.putUnique(Selection.class, new DesignerSelection(contextLookup));
+        contextLookup.putUnique(PalettePane.class, new PalettePane(true));
+        contextLookup.putUnique(SaveRestore.class, new AutoSaveRestore2(contextLookup));
+        contextLookup.putUnique(NodeFraming.class, new DesignerFraming(contextLookup));
+        contextLookup.putUnique(WindowNodeFraming.class, new PopupNodeFraming(contextLookup));
+        contextLookup.putUnique(PalettePane.class, new PalettePane(true));
+        //WindowLookup.putUnique(stage1, MouseSelectionListener.class, new SelectionHandler(selection));
+//        DockRegistry.getInstance().getLookup().putUnique(MouseSelectionListener.class, new SelectionHandler());
+
         DefaultTopWindowFinder.getInstance();
-        
+
         Button tb = new Button();
-        
+
         tb.toFront();
 
         Node n;
@@ -98,8 +126,9 @@ public class DemoDesigner2 extends Application {
         StackPane root = new StackPane(rootDockPane);
         root.setId("mainStage " + root.getClass().getSimpleName());
         //DesignerLookup.putUnique(SceneGraphView.class, new SceneGraphView(root, true));
-        DesignerLookup.putUnique(SceneView.class, new SceneView(true));
-        SceneView sceneView = DesignerLookup.lookup(SceneView.class);
+//        DesignerLookup.putUnique(SceneView.class, new SceneView(true));
+        //SceneView sceneView = DesignerLookup.lookup(SceneView.class);
+        //SceneView sceneView = WindowLookup.lookup(stage1,SceneView.class);
         sceneView.setPrefHeight(1000);
         //sceneGraphView.setOpacity(0.2);
         DockNode formDockNode = new DockNode("Form Designer");
@@ -119,11 +148,11 @@ public class DemoDesigner2 extends Application {
         VBox root1 = new VBox();
         Button fbtn1 = new Button("FOREIGN 1");
         fbtn1.getStyleClass().add(FOREIGN);
-/*        root1.getChildren().add(fbtn1);
+        /*        root1.getChildren().add(fbtn1);
          fbtn1.setOnMouseDragOver(e -> {
             System.err.println("MOUSE DRAG OVER BUTTON");
         });
-*/
+         */
         //root1.setScaleX(0.8);
         //root1.setScaleY(0.5);
         Button eb = new Button("Ext Button");
@@ -136,7 +165,7 @@ public class DemoDesigner2 extends Application {
             System.err.println("@@ eb handler mousepressed = " + h.getTarget());
         });
         eb.addEventFilter(MouseEvent.MOUSE_PRESSED, h -> {
-         });
+        });
         eb.addEventHandler(MouseEvent.MOUSE_RELEASED, h -> {
             System.err.println("@@## eb handler mouseReleased = " + h.getTarget());
         });
@@ -183,12 +212,12 @@ public class DemoDesigner2 extends Application {
         Button centerPane1Btn = new Button("Btn centerPane1");
         //centerPane0Btn.setFocusTraversable(false);
         //centerPane1Btn.setFocusTraversable(false);
-        
-        HBox centerPane = new HBox(r, centerPane0Btn, centerPane1Btn  );
+
+        HBox centerPane = new HBox(r, centerPane0Btn, centerPane1Btn);
         //centerPane.setStyle("-fx-background-color: -fx-background");
         centerPane0Btn.setOnAction(e -> {
             //JdkUtil.getWindows();
-            if ( true ) {
+            if (true) {
                 return;
             }
             System.err.println("centerPane.isMouseTransparent = " + centerPane.isMouseTransparent());
@@ -248,13 +277,15 @@ public class DemoDesigner2 extends Application {
         stackPane1.setStyle("-fx-background-color: red; -fx-padding: 20 20 20 20");
 
         formButton1.setOnAction(e -> {
-            System.gc ();
-            System.runFinalization ();
-            if ( true ) return;
+            System.gc();
+            System.runFinalization();
+            if (true) {
+                return;
+            }
 //            System.err.println("gridPane1.getPrefHeight()  = " + gridPane1.getPrefHeight());
 //            centerPane.setPrefHeight(centerPane.getPrefHeight() + 10);
             List<Window> list = JdkUtil.getWindows();
-            for ( Window w : list) {
+            for (Window w : list) {
                 System.err.println("win.root = " + w.getScene().getRoot());
             }
             System.err.println("=============================================");
@@ -357,20 +388,24 @@ public class DemoDesigner2 extends Application {
             SceneView.reset(root1);
             sceneView.setRoot(null);
             scene1.setRoot(root1);
-            
+
         });
         formButton.setOnAction(a -> {
             System.err.println("centerPaneBtn0 prefWidth = " + centerPane0Btn.getPrefWidth());
             //centerPane0Btn.setPrefHeight(centerPane0Btn.getHeight());
             System.err.println("centerPaneBtn0 width = " + centerPane0Btn.getWidth());
             //centerPane0Btn.setText("12345678901234567890");
-            centerPane0Btn.setPrefHeight(50);            
+            centerPane0Btn.setPrefHeight(50);
             centerPane0Btn.setPrefWidth(150);
             root1.setScaleX(0.5);
-            
-            if ( true ) return;
+
+            if (true) {
+                return;
+            }
             centerPane0Btn.setPrefWidth(centerPane0Btn.getPrefWidth() + 10);
-            if ( true ) return;
+            if (true) {
+                return;
+            }
             centerPane.getChildren().add(1, new Button("Inserted"));
 
             System.err.println("gridPane1.getRowConstraits = " + gridPane1);
@@ -473,14 +508,7 @@ public class DemoDesigner2 extends Application {
 
         root1.setId("root1 " + root.getClass().getSimpleName());
 
-        Stage stage1 = new Stage();
-        stage1.setTitle("MAIN");
-        stage1.getProperties().put("id", "MAIN STAGE");
-        stage1.setAlwaysOnTop(true);
-        stage1.setWidth(200);
-        stage1.setHeight(200);
         stage1.setScene(scene1);
-        stage1.initOwner(stage);
 
         DockSideBar sgvDockSideBar = new DockSideBar();
         sgvDockSideBar.setOrientation(Orientation.VERTICAL);
@@ -490,14 +518,14 @@ public class DemoDesigner2 extends Application {
 
         DockNode sgvDockNode = new DockNode(" Hierarchy ");
         sgvDockNode.setId("scene-view");
-        
+
         sgvDockNode.setContent(sceneView);
         sgvDockSideBar.getItems().add(Dockable.of(sgvDockNode));
 
         PalettePane palettePane = DesignerLookup.lookup(PalettePane.class);
         PropertyEditorPane editorPane = DesignerLookup.lookup(PropertyEditorPane.class);
         palettePane.setId("property-editor-pane");
-        
+
         DockSideBar paletteDockSideBar = new DockSideBar();
 
         paletteDockSideBar.setOrientation(Orientation.VERTICAL);
@@ -513,15 +541,15 @@ public class DemoDesigner2 extends Application {
 
         DockNode editorPaneDockNode = new DockNode(" Property Editor ");
         editorPaneDockNode.setContent(editorPane);
-        if ( editorPane != null ) {
+        if (editorPane != null) {
             editorPane.setPrefWidth(300);
         }
-        
+
         //palleteDockNode.getContext().getDragManager().getHideOption();
         editorPaneDockNode.getContext().getDragManager().setHideOption(DragManager.HideOption.NONE);
         //System.err.println("dragManager.class = " + palleteDockNode.getContext().getDragManager().getClass().getSimpleName());
-        paletteDockSideBar.getItems().add(Dockable.of(editorPaneDockNode));        
-        
+        paletteDockSideBar.getItems().add(Dockable.of(editorPaneDockNode));
+
         rootDockPane.dock(formDockNode, Side.TOP);
         rootDockPane.dock(sgvDockSideBar, Side.LEFT);
         rootDockPane.dock(paletteDockSideBar, Side.RIGHT);
@@ -539,22 +567,22 @@ public class DemoDesigner2 extends Application {
         if (tray != null) {
             //Stage trashStage = tray.show(stage1);
             Stage trashStage = tray.show(stage);
-            trashStage.getProperties().put("id","trash-tray");
+            trashStage.getProperties().put("id", "trash-tray");
             trashStage.toFront();
         }
 
         Stage stage2 = new Stage();
-        stage2.getProperties().put("id","stage2");
+        stage2.getProperties().put("id", "stage2");
         stage2.setTitle("*** Stage2");
         stage2.setAlwaysOnTop(true);
         stage2.setWidth(250);
         stage2.setHeight(150);
 
         VBox vb = new VBox();
-        
+
         //vb.setPickOnBounds(true);
         vb.setId("VBBBBB");
-        
+
         Scene st2Scene = new Scene(vb);
         st2Scene.setFill(Color.ALICEBLUE);
         stage2.setScene(st2Scene);
@@ -562,14 +590,14 @@ public class DemoDesigner2 extends Application {
         DesignerSceneEventDispatcher d = new DesignerSceneEventDispatcher();
         //WeakReferenceQueue<Window> windowQueue = new WeakReferenceQueue<Window>();
         //windowQueue.iterator().
-      
+
         st2Scene.setEventDispatcher(d);
 //        st2Scene.setOnMouseDragEntered(e -> {
 //            System.err.println("MOUSE DRAG OVER ");
 //        });
         d.start(st2Scene);
         stage2.show();
-/*        StageHelper.StageAccessor sa = new StageHelper.StageAccessor() {
+        /*        StageHelper.StageAccessor sa = new StageHelper.StageAccessor() {
             @Override
             public ObservableList<Stage> getStages() {
                 this.
@@ -580,9 +608,9 @@ public class DemoDesigner2 extends Application {
 
             }
         };
-*/
-        
-/*        StageHelper.getStages().addListener(new ListChangeListener<Stage>() {
+         */
+
+ /*        StageHelper.getStages().addListener(new ListChangeListener<Stage>() {
             @Override
             public void onChanged(Change<? extends Stage> c) {
                 System.err.println("STAGES ------------------");
@@ -597,8 +625,8 @@ public class DemoDesigner2 extends Application {
                 
             }
         });
-  */              
-        /*DockNode dn = new DockNode("Ext DockNoce");
+         */
+ /*DockNode dn = new DockNode("Ext DockNoce");
         formPane.getChildren().add(dn);
         Button dnBtn = new Button("SHOW Layout");
          */
