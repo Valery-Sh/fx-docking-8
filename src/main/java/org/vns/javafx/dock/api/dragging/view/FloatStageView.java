@@ -39,13 +39,11 @@ import javafx.stage.Window;
 import org.vns.javafx.dock.DockNode;
 import org.vns.javafx.dock.DockPane;
 import org.vns.javafx.dock.api.Util;
-import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.DockableContext;
 import org.vns.javafx.dock.api.dragging.MouseDragHandler;
 import org.vns.javafx.dock.api.DragContainer;
 import org.vns.javafx.dock.api.LayoutContext;
-import org.vns.javafx.dock.api.Selection;
 
 /**
  *
@@ -230,7 +228,7 @@ public class FloatStageView implements FloatWindowView {
             // Removes selected and then Removes all MMOUSE_CLICKED event handlers 
             // and filters of type SeectionListener
             //
-            Selection.removeListeners(dockable.getNode());
+            //Selection.removeListeners(dockable.getNode());
         });
         window.setOnHidden(e -> {
 //            DockRegistry.unregister(window);
@@ -321,7 +319,7 @@ public class FloatStageView implements FloatWindowView {
         window.setOnShown(e -> {
 //            DockRegistry.register(window);
             if (Dockable.of(dragged) != null) {
-                Selection.removeListeners(Dockable.of(dragged).getNode());
+//                Selection.removeListeners(Dockable.of(dragged).getNode());
             }
         });
         window.setOnHidden(e -> {
@@ -417,7 +415,7 @@ public class FloatStageView implements FloatWindowView {
         window.setOnShown(e -> {
 //            DockRegistry.register(window);
             if (Dockable.of(dragged) != null) {
-                Selection.removeListeners(Dockable.of(dragged).getNode());
+//                Selection.removeListeners(Dockable.of(dragged).getNode());
             }
 
         });

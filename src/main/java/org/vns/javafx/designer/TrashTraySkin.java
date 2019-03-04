@@ -27,6 +27,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import org.vns.javafx.ContextLookup;
+import org.vns.javafx.WindowLookup;
+import org.vns.javafx.dock.api.SaveRestore;
 
 /**
  *
@@ -50,21 +53,21 @@ public class TrashTraySkin extends SkinBase<TrashTray> {
         clearItem.getStyleClass().add("trash-clear-menu-item");
         clearItem.setOnAction(e -> {
             clearTableView();
-        });        
+        });
         ContextMenu ctxMenu = new ContextMenu(openItem, clearItem);
-        
-        ctxMenu.setOnShowing( e -> {
+
+        ctxMenu.setOnShowing(e -> {
             String url = DesignerLookup.class.getResource("resources/styles/designer-default.css").toExternalForm();
             ctxMenu.getScene().getStylesheets().remove(url);
             ctxMenu.getScene().getStylesheets().add(url);
         });
-        
+
         getSkinnable().setContextMenu(ctxMenu);
         ctxMenu.setAutoHide(true);
-        if ( getSkinnable().getTableView().getItems().isEmpty() ) {
+        if (getSkinnable().getTableView().getItems().isEmpty()) {
             clearItem.setDisable(true);
         }
-        getSkinnable().getTableView().getItems().addListener( (Observable c) -> {
+        getSkinnable().getTableView().getItems().addListener((Observable c) -> {
             clearItem.setDisable(getSkinnable().getTableView().getItems().isEmpty());
         });
         contentPane = new StackPane(iv) {
@@ -94,6 +97,9 @@ public class TrashTraySkin extends SkinBase<TrashTray> {
             return;
         }
         Stage stage = new Stage();
+//        ContextLookup contextLookup = WindowLookup.getLookup(stage);
+//        contextLookup.putUnique(SaveRestore.class, new AutoSaveRestore2(contextLookup));
+
         stage.setHeight(200);
         stage.setWidth(400);
         StackPane root = new StackPane(getSkinnable().getTableView());
@@ -101,6 +107,10 @@ public class TrashTraySkin extends SkinBase<TrashTray> {
         stage.setScene(scene);
         stage.initOwner(getSkinnable().getScene().getWindow());
         stage.show();
+        stage.setOnHidden(e -> {
+            WindowLookup.removeLookup(stage);
+            
+        });
 
     }
 
@@ -110,8 +120,6 @@ public class TrashTraySkin extends SkinBase<TrashTray> {
         }
         TableView tv = getSkinnable().getTableView();
         tv.getItems().clear();
-
-    }    
-
+    }
 
 }

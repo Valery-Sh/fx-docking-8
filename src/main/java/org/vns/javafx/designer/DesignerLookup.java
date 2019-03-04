@@ -15,21 +15,17 @@
  */
 package org.vns.javafx.designer;
 
-import org.vns.javafx.dock.api.Selection;
 import java.util.List;
 import java.util.Map;
 import javafx.collections.FXCollections;
 import org.vns.javafx.BaseContextLookup;
 import org.vns.javafx.ContextLookup;
 import org.vns.javafx.dock.api.DockRegistry;
-import org.vns.javafx.dock.api.SaveRestore;
 import org.vns.javafx.dock.api.ScenePaneContext.ScenePaneContextFactory;
 import org.vns.javafx.designer.DesignerScenePaneContext.DesignerScenePaneContextFactory;
-import org.vns.javafx.dock.api.selection.NodeFraming;
+import org.vns.javafx.dock.api.SaveRestore;
 import org.vns.javafx.dock.api.resizer.ResizerFactory;
 import org.vns.javafx.dock.api.resizer.ResizerFactory.NodeResizerFactory;
-import org.vns.javafx.dock.api.selection.StageNodeFraming;
-import org.vns.javafx.dock.api.selection.WindowNodeFraming;
 import org.vns.javafx.scene.control.editors.PropertyEditorPane;
 
 /**
@@ -46,6 +42,7 @@ public class DesignerLookup { // implements ContextLookup {
     }
 
     private void init() {
+        //DockRegistry.getInstance().getLookup().putUnique(SaveRestore.class, new AutoSaveRestore2());
   /*      DockRegistry.getInstance().getLookup().putUnique(TrashTray.class, new TrashTray());
         DockRegistry.getInstance().getLookup().putUnique(SaveRestore.class, new AutoSaveRestore());
         DockRegistry.getInstance().getLookup().putUnique(Selection.class, new DesignerSelection());
@@ -81,21 +78,17 @@ public class DesignerLookup { // implements ContextLookup {
 
         saveDockRegistry(ResizerFactory.class);
         DockRegistry.getInstance().getLookup().put(ResizerFactory.class,new NodeResizerFactory());
-//        DockRegistry.getInstance().getLookup().put(NodeResizerFactory.class,new RegionNodeResizerFactory());
         
         saveDockRegistry(TrashTray.class);
         DockRegistry.getInstance().getLookup().putUnique(TrashTray.class, new TrashTray());
         
-        saveDockRegistry(SaveRestore.class);
-        //DockRegistry.getInstance().getLookup().putUnique(SaveRestore.class, new AutoSaveRestore2());
-
-        saveDockRegistry(Selection.class);
+//        saveDockRegistry(Selection.class);
         //DockRegistry.getInstance().getLookup().putUnique(Selection.class, new DesignerSelection());
         
-        saveDockRegistry(WindowNodeFraming.class);
+//        saveDockRegistry(WindowNodeFraming.class);
         //DockRegistry.getInstance().getLookup().putUnique(WindowNodeFraming.class, StageNodeFraming.getInstance());
         
-        saveDockRegistry(NodeFraming.class);        
+//        saveDockRegistry(NodeFraming.class);        
         //DockRegistry.getInstance().getLookup().putUnique(NodeFraming.class, new DesignerFraming());
 
         //saveDockRegistry(MouseSelectionListener.class);        

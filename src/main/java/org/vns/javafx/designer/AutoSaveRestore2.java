@@ -79,7 +79,6 @@ public class AutoSaveRestore2 implements SaveRestore {
         if (dragInitiator == PALETTE_PANE) {
             objectToSave = null;
             clear();
-
             return;
         }
         if (dragInitiator == TRASH_TRAY) {
@@ -106,6 +105,7 @@ public class AutoSaveRestore2 implements SaveRestore {
         if (parentItem == null) {
             return;
         }
+        System.err.println("SAVED = true");
         saved = true;
         propertyName = objectItem.getPropertyName();
     }
@@ -287,7 +287,7 @@ public class AutoSaveRestore2 implements SaveRestore {
         if (dockable == null || dockable.getContext().getLayoutContext() == null || dockable.getContext().getLayoutContext().getLayoutNode() == null) {
             return;
         }
-
+        System.err.println("ADD node = " + dockable.getNode());
         objectToSave = dockable.getContext().getDragValue();
         Node node = dockable.getContext().getLayoutContext().getLayoutNode();
         if (node instanceof PalettePane) {
@@ -295,6 +295,7 @@ public class AutoSaveRestore2 implements SaveRestore {
         } else if (node instanceof TrashTray) {
             dragInitiator = TRASH_TRAY;
         }
+        System.err.println("ADD save objectToSave = " + objectToSave);
         save(objectToSave);
     }
 

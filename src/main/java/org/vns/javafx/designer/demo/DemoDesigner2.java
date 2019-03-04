@@ -97,19 +97,25 @@ public class DemoDesigner2 extends Application {
         stage1.setHeight(200);
         stage1.initOwner(stage);
         stage1.getProperties().put("ppp", "stage1");
+  
+        //PalettePane palettePane = DesignerLookup.lookup(PalettePane.class);
+        PropertyEditorPane editorPane = new PropertyEditorPane();
+        editorPane.setId("property-editor-pane");
+        PalettePane palettePane = new PalettePane(true);
+        
         
         ContextLookup contextLookup = WindowLookup.getLookup(stage1);
         SceneView sceneView = new SceneView(contextLookup, true);
         contextLookup.putUnique(SceneView.class, sceneView);        
         contextLookup.putUnique(Selection.class, new DesignerSelection(contextLookup));
-        contextLookup.putUnique(PalettePane.class, new PalettePane(true));
+        contextLookup.putUnique(PalettePane.class, palettePane);
+        contextLookup.putUnique(PropertyEditorPane.class, editorPane);
         contextLookup.putUnique(SaveRestore.class, new AutoSaveRestore2(contextLookup));
         contextLookup.putUnique(NodeFraming.class, new DesignerFraming(contextLookup));
         contextLookup.putUnique(WindowNodeFraming.class, new PopupNodeFraming(contextLookup));
-        contextLookup.putUnique(PalettePane.class, new PalettePane(true));
         //WindowLookup.putUnique(stage1, MouseSelectionListener.class, new SelectionHandler(selection));
 //        DockRegistry.getInstance().getLookup().putUnique(MouseSelectionListener.class, new SelectionHandler());
-
+        DesignerLookup.getInstance();
         DefaultTopWindowFinder.getInstance();
 
         Button tb = new Button();
@@ -139,7 +145,7 @@ public class DemoDesigner2 extends Application {
         formPane.setSpacing(20);
         formPane.setStyle("-fx-background-color: yellow");
         Button formButton1 = new Button("Btn1");
-        formPane.getChildren().addAll(formButton, formButton1);//, resetButton);
+        formPane.getChildren().addAll(resetButton,formButton, formButton1);//, resetButton);
         formDockNode.setContent(formPane);
         DefaultLayoutContextFactory ctxFactory = new DefaultLayoutContextFactory();
         LayoutContext ctx = ctxFactory.getContext(formPane);
@@ -385,9 +391,9 @@ public class DemoDesigner2 extends Application {
             //System.err.println("eb layoutContext = " + Dockable.of(eb).getContext().getLayoutContext());
 
             System.err.println("DockLayoutContext = " + DockLayout.of(centerPane));
-            SceneView.reset(root1);
+            sceneView.reset();
             sceneView.setRoot(null);
-            scene1.setRoot(root1);
+            //scene1.setRoot(root1);
 
         });
         formButton.setOnAction(a -> {
@@ -522,10 +528,10 @@ public class DemoDesigner2 extends Application {
         sgvDockNode.setContent(sceneView);
         sgvDockSideBar.getItems().add(Dockable.of(sgvDockNode));
 
-        PalettePane palettePane = DesignerLookup.lookup(PalettePane.class);
+/*        PalettePane palettePane = DesignerLookup.lookup(PalettePane.class);
         PropertyEditorPane editorPane = DesignerLookup.lookup(PropertyEditorPane.class);
         palettePane.setId("property-editor-pane");
-
+*/
         DockSideBar paletteDockSideBar = new DockSideBar();
 
         paletteDockSideBar.setOrientation(Orientation.VERTICAL);

@@ -62,6 +62,7 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.vns.javafx.JdkUtil;
+import org.vns.javafx.WindowLookup;
 import org.vns.javafx.dock.api.Constraints.GridPaneConstraints;
 import static org.vns.javafx.dock.api.LayoutContext.getValue;
 import org.vns.javafx.dock.api.selection.GridSelectionFrame;
@@ -1425,7 +1426,7 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
         private ObjectProperty<Node> childNode = new SimpleObjectProperty<>();
         
         private ChangeListener<? super ConstraintsBase> selectedConstraintsListener = (v, ov, nv) -> {
-            Selection sel = DockRegistry.lookup(Selection.class);
+            Selection sel = getContext().lookup(Selection.class);
             if (sel != null) {
                 sel.notifySelected(nv);
             }
@@ -1439,7 +1440,10 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             this.childNode.set(childNode);
             
         }     
-
+        
+        public ContextLookup getContext() {
+            return WindowLookup.getLookup(gridPane.getScene().getWindow());
+        }
         public ObjectProperty<Node> childNodeProperty() {
             return childNode;
         }
@@ -1471,26 +1475,14 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             frame = new GridSelectionFrame(gridPane,getChildNode());
             frame.selectedConstraintsProperty().addListener(selectedConstraintsListener);
             gridPane.getChildren().add(frame);
-            //02.01DockUtil.getChildren(gridPane.getScene().getRoot()).add(frame);
             frame.show();
-/*            if (getSelected() == null) {
-                return;
-            }
-            if (getSelected() instanceof RowConstraints) {
-                frame.selectRow(gridPane.getRowConstraints().indexOf(getSelected()));
-            } else {
-                frame.selectColumn(gridPane.getColumnConstraints().indexOf(getSelected()));
-            }
-  */          
         }     
         
         @Override
         public void show(String propertyName, Object... parms) {
-            //this.propertyName = propertyName;
             if (frame != null) {
                 frame.hide();
                 gridPane.getChildren().remove(frame);
-                //02.01DockUtil.getChildren(gridPane.getScene().getRoot()).remove(frame);
             }
             if (parms != null && parms.length > 0) {
                 setSelected((ConstraintsBase) parms[0]);
@@ -1500,7 +1492,6 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             frame = new GridSelectionFrame(gridPane);
             frame.selectedConstraintsProperty().addListener(selectedConstraintsListener);
             gridPane.getChildren().add(frame);
-            //02.01DockUtil.getChildren(gridPane.getScene().getRoot()).add(frame);
             frame.show();
             if (getSelected() == null) {
                 return;
@@ -1518,7 +1509,6 @@ public class DefaultLayoutContextFactory extends LayoutContextFactory {
             if (frame != null) {
                 frame.hide();
                 gridPane.getChildren().remove(frame);
-                //02.01DockUtil.getChildren(gridPane.getScene().getRoot()).remove(frame);
             }
 
         }

@@ -15,7 +15,6 @@
  */
 package org.vns.javafx.designer;
 
-import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
@@ -25,12 +24,9 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.vns.javafx.ContextLookup;
 import org.vns.javafx.designer.descr.NodeDescriptor;
-import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.DragContainer;
 import org.vns.javafx.dock.api.LayoutContext;
-import org.vns.javafx.dock.api.Selection;
-import org.vns.javafx.dock.api.selection.NodeFraming;
 import org.vns.javafx.dock.api.indicator.IndicatorManager;
 
 /**

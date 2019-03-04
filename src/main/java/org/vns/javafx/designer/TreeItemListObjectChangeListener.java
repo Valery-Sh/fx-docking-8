@@ -87,6 +87,7 @@ public class TreeItemListObjectChangeListener implements ListChangeListener {
                         Selection sel = context.lookup(Selection.class);
                         if (sel != null) {
                             sel.setSelected(null);
+                            System.err.println("REMOVE LISTENERS for node = " + elem);
                             sel.removeListeners(((Node)elem));
                         }
                     }

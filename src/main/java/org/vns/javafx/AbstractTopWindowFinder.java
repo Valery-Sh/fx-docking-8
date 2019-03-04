@@ -328,7 +328,7 @@ public abstract class AbstractTopWindowFinder implements TopWindowFinder {
         }
         Window retval = Util.getWindowIfSingle(x, y, exclude);
         if (retval != null) {
-            print(retval);
+            //print(retval);
             return retval;
         }
         List<Window> list = new ArrayList<>();
@@ -339,10 +339,10 @@ public abstract class AbstractTopWindowFinder implements TopWindowFinder {
             }
         }
         if (list.isEmpty()) {
-            print(retval);
+            //print(retval);
             return null;
         } else if (list.size() == 1) {
-            print(list.get(0));
+            //print(list.get(0));
             return list.get(0);
         }
 
@@ -364,10 +364,10 @@ public abstract class AbstractTopWindowFinder implements TopWindowFinder {
             }
         }
         if (list.isEmpty()) {
-            print(retval);
+            //print(retval);
             return null;
         } else if (list.size() == 1) {
-            print(list.get(0));
+            //print(list.get(0));
             return list.get(0);
         }
 
@@ -398,7 +398,7 @@ public abstract class AbstractTopWindowFinder implements TopWindowFinder {
         } else if (list.size() > 1) {
             retval = getTopWindow(list);
         }
-        print(retval);
+        //print(retval);
         return retval;
     }
 

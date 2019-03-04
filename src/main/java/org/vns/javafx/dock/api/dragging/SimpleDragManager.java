@@ -15,7 +15,6 @@
  */
 package org.vns.javafx.dock.api.dragging;
 
-import com.sun.media.sound.SF2Layer;
 import org.vns.javafx.dock.api.dragging.view.FloatViewFactory;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -177,7 +176,7 @@ public class SimpleDragManager implements DragManager, EventHandler<MouseEvent> 
             FloatView view = f.getFloatView(this);
 
             floatingWindow = (Window) view.make(getDockable());
-            DockRegistry.getInstance().getLookup().putUnique(FloatView.class, view);
+            //DockRegistry.getInstance().getLookup().putUnique(FloatView.class, view);
 
             targetDockPane.addEventFilter(MouseEvent.MOUSE_DRAGGED, this);
             targetDockPane.addEventFilter(MouseEvent.MOUSE_RELEASED, this);

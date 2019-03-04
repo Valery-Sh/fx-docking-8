@@ -143,9 +143,4 @@ public class TreeItemObjectChangeListener implements ChangeListener {
         }
     }
 
-/*    protected Object getPropertyValue() {
-        Object retval = null;
-        return retval;
-    }
-*/
 }

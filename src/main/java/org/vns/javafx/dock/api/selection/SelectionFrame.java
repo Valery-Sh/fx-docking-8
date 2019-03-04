@@ -16,7 +16,6 @@
 package org.vns.javafx.dock.api.selection;
 
 import java.util.Set;
-import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -44,9 +43,7 @@ import org.vns.javafx.ContextLookup;
 import org.vns.javafx.WindowLookup;
 import org.vns.javafx.designer.SceneViewUtil;
 import static org.vns.javafx.dock.api.Constants.SKIP_CSS_CLASS;
-import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
-import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.resizer.ResizeShape;
 import static org.vns.javafx.dock.api.selection.SelectionFrame.Direction.*;
 import static org.vns.javafx.dock.api.Constants.SKIP_VALUE;

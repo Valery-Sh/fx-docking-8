@@ -180,7 +180,7 @@ public class DesignerSelection extends Selection {
 
     @Override
     public void notifySelected(Object value) {
-        PropertyEditorPane editorPane = DesignerLookup.lookup(PropertyEditorPane.class);
+        PropertyEditorPane editorPane = getContext().lookup(PropertyEditorPane.class);
         if (editorPane != null && ( value == null || ! isSelectable(value))) {
             editorPane.setBean(null);
         } else if (editorPane != null ) {

@@ -20,16 +20,11 @@ import java.util.function.BiPredicate;
 import javafx.event.Event;
 import javafx.event.EventDispatchChain;
 import javafx.event.EventDispatcher;
-import javafx.event.EventHandler;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
-import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
-import org.vns.javafx.dock.api.Selection;
-import org.vns.javafx.dock.api.dragging.DragManager;
 
 public class TestEventDispatcher implements PalettePane.PaletteEventDispatcher {
 

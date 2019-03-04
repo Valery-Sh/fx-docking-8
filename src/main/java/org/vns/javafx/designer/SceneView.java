@@ -2,6 +2,7 @@ package org.vns.javafx.designer;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -96,8 +97,81 @@ public class SceneView extends Control implements DockLayout {
     public boolean isDesigner() {
         return designer;
     }
+    
+    public void reset() {
+        if ( getRoot() == null ) {
+            return;
+        }
+        Node root = null;
+        if (getRoot().getScene() != null ) {
+            root = getRoot().getScene().getRoot();
+        }
+        if (root != null) {
+            if ((root.getScene().getEventDispatcher() instanceof DesignerSceneEventDispatcher)) {
+                ((DesignerSceneEventDispatcher) root.getScene().getEventDispatcher()).finish(root.getScene());
+            }
+        }
 
-    public static void reset(Node startNode) {
+//        DockRegistry.getInstance().getLookup().clear(ScenePaneContextFactory.class);
+        NodeFraming fr = getContext().lookup(NodeFraming.class);
+        fr.hide();
+        fr.removeListeners();
+        
+        
+        visitRoot(item -> {
+            ((TreeItemEx) item).unregisterChangeHandlers(getContext());
+        });
+        
+        Set<Node> nodes = new HashSet<>(0);
+        if ( root != null ) {
+            nodes = root.lookupAll("." + FRAME_CSS_CLASS);
+        }
+        
+        nodes.forEach(node -> {
+            if (node instanceof SelectionFrame) {
+                ((SelectionFrame) node).setBoundNode(null);
+            }
+            if (node.getParent() != null) {
+                SceneViewUtil.removeFromParent(node.getParent(), node);
+            }
+        });
+        
+        nodes = new HashSet<>(0);
+        if ( root != null ) {
+            nodes = root.lookupAll(".designer-mode");
+        }
+        
+        nodes.forEach(node -> {
+            node.getStyleClass().remove("designer-mode");
+            node.getStyleClass().remove("designer-mode-root");
+            if (node instanceof Parent) {
+                ((Parent) node).getStylesheets().remove(DesignerLookup.class.getResource("resources/styles/designer-customize.css").toExternalForm());
+            }
+            if (node.getEventDispatcher() != null && (node.getEventDispatcher() instanceof PalettePane.PaletteEventDispatcher)) {
+                ((PalettePane.PaletteEventDispatcher) node.getEventDispatcher()).finish(node);
+            }
+            getContext().lookup(Selection.class).removeListeners(node);
+        });
+        
+        //DesignerLookup.getInstance().restoreDockRegistry();
+        nodes = new HashSet<>(0);
+        if ( root != null ) {
+            nodes = root.lookupAll(".designer-dock-context");
+        }
+
+        nodes.forEach(node -> {
+            node.getStyleClass().remove("designer-dock-context");
+            DockRegistry.unregisterDockLayout(node);
+            DockRegistry.unregisterDockable(node);
+        });
+        
+    }
+    
+/*    public static void reset(Node startNode) {
+        
+        DesignerLookup.getInstance().restoreDockRegistry();
+    }
+    public void reset(ContextLookup ctx, Node startNode) {
 
         Node root = startNode;
         if (startNode.getScene() != null && startNode.getScene().getRoot() != null) {
@@ -151,13 +225,13 @@ public class SceneView extends Control implements DockLayout {
         });
         DesignerLookup.getInstance().restoreDockRegistry();
     }
-
+*/
     @Override
     public String getUserAgentStylesheet() {
         return DesignerLookup.class.getResource("resources/styles/designer-default.css").toExternalForm();
     }
 
-    public void save() {
+/*    public void save() {
         TreeViewEx tv = getTreeView();
         TreeItemEx r = (TreeItemEx) tv.getRoot();
         saveItem(r);
@@ -193,7 +267,7 @@ public class SceneView extends Control implements DockLayout {
         saved.put(item.getValue().getClass(), map);
 
     }
-
+*/
     public ObservableList<TreeCell> getVisibleCells() {
         return visibleCells;
     }

@@ -348,10 +348,11 @@ public abstract class WindowNodeFraming extends AbstractNodeFraming implements E
         for (ResizerFactory f : list) {
             if (f.getResizer(window, getNode()) != null) {
                 resizer = f.getResizer(window, getNode());
+                System.err.println("1. resizer = " + resizer);
                 break;
             }
         }
-        System.err.println("resizer = " + resizer);
+        System.err.println("2. resizer = " + resizer);
         doShow(newOwner);
     }
 

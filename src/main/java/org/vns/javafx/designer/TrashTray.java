@@ -54,7 +54,6 @@ import org.vns.javafx.dock.api.DockLayout;
 import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.SaveRestore;
-import org.vns.javafx.dock.api.Selection;
 import org.vns.javafx.dock.api.dragging.MouseDragHandler;
 import org.vns.javafx.dock.api.dragging.view.FloatStageView;
 import static org.vns.javafx.dock.api.dragging.view.FloatView.DEFAULT_CURSORS;
@@ -104,7 +103,7 @@ public class TrashTray extends Control {
 
     };
 
-    public TrashTray(boolean designer ) {
+    protected TrashTray(boolean designer ) {
         this.designer = designer;
         init();
     }

@@ -76,6 +76,9 @@ public class WindowLookup { // implements ContextLookup {
     public static <T> void remove(Window win, T obj) {
         getLookup(win).remove(obj);
     }
+    public static <T> void removeLookup(Window win) {
+        getInstance().lookups.remove(win);
+    }
 
     
     public static <T> void putUnique(Window win, Class key, T obj) {

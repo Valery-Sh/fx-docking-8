@@ -31,7 +31,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.PopupControl;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.PopupWindow;
 import javafx.stage.StageStyle;
@@ -40,12 +39,10 @@ import org.vns.javafx.dock.DockNode;
 import org.vns.javafx.dock.DockPane;
 //import org.vns.javafx.dock.DockPane;
 import org.vns.javafx.dock.api.Util;
-import org.vns.javafx.dock.api.DockRegistry;
 import org.vns.javafx.dock.api.Dockable;
 import org.vns.javafx.dock.api.DockableContext;
 import org.vns.javafx.dock.api.DragContainer;
 import org.vns.javafx.dock.api.LayoutContext;
-import org.vns.javafx.dock.api.Selection;
 
 /**
  *
